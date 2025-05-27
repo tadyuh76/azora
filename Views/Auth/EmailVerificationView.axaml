@@ -22,20 +22,12 @@
                 VerticalAlignment="Center">
             
             <StackPanel>
-                <!-- Icon -->
-                <Border Width="64"
-                        Height="64"
-                        CornerRadius="32"
-                        Background="#DCFCE7"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Margin="0,0,0,24">
-                    <Path Fill="#16A34A"
-                          Width="24" Height="24"
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Center"
-                          Data="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-                </Border>
+                <!-- Logo -->
+                <Image Source="/Assets/logo.png"
+                       Width="80"
+                       Height="80"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,24"/>
 
                 <!-- Title -->
                 <TextBlock Text="Email Verification" 
@@ -101,12 +93,9 @@
 
                 <!-- Verify Button -->
                 <Button Height="48"
-                        Background="#4F7CFF"
-                        Foreground="White"
-                        BorderThickness="0"
+                        Classes="primary"
                         CornerRadius="8"
                         FontSize="14"
-                        FontWeight="Medium"
                         Margin="0,8,0,16"
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Center"
@@ -115,9 +104,6 @@
                         IsEnabled="{Binding IsLoading, Converter={x:Static BoolConverters.Not}}">
                     
                     <Button.Styles>
-                        <Style Selector="Button:pointerover">
-                            <Setter Property="Background" Value="#3A5FE0"/>
-                        </Style>
                         <Style Selector="Button:disabled">
                             <Setter Property="Background" Value="#9CA3AF"/>
                         </Style>
@@ -149,7 +135,7 @@
                             Command="{Binding ResendCodeCommand}"
                             Background="Transparent"
                             BorderThickness="0"
-                            Foreground="#4F7CFF"
+                            Classes="primary"
                             FontSize="14"
                             Padding="0"
                             HorizontalAlignment="Center"/>

@@ -22,6 +22,13 @@
                 VerticalAlignment="Center">
             
             <StackPanel>
+                <!-- Logo -->
+                <Image Source="/Assets/logo.png"
+                       Width="80"
+                       Height="80"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,24"/>
+                
                 <!-- Title -->
                 <TextBlock Text="Create Account" 
                            FontSize="28"
@@ -148,14 +155,14 @@
                             <Button Content="Terms &amp; Conditions"
                                     Background="Transparent"
                                     BorderThickness="0"
-                                    Foreground="#4F7CFF"
+                                    Classes="primary"
                                     FontSize="14"
                                     Padding="0"/>
                             <TextBlock Text=" and " Foreground="#1F2937"/>
                             <Button Content="Privacy Policy"
                                     Background="Transparent"
                                     BorderThickness="0"
-                                    Foreground="#4F7CFF"
+                                    Classes="primary"
                                     FontSize="14"
                                     Padding="0"/>
                         </StackPanel>
@@ -164,12 +171,9 @@
 
                 <!-- Create Account Button -->
                 <Button Height="48"
-                        Background="#4F7CFF"
-                        Foreground="White"
-                        BorderThickness="0"
+                        Classes="primary"
                         CornerRadius="8"
                         FontSize="14"
-                        FontWeight="Medium"
                         Margin="0,8,0,16"
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Center"
@@ -178,9 +182,6 @@
                         IsEnabled="{Binding IsLoading, Converter={x:Static BoolConverters.Not}}">
                     
                     <Button.Styles>
-                        <Style Selector="Button:pointerover">
-                            <Setter Property="Background" Value="#3A5FE0"/>
-                        </Style>
                         <Style Selector="Button:disabled">
                             <Setter Property="Background" Value="#9CA3AF"/>
                         </Style>
@@ -210,7 +211,7 @@
                             Command="{Binding SignInCommand}"
                             Background="Transparent"
                             BorderThickness="0"
-                            Foreground="#4F7CFF"
+                            Classes="primary"
                             FontSize="14"
                             Padding="0"/>
                 </StackPanel>

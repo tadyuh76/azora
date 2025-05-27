@@ -1,0 +1,46 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Define Primary Color Resources -->
+    <Styles.Resources>
+        <SolidColorBrush x:Key="PrimaryBrush" Color="#3188CA"/>
+        <SolidColorBrush x:Key="PrimaryHoverBrush" Color="#2870A0"/>
+        <SolidColorBrush x:Key="PrimaryLightBrush" Color="#E1F1FC"/>
+        <SolidColorBrush x:Key="PrimaryDarkBrush" Color="#1F5580"/>
+    </Styles.Resources>
+
+    <!-- Button Styles with Primary Color -->
+    <Style Selector="Button.primary">
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+    </Style>
+    
+    <Style Selector="Button.primary:pointerover">
+        <Setter Property="Background" Value="{StaticResource PrimaryHoverBrush}"/>
+    </Style>
+
+    <!-- Border/Card Styles with Primary Accent -->
+    <Style Selector="Border.primary-accent">
+        <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+        <Setter Property="BorderThickness" Value="2"/>
+    </Style>
+
+    <!-- Text Styles with Primary Color -->
+    <Style Selector="TextBlock.primary">
+        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+    </Style>
+
+    <!-- CheckBox Primary Style -->
+    <Style Selector="CheckBox.primary /template/ Border#NormalRectangle">
+        <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+    </Style>
+    
+    <Style Selector="CheckBox.primary:checked /template/ Border#NormalRectangle">
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+    </Style>
+
+</Styles> 

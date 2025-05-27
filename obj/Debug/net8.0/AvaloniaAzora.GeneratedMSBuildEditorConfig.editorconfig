@@ -22,6 +22,9 @@ build_property.EnableGeneratedComInterfaceComImportInterop =
 [/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/App.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
+[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Styles/AppStyles.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
 [/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/AuthenticationWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 

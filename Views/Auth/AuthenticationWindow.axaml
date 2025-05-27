@@ -12,7 +12,7 @@
         MaxWidth="1600" MaxHeight="1200"
         WindowStartupLocation="CenterScreen"
         CanResize="True"
-        Icon="/Assets/avalonia-logo.ico">
+        Icon="/Assets/logo.ico">
 
     <!-- Responsive Grid that adapts to window size -->
     <Grid Background="#F5F7FA">
