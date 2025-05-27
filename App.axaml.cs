@@ -80,7 +80,7 @@ public partial class App : Application
             authWindow.Close();
     }
 
-    private async void ShowStudentDashboard()
+    private void ShowStudentDashboard()
     {
         try
         {

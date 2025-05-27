@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using AvaloniaAzora.Models;
 using AvaloniaAzora.Services;
 using System.Collections.ObjectModel;
@@ -130,6 +131,10 @@ namespace AvaloniaAzora.ViewModels
                             InstructorName = instructorName,
                             SubjectColor = GetSubjectColor(enrollment.Class.ClassName)
                         };
+
+                        // Subscribe to the ViewClass event
+                        classroomCard.ViewClassRequested += OnViewClassRequested;
+
                         EnrolledClasses.Add(classroomCard);
                         Console.WriteLine($"   ✅ Added class: {enrollment.Class.ClassName} with {studentCount} students");
                     }
@@ -230,6 +235,15 @@ namespace AvaloniaAzora.ViewModels
 
             return "Assessment";
         }
+
+        private void OnViewClassRequested(Guid classId)
+        {
+            Console.WriteLine($"🏫 Opening classroom detail for class: {classId}");
+            // This will be handled by the view to open the ClassroomDetailWindow
+            ViewClassRequested?.Invoke(classId);
+        }
+
+        public event Action<Guid>? ViewClassRequested;
     }
 
     public partial class ClassroomCardViewModel : ObservableObject
@@ -251,6 +265,15 @@ namespace AvaloniaAzora.ViewModels
 
         [ObservableProperty]
         private string _subjectColor = "#757575";
+
+        public event Action<Guid>? ViewClassRequested;
+
+        [RelayCommand]
+        private void ViewClass()
+        {
+            Console.WriteLine($"🏫 View class requested for: {ClassName} (ID: {ClassId})");
+            ViewClassRequested?.Invoke(ClassId);
+        }
     }
 
     public partial class UpcomingAssessmentViewModel : ObservableObject

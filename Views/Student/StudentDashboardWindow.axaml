@@ -162,18 +162,8 @@
                                                 <Button Grid.Column="1" Content="View Class" 
                                                         Classes="primary"
                                                         Padding="16,8" CornerRadius="6"
-                                                        HorizontalAlignment="Right">
-                                                    <Button.Template>
-                                                        <ControlTemplate>
-                                                            <Border Background="{TemplateBinding Background}"
-                                                                    CornerRadius="{TemplateBinding CornerRadius}"
-                                                                    Padding="{TemplateBinding Padding}">
-                                                                <ContentPresenter HorizontalAlignment="Center"
-                                                                                  VerticalAlignment="Center"/>
-                                                            </Border>
-                                                        </ControlTemplate>
-                                                    </Button.Template>
-                                                </Button>
+                                                        HorizontalAlignment="Right"
+                                                        Command="{Binding ViewClassCommand}"/>
                                             </Grid>
                                         </Grid>
                                     </Border>

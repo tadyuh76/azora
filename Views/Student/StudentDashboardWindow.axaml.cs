@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using AvaloniaAzora.ViewModels;
+using AvaloniaAzora.Views.Student;
 using System;
 using System.Threading.Tasks;
 
@@ -7,6 +8,8 @@ namespace AvaloniaAzora.Views
 {
     public partial class StudentDashboardWindow : Window
     {
+        private Guid _userId;
+
         public StudentDashboardWindow()
         {
             InitializeComponent();
@@ -16,10 +19,14 @@ namespace AvaloniaAzora.Views
         {
             try
             {
+                _userId = userId;
                 Console.WriteLine($"🏗️ Initializing StudentDashboardWindow for user: {userId}");
 
                 var viewModel = new StudentDashboardViewModel();
                 DataContext = viewModel;
+
+                // Subscribe to the ViewClassRequested event
+                viewModel.ViewClassRequested += OnViewClassRequested;
 
                 Console.WriteLine("✅ ViewModel created and DataContext set");
 
@@ -49,6 +56,22 @@ namespace AvaloniaAzora.Views
                 Console.WriteLine($"❌ Error loading dashboard data: {ex.Message}");
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 // You could show an error dialog here
+            }
+        }
+
+        private void OnViewClassRequested(Guid classId)
+        {
+            try
+            {
+                Console.WriteLine($"🏫 Opening classroom detail window for class: {classId}");
+                var classroomDetailWindow = new ClassroomDetailWindow(classId, _userId);
+                classroomDetailWindow.Show();
+                Console.WriteLine("✅ Classroom detail window opened successfully");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error opening classroom detail window: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
     }

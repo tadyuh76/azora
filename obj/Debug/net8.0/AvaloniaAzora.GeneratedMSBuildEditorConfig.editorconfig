@@ -43,5 +43,8 @@ build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 [/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/MainWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
+[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Student/ClassroomDetailWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
 [/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Student/StudentDashboardWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml

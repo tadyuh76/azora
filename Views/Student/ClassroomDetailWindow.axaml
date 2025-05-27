@@ -1,0 +1,355 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaAzora.ViewModels.Student"
+        x:Class="AvaloniaAzora.Views.Student.ClassroomDetailWindow"
+        Title="Azora - Classroom Details"
+        Width="1400" Height="900"
+        WindowStartupLocation="CenterScreen"
+        Background="#F8F9FA"
+        x:DataType="vm:ClassroomDetailViewModel">
+    <Design.DataContext>
+        <vm:ClassroomDetailViewModel/>
+    </Design.DataContext>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" 
+                BorderBrush="#E5E7EB" BorderThickness="0,0,0,1"
+                Padding="24,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Back Button -->
+                <Button Grid.Column="0" Name="BackButton"
+                        Classes="link" 
+                        Content="← Back to Dashboard"
+                        FontSize="16" FontWeight="Medium"
+                        VerticalAlignment="Center"
+                        Margin="0,0,24,0"/>
+                
+                <!-- Logo -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="{StaticResource PrimaryLightBrush}" 
+                            CornerRadius="8" Width="40" Height="40"
+                            Margin="0,0,12,0">
+                        <TextBlock Text="🎓" FontSize="18" 
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="Classroom Details" 
+                               FontSize="24" FontWeight="Bold" 
+                               Foreground="#1F2937" VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <!-- Student Count -->
+                <TextBlock Grid.Column="2" VerticalAlignment="Center"
+                           FontSize="16" Foreground="#6B7280">
+                    <Run Text="{Binding StudentCount}"/>
+                    <Run Text="students enrolled"/>
+                </TextBlock>
+            </Grid>
+        </Border>
+        
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="1" Padding="24">
+            <StackPanel>
+                <!-- Loading State -->
+                <Grid IsVisible="{Binding IsLoading}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,100">
+                        <TextBlock Text="Loading classroom details..." FontSize="16" Foreground="#6B7280"/>
+                    </StackPanel>
+                </Grid>
+                
+                <!-- Content -->
+                <StackPanel IsVisible="{Binding !IsLoading}">
+                    <!-- Class Name and Description -->
+                    <StackPanel Margin="0,0,0,32">
+                        <TextBlock Text="{Binding ClassName}" 
+                                   FontSize="32" FontWeight="Bold" 
+                                   Foreground="#1F2937" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding ClassDescription}" 
+                                   FontSize="18" Foreground="#6B7280"/>
+                    </StackPanel>
+                    
+                    <!-- Class Info Section -->
+                    <Border Background="White" CornerRadius="12" 
+                            Margin="0,0,0,32" Padding="24">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" 
+                                              Color="#000000" Opacity="0.05"/>
+                        </Border.Effect>
+                        
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Instructor Info -->
+                            <StackPanel Grid.Column="0">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <Border Background="{StaticResource PrimaryLightBrush}" 
+                                            CornerRadius="20" Width="40" Height="40"
+                                            Margin="0,0,12,0">
+                                        <TextBlock Text="DSJ" FontSize="14" FontWeight="Bold"
+                                                   Foreground="{StaticResource PrimaryBrush}"
+                                                   HorizontalAlignment="Center" 
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding InstructorName}" 
+                                                   FontSize="16" FontWeight="SemiBold" 
+                                                   Foreground="#1F2937"/>
+                                        <TextBlock Text="{Binding InstructorEmail}" 
+                                                   FontSize="14" Foreground="#6B7280"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                            
+                            <!-- Schedule -->
+                            <StackPanel Grid.Column="1">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <TextBlock Text="📅" FontSize="16" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Schedule" FontSize="16" FontWeight="SemiBold" 
+                                               Foreground="#1F2937"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding Schedule}" 
+                                           FontSize="14" Foreground="#6B7280"/>
+                            </StackPanel>
+                            
+                            <!-- Location -->
+                            <StackPanel Grid.Column="2">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <TextBlock Text="📍" FontSize="16" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Location" FontSize="16" FontWeight="SemiBold" 
+                                               Foreground="#1F2937"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding Location}" 
+                                           FontSize="14" Foreground="#6B7280"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
+                                        <!-- Tests Section with Tabs -->
+                    <TabControl Background="Transparent" BorderThickness="0" 
+                                MinHeight="400" Height="500">
+                        <!-- Upcoming Tests Tab -->
+                        <TabItem>
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Upcoming Tests" FontSize="16" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding UpcomingTests.Count, StringFormat=' ({0})'}" 
+                                               FontSize="16" Foreground="#6B7280" Margin="4,0,0,0"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            
+                            <ScrollViewer Padding="24" HorizontalScrollBarVisibility="Disabled" 
+                                          VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding UpcomingTests}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type vm:TestCardViewModel}">
+                                            <Border Background="White" CornerRadius="12" 
+                                                    Margin="0,0,0,16" Padding="20"
+                                                    HorizontalAlignment="Stretch">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" 
+                                                                      Color="#000000" Opacity="0.05"/>
+                                                </Border.Effect>
+                                                
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    
+                                                    <!-- Header -->
+                                                    <Grid Grid.Row="0" Margin="0,0,0,8">
+                                                        <TextBlock Text="{Binding TestName}" 
+                                                                   FontSize="18" FontWeight="SemiBold" 
+                                                                   Foreground="#1F2937"/>
+                                                    </Grid>
+                                                    
+                                                    <!-- Description -->
+                                                    <TextBlock Grid.Row="1" Text="Basic algebraic operations and equation solving" 
+                                                               FontSize="14" Foreground="#6B7280" 
+                                                               Margin="0,0,0,16"/>
+                                                    
+                                                    <!-- Details -->
+                                                    <Grid Grid.Row="2" Margin="0,0,0,16">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        
+                                                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                                            <TextBlock Text="⏰" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                            <StackPanel>
+                                                                <TextBlock Text="Due:" FontSize="12" Foreground="#6B7280"/>
+                                                                <TextBlock Text="{Binding DueDateString}" 
+                                                                           FontSize="12" Foreground="#1F2937" FontWeight="Medium"/>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                        
+                                                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                            <TextBlock Text="📝" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                            <StackPanel>
+                                                                <TextBlock Text="Questions:" FontSize="12" Foreground="#6B7280"/>
+                                                                <TextBlock Text="{Binding QuestionCount}" 
+                                                                           FontSize="12" Foreground="#1F2937" FontWeight="Medium"/>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                        
+                                                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                                            <TextBlock Text="⏱️" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                            <StackPanel>
+                                                                <TextBlock Text="Time:" FontSize="12" Foreground="#6B7280"/>
+                                                                <TextBlock FontSize="12" Foreground="#1F2937" FontWeight="Medium">
+                                                                    <Run Text="{Binding TimeLimit}"/>
+                                                                    <Run Text="minutes"/>
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                        
+                                                        <StackPanel Grid.Column="3" Orientation="Horizontal">
+                                                            <TextBlock Text="👤" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                            <StackPanel>
+                                                                <TextBlock Text="Attempts:" FontSize="12" Foreground="#6B7280"/>
+                                                                <TextBlock Text="{Binding AttemptText}" 
+                                                                           FontSize="12" Foreground="#1F2937" FontWeight="Medium"/>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                    
+                                                    <!-- Footer -->
+                                                    <Grid Grid.Row="3">
+                                                        <Button Content="Start Test" 
+                                                                Classes="primary"
+                                                                Padding="16,8" FontSize="14"
+                                                                HorizontalAlignment="Right"
+                                                                Command="{Binding StartTestCommand}"/>
+                                                    </Grid>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </TabItem>
+                        
+                        <!-- Completed Tests Tab -->
+                        <TabItem>
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Completed Tests" FontSize="16" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding CompletedTests.Count, StringFormat=' ({0})'}" 
+                                               FontSize="16" Foreground="#6B7280" Margin="4,0,0,0"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            
+                            <ScrollViewer Padding="24" HorizontalScrollBarVisibility="Disabled" 
+                                          VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding CompletedTests}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type vm:TestCardViewModel}">
+                                            <Border Background="White" CornerRadius="12" 
+                                                    Margin="0,0,0,16" Padding="20"
+                                                    HorizontalAlignment="Stretch">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" 
+                                                                      Color="#000000" Opacity="0.05"/>
+                                                </Border.Effect>
+                                                
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    
+                                                    <!-- Header -->
+                                                    <Grid Grid.Row="0" Margin="0,0,0,8">
+                                                        <TextBlock Text="{Binding TestName}" 
+                                                                   FontSize="18" FontWeight="SemiBold" 
+                                                                   Foreground="#1F2937"/>
+                                                    </Grid>
+                                                    
+                                                    <!-- Description -->
+                                                    <TextBlock Grid.Row="1" Text="Comprehensive test covering all topics" 
+                                                               FontSize="14" Foreground="#6B7280" 
+                                                               Margin="0,0,0,16"/>
+                                                    
+                                                    <!-- Details -->
+                                                    <Grid Grid.Row="2" Margin="0,0,0,16">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        
+                                                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                                            <TextBlock Text="⏰" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                            <StackPanel>
+                                                                <TextBlock Text="Due:" FontSize="12" Foreground="#6B7280"/>
+                                                                <TextBlock Text="{Binding DueDateString}" 
+                                                                           FontSize="12" Foreground="#1F2937" FontWeight="Medium"/>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                        
+                                                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                            <TextBlock Text="📝" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                            <StackPanel>
+                                                                <TextBlock Text="Questions:" FontSize="12" Foreground="#6B7280"/>
+                                                                <TextBlock Text="{Binding QuestionCount}" 
+                                                                           FontSize="12" Foreground="#1F2937" FontWeight="Medium"/>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                        
+                                                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                                            <TextBlock Text="👤" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                            <StackPanel>
+                                                                <TextBlock Text="Attempts:" FontSize="12" Foreground="#6B7280"/>
+                                                                <TextBlock Text="{Binding AttemptText}" 
+                                                                           FontSize="12" Foreground="#1F2937" FontWeight="Medium"/>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                    
+                                                    <!-- Footer -->
+                                                    <Grid Grid.Row="3">
+                                                        <Button Content="View Results" 
+                                                                Background="Transparent"
+                                                                Foreground="{StaticResource PrimaryBrush}"
+                                                                BorderThickness="1"
+                                                                BorderBrush="{StaticResource PrimaryBrush}"
+                                                                Padding="16,8" FontSize="14"
+                                                                CornerRadius="6"
+                                                                HorizontalAlignment="Right"/>
+                                                    </Grid>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </TabItem>
+                    </TabControl>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window> 
