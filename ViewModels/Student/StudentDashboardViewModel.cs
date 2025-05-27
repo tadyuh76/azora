@@ -1,9 +1,273 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using AvaloniaAzora.Models;
+using AvaloniaAzora.Services;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AvaloniaAzora.ViewModels
 {
     public partial class StudentDashboardViewModel : ViewModelBase
     {
-        // Add properties and logic for the student dashboard here
+        private readonly IDataService _dataService;
+
+        [ObservableProperty]
+        private User? _currentUser;
+
+        [ObservableProperty]
+        private string _welcomeMessage = "Welcome back!";
+
+        [ObservableProperty]
+        private ObservableCollection<ClassroomCardViewModel> _enrolledClasses = new();
+
+        [ObservableProperty]
+        private ObservableCollection<UpcomingAssessmentViewModel> _upcomingAssessments = new();
+
+        [ObservableProperty]
+        private bool _isLoading = true;
+
+        public StudentDashboardViewModel()
+        {
+            _dataService = AvaloniaAzora.Services.ServiceProvider.Instance.GetRequiredService<IDataService>();
+        }
+
+        public async Task LoadDashboardDataAsync(Guid userId)
+        {
+            try
+            {
+                IsLoading = true;
+
+                // Clear any existing data
+                EnrolledClasses.Clear();
+                UpcomingAssessments.Clear();
+
+                Console.WriteLine($"🔍 Loading dashboard data for user: {userId}");
+
+                // Load real data from Supabase
+                await LoadRealDataAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error loading dashboard data: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+
+                // Clear data on error - show empty state instead of demo data
+                EnrolledClasses.Clear();
+                UpcomingAssessments.Clear();
+                WelcomeMessage = "Unable to load dashboard data. Please try again.";
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        private async Task LoadRealDataAsync(Guid userId)
+        {
+            // Load current user
+            CurrentUser = await _dataService.GetUserByIdAsync(userId);
+            if (CurrentUser != null)
+            {
+                // Use full_name if available, otherwise use email prefix
+                string displayName = !string.IsNullOrEmpty(CurrentUser.FullName)
+                    ? CurrentUser.FullName
+                    : CurrentUser.Email.Split('@')[0];
+
+                WelcomeMessage = $"Welcome back, {displayName}!";
+                Console.WriteLine($"✅ Loaded user: {displayName} (ID: {userId})");
+            }
+            else
+            {
+                Console.WriteLine($"⚠️ User not found with ID: {userId}");
+                WelcomeMessage = "Welcome back!";
+            }
+
+            // Load enrolled classes
+            Console.WriteLine("🏫 Loading enrolled classes...");
+            await LoadEnrolledClassesAsync(userId);
+
+            // Load upcoming assessments
+            Console.WriteLine("📋 Loading upcoming assessments...");
+            await LoadUpcomingAssessmentsAsync(userId);
+
+            Console.WriteLine($"✅ Dashboard loaded: {EnrolledClasses.Count} classes, {UpcomingAssessments.Count} assessments");
+        }
+
+
+
+        private async Task LoadEnrolledClassesAsync(Guid userId)
+        {
+            try
+            {
+                var enrollments = await _dataService.GetClassEnrollmentsByUserIdAsync(userId);
+                Console.WriteLine($"   Found {enrollments.Count} enrollments for user");
+
+                foreach (var enrollment in enrollments)
+                {
+                    if (enrollment.Class != null)
+                    {
+                        Console.WriteLine($"   Processing class: {enrollment.Class.ClassName}");
+
+                        var studentCount = await _dataService.GetClassEnrollmentCountAsync(enrollment.Class.Id);
+
+                        // Handle teacher name safely - use full_name or email fallback
+                        string instructorName = "Unknown Instructor";
+                        if (enrollment.Class.Teacher != null)
+                        {
+                            instructorName = !string.IsNullOrEmpty(enrollment.Class.Teacher.FullName)
+                                ? enrollment.Class.Teacher.FullName
+                                : enrollment.Class.Teacher.Email?.Split('@')[0] ?? "Unknown Instructor";
+                        }
+
+                        var classroomCard = new ClassroomCardViewModel
+                        {
+                            ClassId = enrollment.Class.Id,
+                            ClassName = enrollment.Class.ClassName,
+                            Description = enrollment.Class.Description ?? "No description available",
+                            StudentCount = studentCount,
+                            InstructorName = instructorName,
+                            SubjectColor = GetSubjectColor(enrollment.Class.ClassName)
+                        };
+                        EnrolledClasses.Add(classroomCard);
+                        Console.WriteLine($"   ✅ Added class: {enrollment.Class.ClassName} with {studentCount} students");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error loading enrolled classes: {ex.Message}");
+                throw; // Re-throw to let the caller handle it
+            }
+        }
+
+        private async Task LoadUpcomingAssessmentsAsync(Guid userId)
+        {
+            try
+            {
+                var enrollments = await _dataService.GetClassEnrollmentsByUserIdAsync(userId);
+                Console.WriteLine($"   Checking assessments for {enrollments.Count} enrolled classes");
+
+                foreach (var enrollment in enrollments)
+                {
+                    if (enrollment.Class != null)
+                    {
+                        var classTests = await _dataService.GetClassTestsByClassIdAsync(enrollment.Class.Id);
+                        Console.WriteLine($"   Found {classTests.Count} tests for class: {enrollment.Class.ClassName}");
+
+                        var upcomingTests = classTests.Where(ct => ct.DueDate.HasValue && ct.DueDate.Value > DateTimeOffset.Now).ToList();
+                        Console.WriteLine($"   {upcomingTests.Count} upcoming tests in {enrollment.Class.ClassName}");
+
+                        foreach (var classTest in upcomingTests)
+                        {
+                            if (classTest.Test != null)
+                            {
+                                var assessment = new UpcomingAssessmentViewModel
+                                {
+                                    AssessmentName = classTest.Test.Title,
+                                    ClassName = enrollment.Class.ClassName,
+                                    DueDate = classTest.DueDate ?? DateTimeOffset.Now,
+                                    AssessmentType = GetAssessmentType(classTest.Test.Title)
+                                };
+                                UpcomingAssessments.Add(assessment);
+                                Console.WriteLine($"   ✅ Added assessment: {classTest.Test.Title} due {classTest.DueDate:MMM dd}");
+                            }
+                        }
+                    }
+                }
+
+                // Sort by due date
+                if (UpcomingAssessments.Count > 0)
+                {
+                    var sorted = UpcomingAssessments.OrderBy(a => a.DueDate).ToList();
+                    UpcomingAssessments.Clear();
+                    foreach (var assessment in sorted)
+                    {
+                        UpcomingAssessments.Add(assessment);
+                    }
+                    Console.WriteLine($"   📋 Sorted {sorted.Count} upcoming assessments by due date");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error loading upcoming assessments: {ex.Message}");
+                throw; // Re-throw to let the caller handle it
+            }
+        }
+
+        private string GetSubjectColor(string className)
+        {
+            // Return hex colors based on subject
+            if (className.Contains("Math", StringComparison.OrdinalIgnoreCase))
+                return "#4285F4"; // Blue
+            if (className.Contains("History", StringComparison.OrdinalIgnoreCase))
+                return "#34A853"; // Green
+            if (className.Contains("Chemistry", StringComparison.OrdinalIgnoreCase))
+                return "#9C27B0"; // Purple
+            if (className.Contains("Physics", StringComparison.OrdinalIgnoreCase))
+                return "#FF9800"; // Orange
+            if (className.Contains("Science", StringComparison.OrdinalIgnoreCase))
+                return "#F44336"; // Red
+            if (className.Contains("English", StringComparison.OrdinalIgnoreCase))
+                return "#607D8B"; // Blue Grey
+
+            return "#757575"; // Default grey
+        }
+
+        private string GetAssessmentType(string testTitle)
+        {
+            if (testTitle.Contains("Quiz", StringComparison.OrdinalIgnoreCase))
+                return "Quiz";
+            if (testTitle.Contains("Midterm", StringComparison.OrdinalIgnoreCase))
+                return "Midterm";
+            if (testTitle.Contains("Final", StringComparison.OrdinalIgnoreCase))
+                return "Final";
+            if (testTitle.Contains("Lab", StringComparison.OrdinalIgnoreCase))
+                return "Lab Report";
+            if (testTitle.Contains("Project", StringComparison.OrdinalIgnoreCase))
+                return "Project";
+
+            return "Assessment";
+        }
+    }
+
+    public partial class ClassroomCardViewModel : ObservableObject
+    {
+        [ObservableProperty]
+        private Guid _classId;
+
+        [ObservableProperty]
+        private string _className = string.Empty;
+
+        [ObservableProperty]
+        private string _description = string.Empty;
+
+        [ObservableProperty]
+        private int _studentCount;
+
+        [ObservableProperty]
+        private string _instructorName = string.Empty;
+
+        [ObservableProperty]
+        private string _subjectColor = "#757575";
+    }
+
+    public partial class UpcomingAssessmentViewModel : ObservableObject
+    {
+        [ObservableProperty]
+        private string _assessmentName = string.Empty;
+
+        [ObservableProperty]
+        private string _className = string.Empty;
+
+        [ObservableProperty]
+        private DateTimeOffset _dueDate;
+
+        [ObservableProperty]
+        private string _assessmentType = string.Empty;
+
+        public string DueDateString => DueDate.ToString("MMM dd");
+        public string DueTimeString => DueDate.ToString("hh:mm tt");
     }
 }
