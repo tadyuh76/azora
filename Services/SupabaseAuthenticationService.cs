@@ -89,6 +89,37 @@ namespace AvaloniaAzora.Services
             }
         }
 
+        public async Task<bool> ResendVerificationCodeAsync(string email, string type)
+        {
+            try
+            {
+                await EnsureInitializedAsync();
+
+                if (type.ToLower() == "recovery")
+                {
+                    // For password reset, we can just call the reset method again
+                    await _supabaseClient.Auth.ResetPasswordForEmail(email);
+                }
+                else
+                {
+                    // For signup verification, we use the workaround mentioned in Supabase discussions:
+                    // Since there's no direct resend method, we can try signing up again with the same email
+                    // This will resend the verification email if the user hasn't been confirmed yet
+                    // Note: This is a temporary workaround until the resend method is available
+
+                    // We'll use SignInWithOtp which can be called multiple times
+                    var options = new SignInWithPasswordlessEmailOptions(email);
+                    await _supabaseClient.Auth.SignInWithOtp(options);
+                }
+
+                return true;
+            }
+            catch (GotrueException ex)
+            {
+                throw new Exception($"Resend verification failed: {ex.Message}", ex);
+            }
+        }
+
         public async Task<Session?> VerifyOtpAsync(string email, string token, string type)
         {
             try

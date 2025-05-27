@@ -45,12 +45,39 @@
                            TextAlignment="Center"
                            Margin="0,0,0,8"/>
                 
-                <TextBlock Text="Please enter the verification code sent to your email address" 
+                <TextBlock Text="{Binding DescriptionText}" 
                            FontSize="14"
                            Foreground="#6B7280"
                            TextAlignment="Center"
                            TextWrapping="Wrap"
-                           Margin="0,0,0,32"/>
+                           Margin="0,0,0,16"/>
+
+                <!-- Error/Success Message -->
+                <Border Background="#FEF2F2" 
+                        BorderBrush="#F87171" 
+                        BorderThickness="1" 
+                        CornerRadius="6" 
+                        Padding="12,8" 
+                        Margin="0,0,0,16"
+                        IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                    <TextBlock Text="{Binding ErrorMessage}" 
+                               FontSize="14" 
+                               Foreground="#B91C1C" 
+                               TextWrapping="Wrap"/>
+                </Border>
+
+                <Border Background="#F0FDF4" 
+                        BorderBrush="#4ADE80" 
+                        BorderThickness="1" 
+                        CornerRadius="6" 
+                        Padding="12,8" 
+                        Margin="0,0,0,16"
+                        IsVisible="{Binding IsSuccess}">
+                    <TextBlock Text="Email verified successfully!" 
+                               FontSize="14" 
+                               Foreground="#15803D" 
+                               TextWrapping="Wrap"/>
+                </Border>
 
                 <!-- Verification Code Field -->
                 <StackPanel>
@@ -73,9 +100,7 @@
                 </StackPanel>
 
                 <!-- Verify Button -->
-                <Button Content="Verify"
-                        Command="{Binding VerifyCommand}"
-                        Height="48"
+                <Button Height="48"
                         Background="#4F7CFF"
                         Foreground="White"
                         BorderThickness="0"
@@ -85,12 +110,31 @@
                         Margin="0,8,0,16"
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Center"
-                        VerticalContentAlignment="Center">
+                        VerticalContentAlignment="Center"
+                        Command="{Binding VerifyCommand}"
+                        IsEnabled="{Binding IsLoading, Converter={x:Static BoolConverters.Not}}">
+                    
                     <Button.Styles>
                         <Style Selector="Button:pointerover">
                             <Setter Property="Background" Value="#3A5FE0"/>
                         </Style>
+                        <Style Selector="Button:disabled">
+                            <Setter Property="Background" Value="#9CA3AF"/>
+                        </Style>
                     </Button.Styles>
+                    
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="⏳" 
+                                   FontSize="14" 
+                                   Margin="0,0,8,0"
+                                   IsVisible="{Binding IsLoading}"/>
+                        <TextBlock Text="Verifying..." 
+                                   FontSize="14"
+                                   IsVisible="{Binding IsLoading}"/>
+                        <TextBlock Text="Verify" 
+                                   FontSize="14"
+                                   IsVisible="{Binding IsLoading, Converter={x:Static BoolConverters.Not}}"/>
+                    </StackPanel>
                 </Button>
 
                 <!-- Resend Code -->

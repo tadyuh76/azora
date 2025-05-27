@@ -15,6 +15,9 @@ namespace AvaloniaAzora.ViewModels
         [ObservableProperty]
         private bool _isPasswordReset = false;
 
+        [ObservableProperty]
+        private string _descriptionText = "Please enter the verification code sent to your email address";
+
         public ICommand VerifyCommand { get; }
         public ICommand ResendCodeCommand { get; }
         public ICommand BackToSignInCommand { get; set; } = null!;
@@ -82,19 +85,17 @@ namespace AvaloniaAzora.ViewModels
 
             try
             {
-                if (IsPasswordReset)
+                var resendType = IsPasswordReset ? "recovery" : "signup";
+                var success = await _authService.ResendVerificationCodeAsync(Email, resendType);
+
+                if (success)
                 {
-                    await _authService.SendPasswordResetAsync(Email);
+                    ShowSuccess("Verification code resent successfully! Please check your email.");
                 }
                 else
                 {
-                    // For signup verification, we'd typically need to trigger a resend
-                    // This might require additional Supabase setup
-                    ShowError("Please contact support to resend verification code.");
-                    return;
+                    ShowError("Failed to resend verification code. Please try again.");
                 }
-
-                ShowSuccess();
             }
             catch (Exception ex)
             {
@@ -110,12 +111,14 @@ namespace AvaloniaAzora.ViewModels
         {
             Email = email;
             IsPasswordReset = true;
+            DescriptionText = "Please enter the verification code sent to your email to reset your password";
         }
 
         public void SetupForSignupVerification(string email)
         {
             Email = email;
             IsPasswordReset = false;
+            DescriptionText = "Please enter the verification code sent to your email to verify your account";
         }
     }
 }

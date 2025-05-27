@@ -14,6 +14,9 @@ namespace AvaloniaAzora.ViewModels
         private string _errorMessage = string.Empty;
 
         [ObservableProperty]
+        private string _successMessage = string.Empty;
+
+        [ObservableProperty]
         private bool _isLoading = false;
 
         [ObservableProperty]
@@ -27,18 +30,31 @@ namespace AvaloniaAzora.ViewModels
         protected void ClearError()
         {
             ErrorMessage = string.Empty;
+            SuccessMessage = string.Empty;
         }
 
         protected void ShowError(string message)
         {
             ErrorMessage = message;
+            SuccessMessage = string.Empty;
             IsSuccess = false;
         }
 
-        protected void ShowSuccess()
+        protected void ShowSuccess(string message = "")
         {
             ErrorMessage = string.Empty;
+            SuccessMessage = message;
             IsSuccess = true;
+        }
+
+        public void ClearMessages()
+        {
+            ClearError();
+        }
+
+        public void SetSuccessMessage(string message)
+        {
+            ShowSuccess(message);
         }
     }
 }
