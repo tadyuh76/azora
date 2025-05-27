@@ -153,18 +153,12 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="I agree to the " Foreground="#1F2937"/>
                             <Button Content="Terms &amp; Conditions"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Classes="primary"
-                                    FontSize="14"
-                                    Padding="0"/>
+                                    Classes="link"
+                                    FontSize="14"/>
                             <TextBlock Text=" and " Foreground="#1F2937"/>
                             <Button Content="Privacy Policy"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Classes="primary"
-                                    FontSize="14"
-                                    Padding="0"/>
+                                    Classes="link"
+                                    FontSize="14"/>
                         </StackPanel>
                     </CheckBox.Content>
                 </CheckBox>
@@ -209,11 +203,8 @@
                                Foreground="#6B7280"/>
                     <Button Content="Sign in"
                             Command="{Binding SignInCommand}"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Classes="primary"
-                            FontSize="14"
-                            Padding="0"/>
+                            Classes="link"
+                            FontSize="14"/>
                 </StackPanel>
             </StackPanel>
         </Border>

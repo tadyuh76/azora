@@ -133,11 +133,8 @@
                     
                     <Button Content="Resend code"
                             Command="{Binding ResendCodeCommand}"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Classes="primary"
+                            Classes="link"
                             FontSize="14"
-                            Padding="0"
                             HorizontalAlignment="Center"/>
                 </StackPanel>
 

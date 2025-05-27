@@ -22,6 +22,19 @@
         <Setter Property="Background" Value="{StaticResource PrimaryHoverBrush}"/>
     </Style>
 
+    <!-- Link Button Styles with Primary Color -->
+    <Style Selector="Button.link">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+    </Style>
+    
+    <Style Selector="Button.link:pointerover">
+        <Setter Property="Foreground" Value="{StaticResource PrimaryHoverBrush}"/>
+    </Style>
+
     <!-- Border/Card Styles with Primary Accent -->
     <Style Selector="Border.primary-accent">
         <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>

@@ -124,11 +124,8 @@
                     <Button Grid.Column="1"
                             Content="Forgot password?"
                             Command="{Binding ForgotPasswordCommand}"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Classes="primary"
-                            FontSize="14"
-                            Padding="0"/>
+                            Classes="link"
+                            FontSize="14"/>
                 </Grid>
 
                 <!-- Sign In Button -->
@@ -171,11 +168,8 @@
                                Foreground="#6B7280"/>
                     <Button Content="Sign up"
                             Command="{Binding SignUpCommand}"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Classes="primary"
-                            FontSize="14"
-                            Padding="0"/>
+                            Classes="link"
+                            FontSize="14"/>
                 </StackPanel>
             </StackPanel>
         </Border>
