@@ -1,5 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace AvaloniaAzora.ViewModels
@@ -7,22 +10,60 @@ namespace AvaloniaAzora.ViewModels
     public partial class ForgotPasswordViewModel : AuthenticationViewModel
     {
         public ICommand SendResetInstructionsCommand { get; }
-        public ICommand BackToSignInCommand { get; set; }
+        public ICommand BackToSignInCommand { get; set; } = null!;
 
-        public ForgotPasswordViewModel()
+        public event EventHandler? ResetEmailSent;
+
+        public ForgotPasswordViewModel() : base()
         {
-            SendResetInstructionsCommand = new RelayCommand(SendResetInstructions);
-            BackToSignInCommand = new RelayCommand(BackToSignIn);
+            SendResetInstructionsCommand = new AsyncRelayCommand(SendResetInstructionsAsync);
         }
 
-        private void SendResetInstructions()
+        private async Task SendResetInstructionsAsync()
         {
-            // TODO: Implement password reset logic
+            if (string.IsNullOrWhiteSpace(Email))
+            {
+                ShowError("Please enter your email address.");
+                return;
+            }
+
+            if (!IsValidEmail(Email))
+            {
+                ShowError("Please enter a valid email address.");
+                return;
+            }
+
+            IsLoading = true;
+            ClearError();
+
+            try
+            {
+                var success = await _authService.SendPasswordResetAsync(Email);
+
+                if (success)
+                {
+                    ShowSuccess();
+                    ResetEmailSent?.Invoke(this, EventArgs.Empty);
+                }
+                else
+                {
+                    ShowError("Failed to send reset instructions. Please try again.");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
-        private void BackToSignIn()
+        private static bool IsValidEmail(string email)
         {
-            // TODO: Navigate back to sign in page
+            var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+            return emailRegex.IsMatch(email);
         }
     }
 }

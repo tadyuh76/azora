@@ -6,6 +6,7 @@ using System.Linq;
 using Avalonia.Markup.Xaml;
 using AvaloniaAzora.ViewModels;
 using AvaloniaAzora.Views.Auth;
+using AvaloniaAzora.Services;
 
 namespace AvaloniaAzora;
 
@@ -20,6 +21,9 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            // Initialize services
+            ServiceProvider.Initialize();
+
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();

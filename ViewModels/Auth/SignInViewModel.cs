@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace AvaloniaAzora.ViewModels
@@ -13,29 +15,49 @@ namespace AvaloniaAzora.ViewModels
         private bool _rememberMe = false;
 
         public ICommand SignInCommand { get; }
-        public ICommand ForgotPasswordCommand { get; set; }
-        public ICommand SignUpCommand { get; set; }
+        public ICommand ForgotPasswordCommand { get; set; } = null!;
+        public ICommand SignUpCommand { get; set; } = null!;
 
-        public SignInViewModel()
+        public event EventHandler? SignInSuccessful;
+
+        public SignInViewModel() : base()
         {
-            SignInCommand = new RelayCommand(SignIn);
-            ForgotPasswordCommand = new RelayCommand(ForgotPassword);
-            SignUpCommand = new RelayCommand(SignUp);
+            SignInCommand = new AsyncRelayCommand(SignInAsync);
         }
 
-        private void SignIn()
+        private async Task SignInAsync()
         {
-            // TODO: Implement sign in logic
-        }
+            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+            {
+                ShowError("Please enter both email and password.");
+                return;
+            }
 
-        private void ForgotPassword()
-        {
-            // TODO: Navigate to forgot password page
-        }
+            IsLoading = true;
+            ClearError();
 
-        private void SignUp()
-        {
-            // TODO: Navigate to sign up page
+            try
+            {
+                var session = await _authService.SignInAsync(Email, Password);
+
+                if (session != null)
+                {
+                    ShowSuccess();
+                    SignInSuccessful?.Invoke(this, EventArgs.Empty);
+                }
+                else
+                {
+                    ShowError("Sign in failed. Please check your credentials.");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
     }
 }
