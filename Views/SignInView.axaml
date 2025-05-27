@@ -1,0 +1,138 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AvaloniaAzora.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="AvaloniaAzora.Views.SignInView"
+             x:DataType="vm:SignInViewModel">
+
+    <Design.DataContext>
+        <vm:SignInViewModel/>
+    </Design.DataContext>
+
+    <Grid Background="#F5F7FA">
+        <Border Background="White"
+                CornerRadius="12"
+                BoxShadow="0 4 25 0 #00000015"
+                Padding="40"
+                Width="400"
+                MaxWidth="400"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            
+            <StackPanel>
+                <!-- Title -->
+                <TextBlock Text="Welcome back" 
+                           FontSize="28"
+                           FontWeight="SemiBold"
+                           Foreground="#1F2937"
+                           TextAlignment="Center"
+                           Margin="0,0,0,8"/>
+                
+                <TextBlock Text="Sign in to your account to continue" 
+                           FontSize="14"
+                           Foreground="#6B7280"
+                           TextAlignment="Center"
+                           Margin="0,0,0,32"/>
+
+                <!-- Email Field -->
+                <TextBlock Text="Email" 
+                           FontSize="14"
+                           FontWeight="Medium"
+                           Foreground="#1F2937"
+                           Margin="0,0,0,8"/>
+                
+                <TextBox Text="{Binding Email}"
+                         Watermark="Enter your email"
+                         Height="48"
+                         Padding="16,12"
+                         FontSize="14"
+                         BorderBrush="#E5E7EB"
+                         BorderThickness="1"
+                         CornerRadius="8"
+                         Background="White"
+                         Margin="0,0,0,16"/>
+
+                <!-- Password Field -->
+                <TextBlock Text="Password" 
+                           FontSize="14"
+                           FontWeight="Medium"
+                           Foreground="#1F2937"
+                           Margin="0,0,0,8"/>
+                
+                <TextBox Text="{Binding Password}"
+                         Watermark="Enter your password"
+                         PasswordChar="●"
+                         Height="48"
+                         Padding="16,12"
+                         FontSize="14"
+                         BorderBrush="#E5E7EB"
+                         BorderThickness="1"
+                         CornerRadius="8"
+                         Background="White"
+                         Margin="0,0,0,16"/>
+
+                <!-- Remember Me and Forgot Password -->
+                <Grid Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <CheckBox Grid.Column="0"
+                              IsChecked="{Binding RememberMe}"
+                              Content="Remember me"
+                              FontSize="14"
+                              Foreground="#1F2937"
+                              Margin="0"/>
+                    
+                    <Button Grid.Column="1"
+                            Content="Forgot password?"
+                            Command="{Binding ForgotPasswordCommand}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Foreground="#4F7CFF"
+                            FontSize="14"
+                            Padding="0"/>
+                </Grid>
+
+                <!-- Sign In Button -->
+                <Button Content="Sign In"
+                        Command="{Binding SignInCommand}"
+                        Height="48"
+                        Background="#4F7CFF"
+                        Foreground="White"
+                        BorderThickness="0"
+                        CornerRadius="8"
+                        FontSize="14"
+                        FontWeight="Medium"
+                        Margin="0,8,0,16"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover">
+                            <Setter Property="Background" Value="#3A5FE0"/>
+                        </Style>
+                    </Button.Styles>
+                </Button>
+
+                <!-- Sign Up Link -->
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center">
+                    <TextBlock Text="Don't have an account? "
+                               FontSize="14"
+                               Foreground="#6B7280"/>
+                    <Button Content="Sign up"
+                            Command="{Binding SignUpCommand}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Foreground="#4F7CFF"
+                            FontSize="14"
+                            Padding="0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl> 
