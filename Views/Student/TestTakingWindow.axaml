@@ -1,0 +1,361 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaAzora.ViewModels.Student"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+        x:Class="AvaloniaAzora.Views.Student.TestTakingWindow"
+        x:DataType="vm:TestTakingViewModel"
+        Title="{Binding TestTitle, StringFormat='Taking Test: {0}'}"
+        Width="1200" Height="800"
+        Background="#F8FAFC"
+        WindowStartupLocation="CenterScreen"
+        CanResize="True">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="350"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Sidebar with Questions Progress -->
+        <Border Grid.Column="0" Background="White" BorderBrush="#E5E7EB" BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Sidebar Header -->
+                <StackPanel Grid.Row="0" Margin="24,32,24,24">
+                    <TextBlock Text="Questions" FontSize="18" FontWeight="SemiBold" 
+                               Foreground="#1F2937" Margin="0,0,0,8"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Progress" FontSize="14" Foreground="#6B7280"/>
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="#1F2937">
+                            <Run Text="{Binding ProgressPercentage, StringFormat='{}{0:F0}'}"/>
+                            <Run Text="%"/>
+                        </TextBlock>
+                    </StackPanel>
+                    <ProgressBar Height="4" Margin="0,8,0,0"
+                                 Value="{Binding ProgressPercentage}" 
+                                 Maximum="100"
+                                 Background="#E5E7EB"
+                                 Foreground="#1F2937"/>
+                </StackPanel>
+
+                <!-- Questions Grid -->
+                <ScrollViewer Grid.Row="1" Margin="24,0,24,24" VerticalScrollBarVisibility="Auto">
+                    <Grid Margin="0,8,0,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Question Numbers in Grid -->
+                        <ItemsControl Grid.Row="0" Grid.ColumnSpan="4" ItemsSource="{Binding Questions}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal" ItemWidth="60" ItemHeight="60" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:QuestionViewModel}">
+                                    <Button Width="50" Height="50" 
+                                            Margin="5" Padding="0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            HorizontalContentAlignment="Center"
+                                            VerticalContentAlignment="Center"
+                                            Background="{Binding StatusColor}"
+                                            BorderThickness="2"
+                                            BorderBrush="{Binding IsCurrentQuestion, Converter={StaticResource BoolToColorConverter}}"
+                                            CornerRadius="4"
+                                            Command="{Binding $parent[ItemsControl].((vm:TestTakingViewModel)DataContext).GoToQuestionCommand}"
+                                            CommandParameter="{Binding}">
+                                        <TextBlock Text="{Binding QuestionNumber}" 
+                                                   FontSize="16" FontWeight="SemiBold"
+                                                   Foreground="{Binding StatusTextColor}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </ScrollViewer>
+
+                <!-- Legend -->
+                <StackPanel Grid.Row="1" Margin="24,0,24,24" VerticalAlignment="Bottom">
+                    <Border Background="#F9FAFB" CornerRadius="8" Padding="16">
+                        <StackPanel Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Ellipse Width="12" Height="12" Fill="#10B981"/>
+                                <TextBlock Text="Answered" FontSize="12" Foreground="#6B7280"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Ellipse Width="12" Height="12" Fill="#F59E0B"/>
+                                <TextBlock Text="Flagged" FontSize="12" Foreground="#6B7280"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Ellipse Width="12" Height="12" Fill="#E5E7EB"/>
+                                <TextBlock Text="Unanswered" FontSize="12" Foreground="#6B7280"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="80"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="80"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header with Test Info and Timer -->
+            <Border Grid.Row="0" Background="White" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
+                <Grid Margin="32,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Test Icon and Title -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Background="#3B82F6" CornerRadius="8" Width="40" Height="40" Margin="0,0,12,0">
+                            <TextBlock Text="📝" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel>
+                            <TextBlock Text="{Binding TestTitle}" 
+                                       FontSize="18" FontWeight="SemiBold" 
+                                       Foreground="#1F2937"/>
+                            <TextBlock Text="Mathematics 101" 
+                                       FontSize="14" 
+                                       Foreground="#6B7280"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Timer -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+                        <TextBlock Text="🕐" FontSize="16" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding TimeRemainingString}" 
+                                   FontSize="16" FontWeight="SemiBold" 
+                                   Foreground="#1F2937"/>
+                    </StackPanel>
+
+                    <!-- Submit Test Button -->
+                    <Button Grid.Column="3" Content="Submit Test" 
+                            Background="#1F2937" 
+                            Foreground="White"
+                            BorderThickness="0"
+                            FontSize="14" FontWeight="SemiBold"
+                            Padding="20,12"
+                            CornerRadius="8"
+                            VerticalAlignment="Center"
+                            Command="{Binding NextQuestionCommand}"/>
+                </Grid>
+            </Border>
+
+            <!-- Question Content -->
+            <Grid Grid.Row="1" Margin="32">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Question Header -->
+                <Grid Grid.Row="0" Margin="0,0,0,24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0">
+                        <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="#1F2937" Margin="0,0,0,8">
+                            <Run Text="Question"/>
+                            <Run Text="{Binding CurrentQuestionNumber}"/>
+                            <Run Text="of"/>
+                            <Run Text="{Binding TotalQuestions}"/>
+                        </TextBlock>
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Border Background="{Binding CurrentQuestion.TypeColor}"
+                                    Padding="8,4" CornerRadius="4">
+                                <TextBlock Text="{Binding CurrentQuestion.QuestionType}" 
+                                           FontSize="12" FontWeight="Medium"
+                                           Foreground="White"/>
+                            </Border>
+                            <TextBlock FontSize="14" Foreground="#6B7280" VerticalAlignment="Center">
+                                <Run Text="{Binding CurrentQuestion.Points}"/>
+                                <Run Text="points"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <Button Grid.Column="1" Content="🏴 Flag" 
+                            Background="Transparent" 
+                            BorderBrush="#D1D5DB" BorderThickness="1"
+                            Foreground="#6B7280"
+                            FontSize="14" Padding="12,8"
+                            CornerRadius="6"
+                            VerticalAlignment="Top"/>
+                </Grid>
+
+                <!-- Question Text and Answers -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel IsVisible="{Binding CurrentQuestion, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        
+                        <!-- Question Text -->
+                        <TextBlock Text="{Binding CurrentQuestion.Text}" 
+                                   FontSize="18" FontWeight="Medium" 
+                                   Foreground="#1F2937" 
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,32"/>
+
+                        <!-- True/False Questions -->
+                        <StackPanel IsVisible="{Binding CurrentQuestion.IsTrueFalse}" 
+                                    Spacing="16">
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <Border Background="{Binding CurrentQuestion.TrueSelected, Converter={StaticResource BoolToColorConverter}}" 
+                                        CornerRadius="8" 
+                                        Padding="24,16" 
+                                        Cursor="Hand"
+                                        BorderThickness="2" 
+                                        BorderBrush="#E5E7EB">
+                                    <StackPanel Orientation="Horizontal" 
+                                                HorizontalAlignment="Center">
+                                        <RadioButton IsChecked="{Binding CurrentQuestion.TrueSelected}" 
+                                                     GroupName="TrueFalse"
+                                                     Margin="0,0,12,0"
+                                                     Command="{Binding SelectTrueFalseCommand}"
+                                                     CommandParameter="true"/>
+                                        <TextBlock Text="True" 
+                                                   FontSize="16" FontWeight="Medium"
+                                                   Foreground="#1F2937"/>
+                                    </StackPanel>
+                                </Border>
+                                
+                                <Border Background="{Binding CurrentQuestion.FalseSelected, Converter={StaticResource BoolToColorConverter}}" 
+                                        CornerRadius="8" 
+                                        Padding="24,16" 
+                                        Cursor="Hand"
+                                        BorderThickness="2" 
+                                        BorderBrush="#E5E7EB">
+                                    <StackPanel Orientation="Horizontal" 
+                                                HorizontalAlignment="Center">
+                                        <RadioButton IsChecked="{Binding CurrentQuestion.FalseSelected}" 
+                                                     GroupName="TrueFalse"
+                                                     Margin="0,0,12,0"
+                                                     Command="{Binding SelectTrueFalseCommand}"
+                                                     CommandParameter="false"/>
+                                        <TextBlock Text="False" 
+                                                   FontSize="16" FontWeight="Medium"
+                                                   Foreground="#1F2937"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Auto-save indicator -->
+                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,16,0,0">
+                                <TextBlock Text="💾" FontSize="16"/>
+                                <TextBlock Text="Answer saved automatically" 
+                                           FontSize="14" 
+                                           Foreground="#10B981"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Multiple Choice Questions -->
+                        <StackPanel IsVisible="{Binding CurrentQuestion.IsMultipleChoice}" 
+                                    Spacing="12">
+                            <ItemsControl ItemsSource="{Binding CurrentQuestion.AnswerOptions}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:AnswerOptionViewModel}">
+                                        <Border Background="#F9FAFB" CornerRadius="8" 
+                                                Padding="16" Cursor="Hand"
+                                                BorderThickness="2" 
+                                                BorderBrush="{Binding IsSelected, Converter={StaticResource BoolToColorConverter}}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <RadioButton IsChecked="{Binding IsSelected}" 
+                                                             GroupName="MultipleChoice"
+                                                             Margin="0,0,12,0"
+                                                             Command="{Binding $parent[ItemsControl].((vm:TestTakingViewModel)DataContext).SelectAnswerCommand}"
+                                                             CommandParameter="{Binding}"/>
+                                                <TextBlock Text="{Binding Text}" 
+                                                           FontSize="16" 
+                                                           Foreground="#1F2937"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <!-- Short Answer Questions -->
+                        <StackPanel IsVisible="{Binding CurrentQuestion.IsShortAnswer}">
+                            <TextBox Text="{Binding CurrentQuestion.ShortAnswerText}" 
+                                     FontSize="16" 
+                                     MinHeight="120"
+                                     TextWrapping="Wrap"
+                                     AcceptsReturn="True"
+                                     Background="#F9FAFB"
+                                     BorderBrush="#D1D5DB"
+                                     BorderThickness="1"
+                                     CornerRadius="8"
+                                     Padding="16"
+                                     Watermark="Type your answer here..."/>
+                        </StackPanel>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- Footer Navigation -->
+            <Border Grid.Row="2" Background="White" BorderBrush="#E5E7EB" BorderThickness="0,1,0,0">
+                <Grid Margin="32,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Previous Button -->
+                    <Button Grid.Column="0" Content="← Previous" 
+                            Background="Transparent" 
+                            BorderBrush="#D1D5DB" BorderThickness="1"
+                            Foreground="#6B7280"
+                            FontSize="16" Padding="20,12"
+                            CornerRadius="8"
+                            IsEnabled="{Binding CanGoPrevious}"
+                            Command="{Binding PreviousQuestionCommand}"/>
+
+                    <!-- Next Button -->
+                    <Button Grid.Column="2" Content="Next →" 
+                            Background="#1F2937" 
+                            Foreground="White"
+                            BorderThickness="0"
+                            FontSize="16" FontWeight="SemiBold"
+                            Padding="20,12"
+                            CornerRadius="8"
+                            Command="{Binding NextQuestionCommand}"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+
+    <Window.Resources>
+        <vm:BoolToColorConverter x:Key="BoolToColorConverter"/>
+    </Window.Resources>
+</Window> 

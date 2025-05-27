@@ -52,7 +52,7 @@ namespace AvaloniaAzora.ViewModels.Student
 
         public ClassroomDetailViewModel()
         {
-            _dataService = AvaloniaAzora.Services.ServiceProvider.Instance.GetRequiredService<IDataService>();
+            _dataService = (IDataService)AvaloniaAzora.Services.ServiceProvider.Instance.GetService(typeof(IDataService))!;
         }
 
         public async Task LoadClassroomDetailsAsync(Guid classId, Guid userId)
@@ -240,8 +240,22 @@ namespace AvaloniaAzora.ViewModels.Student
         [RelayCommand]
         private void StartTest()
         {
-            Console.WriteLine($"🎯 Starting test: {TestName}");
-            // This will be implemented to start the test
+            Console.WriteLine($"🎯 Opening test details: {TestName}");
+
+            // Open test detail window
+            var testDetailViewModel = new TestDetailViewModel();
+            var testDetailWindow = new Views.Student.TestDetailWindow(testDetailViewModel);
+
+            // Get the current user ID from the parent - we need to pass it down
+            // For now, we'll retrieve it from the authentication service
+            var authService = (AvaloniaAzora.Services.IAuthenticationService)AvaloniaAzora.Services.ServiceProvider.Instance.GetService(typeof(AvaloniaAzora.Services.IAuthenticationService))!;
+            var currentUser = authService.GetCurrentUser();
+            var userId = currentUser != null ? Guid.Parse(currentUser.Id) : Guid.NewGuid();
+
+            // Load test details
+            _ = testDetailViewModel.LoadTestDetailsAsync(ClassTestId, userId);
+
+            testDetailWindow.Show();
         }
     }
 }

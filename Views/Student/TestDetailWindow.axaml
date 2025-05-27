@@ -1,0 +1,277 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaAzora.ViewModels.Student"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700"
+        x:Class="AvaloniaAzora.Views.Student.TestDetailWindow"
+        x:DataType="vm:TestDetailViewModel"
+        Title="{Binding TestTitle, StringFormat='Test: {0}'}"
+        Width="900" Height="700"
+        Background="#F8FAFC"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" BoxShadow="0 2 10 0 #0000000A">
+            <Grid Margin="32,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Content="← Back" 
+                        Background="Transparent" BorderThickness="0"
+                        FontSize="16" Foreground="#6B7280"
+                        VerticalAlignment="Center"
+                        Command="{Binding GoBackCommand}"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" 
+                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="📝" FontSize="24" Margin="0,0,12,0"/>
+                    <TextBlock Text="Test Details" 
+                               FontSize="24" FontWeight="Bold" 
+                               Foreground="#1F2937"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" Padding="32,32,32,64" Margin="0,0,0,48">
+            <StackPanel MaxWidth="800" HorizontalAlignment="Center" MinHeight="900">
+                
+                <!-- Test Info Card -->
+                <Border Background="White" CornerRadius="16" Padding="32" Margin="0,0,0,24">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="20" OffsetX="0" OffsetY="4" 
+                                          Color="#000000" Opacity="0.08"/>
+                    </Border.Effect>
+                    
+                    <StackPanel>
+                        <!-- Test Title -->
+                        <TextBlock Text="{Binding TestTitle}" 
+                                   FontSize="32" FontWeight="Bold" 
+                                   Foreground="#1F2937" 
+                                   TextAlignment="Center"
+                                   Margin="0,0,0,16"/>
+                        
+                        <!-- Test Description -->
+                        <TextBlock Text="{Binding TestDescription}" 
+                                   FontSize="16" Foreground="#6B7280" 
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,32"/>
+                        
+                        <!-- Test Statistics -->
+                        <Grid Margin="0,0,0,32">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Questions -->
+                            <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                <TextBlock Text="📝" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding QuestionCount}" 
+                                           FontSize="24" FontWeight="Bold" 
+                                           Foreground="#1F2937" 
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Questions" 
+                                           FontSize="14" Foreground="#6B7280" 
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <!-- Time Limit -->
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <TextBlock Text="⏱️" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                <TextBlock FontSize="24" FontWeight="Bold" 
+                                           Foreground="#1F2937" 
+                                           HorizontalAlignment="Center">
+                                    <Run Text="{Binding TimeLimit}"/>
+                                    <Run Text="min"/>
+                                </TextBlock>
+                                <TextBlock Text="Time Limit" 
+                                           FontSize="14" Foreground="#6B7280" 
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <!-- Total Points -->
+                            <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                <TextBlock Text="🎯" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding TotalPoints}" 
+                                           FontSize="24" FontWeight="Bold" 
+                                           Foreground="#1F2937" 
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Total Points" 
+                                           FontSize="14" Foreground="#6B7280" 
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <!-- Attempts -->
+                            <StackPanel Grid.Column="3" HorizontalAlignment="Center">
+                                <TextBlock Text="🔄" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding AttemptText}" 
+                                           FontSize="24" FontWeight="Bold" 
+                                           Foreground="#1F2937" 
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Attempts" 
+                                           FontSize="14" Foreground="#6B7280" 
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <!-- Test Availability Period -->
+                        <StackPanel Margin="0,0,0,24" Spacing="12">
+                            <!-- Start Date -->
+                            <Border Background="#E0F2FE" CornerRadius="8" Padding="16">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="🚀" FontSize="16" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Available from: " FontSize="14" Foreground="#0369A1"/>
+                                    <TextBlock Text="{Binding StartDateString}" 
+                                               FontSize="14" FontWeight="SemiBold" 
+                                               Foreground="#0369A1"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- Due Date -->
+                            <Border Background="#FEF3C7" CornerRadius="8" Padding="16">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="⏰" FontSize="16" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Due: " FontSize="14" Foreground="#92400E"/>
+                                    <TextBlock Text="{Binding DueDateString}" 
+                                               FontSize="14" FontWeight="SemiBold" 
+                                               Foreground="#92400E"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- Test Status -->
+                            <Border Background="#F0FDF4" CornerRadius="8" Padding="16">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="📋" FontSize="16" Margin="0,0,8,0"/>
+                                    <TextBlock Text="{Binding TestStatusMessage}" 
+                                               FontSize="14" FontWeight="SemiBold" 
+                                               Foreground="#166534"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Question Types Overview -->
+                <Border Background="White" CornerRadius="16" Padding="24" Margin="0,0,0,24">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="20" OffsetX="0" OffsetY="4" 
+                                          Color="#000000" Opacity="0.08"/>
+                    </Border.Effect>
+                    
+                    <StackPanel>
+                        <TextBlock Text="Question Types" 
+                                   FontSize="20" FontWeight="SemiBold" 
+                                   Foreground="#1F2937" 
+                                   Margin="0,0,0,16"/>
+                        
+                        <ItemsControl ItemsSource="{Binding QuestionTypes}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:QuestionTypeInfo}">
+                                    <Border Background="#F9FAFB" CornerRadius="8" 
+                                            Padding="16" Margin="0,0,0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <Border Grid.Column="0" 
+                                                    Background="{Binding TypeColor}" 
+                                                    CornerRadius="4" 
+                                                    Width="12" Height="12" 
+                                                    Margin="0,0,12,0"/>
+                                            
+                                            <TextBlock Grid.Column="1" 
+                                                       Text="{Binding TypeName}" 
+                                                       FontSize="14" FontWeight="Medium" 
+                                                       Foreground="#1F2937" 
+                                                       VerticalAlignment="Center"/>
+                                            
+                                            <TextBlock Grid.Column="2" 
+                                                       Text="{Binding Count, StringFormat='{}{0} questions'}" 
+                                                       FontSize="14" 
+                                                       Foreground="#6B7280" 
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Instructions -->
+                <Border Background="White" CornerRadius="16" Padding="24" Margin="0,0,0,32">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="20" OffsetX="0" OffsetY="4" 
+                                          Color="#000000" Opacity="0.08"/>
+                    </Border.Effect>
+                    
+                    <StackPanel>
+                        <TextBlock Text="Instructions" 
+                                   FontSize="20" FontWeight="SemiBold" 
+                                   Foreground="#1F2937" 
+                                   Margin="0,0,0,16"/>
+                        
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="• Read each question carefully. You have the full time limit to complete this test." 
+                                       FontSize="14" Foreground="#374151" TextWrapping="Wrap"/>
+                            <TextBlock Text="• Make sure to answer all questions before submitting." 
+                                       FontSize="14" Foreground="#374151" TextWrapping="Wrap"/>
+                            <TextBlock Text="• You can navigate between questions using the Previous and Next buttons." 
+                                       FontSize="14" Foreground="#374151" TextWrapping="Wrap"/>
+                            <TextBlock Text="• Your progress will be automatically saved as you go." 
+                                       FontSize="14" Foreground="#374151" TextWrapping="Wrap"/>
+                            <TextBlock Text="• Once you submit the test, you cannot make changes to your answers." 
+                                       FontSize="14" Foreground="#374151" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Start Test Button -->
+                <Button Content="Start Test"
+                        Classes="primary"
+                        FontSize="18" FontWeight="SemiBold"
+                        Padding="32,16"
+                        Margin="0,32,0,100"
+                        HorizontalAlignment="Center"
+                        Command="{Binding StartTestCommand}"
+                        IsEnabled="{Binding CanStartTest}">
+                    <Button.Styles>
+                        <Style Selector="Button.primary">
+                            <Setter Property="Background" Value="#3B82F6"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="CornerRadius" Value="8"/>
+                        </Style>
+                        <Style Selector="Button.primary:pointerover">
+                            <Setter Property="Background" Value="#2563EB"/>
+                        </Style>
+                        <Style Selector="Button.primary:pressed">
+                            <Setter Property="Background" Value="#1D4ED8"/>
+                        </Style>
+                        <Style Selector="Button.primary:disabled">
+                            <Setter Property="Background" Value="#9CA3AF"/>
+                            <Setter Property="Opacity" Value="0.6"/>
+                        </Style>
+                    </Button.Styles>
+                </Button>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window> 

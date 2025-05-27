@@ -1,0 +1,327 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaAzora.ViewModels.Student"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
+        x:Class="AvaloniaAzora.Views.Student.TestResultWindow"
+        x:DataType="vm:TestResultViewModel"
+        Title="{Binding TestTitle, StringFormat='Test Results: {0}'}"
+        Width="1000" Height="700"
+        Background="#F8FAFC"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" BoxShadow="0 2 10 0 #0000000A">
+            <Grid Margin="32,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Content="← Back to Dashboard" 
+                        Background="Transparent" BorderThickness="0"
+                        FontSize="16" Foreground="#6B7280"
+                        VerticalAlignment="Center"
+                        Command="{Binding GoBackCommand}"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" 
+                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="📊" FontSize="24" Margin="0,0,12,0"/>
+                    <TextBlock Text="Test Results" 
+                               FontSize="24" FontWeight="Bold" 
+                               Foreground="#1F2937"/>
+                </StackPanel>
+
+                <Button Grid.Column="2" Content="📥 Download" 
+                        Background="Transparent" 
+                        BorderBrush="#D1D5DB" BorderThickness="1"
+                        Foreground="#6B7280"
+                        FontSize="14" Padding="12,8"
+                        CornerRadius="6"
+                        VerticalAlignment="Center"
+                        Command="{Binding DownloadResultsCommand}"/>
+            </Grid>
+        </Border>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" Padding="32">
+            <StackPanel MaxWidth="900" HorizontalAlignment="Center" Spacing="24">
+                
+                <!-- Score Summary Card -->
+                <Border Background="White" CornerRadius="16" Padding="32">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="20" OffsetX="0" OffsetY="4" 
+                                          Color="#000000" Opacity="0.08"/>
+                    </Border.Effect>
+                    
+                    <StackPanel>
+                        <!-- Test Title -->
+                        <TextBlock Text="{Binding TestTitle}" 
+                                   FontSize="28" FontWeight="Bold" 
+                                   Foreground="#1F2937" 
+                                   TextAlignment="Center"
+                                   Margin="0,0,0,16"/>
+                        
+                        <!-- Completion Info -->
+                        <TextBlock FontSize="14" Foreground="#6B7280" 
+                                   TextAlignment="Center" Margin="0,0,0,24">
+                            <Run Text="Completed on"/>
+                            <Run Text="{Binding CompletedDateString}"/>
+                            <Run Text="•"/>
+                            <Run Text="Time taken:"/>
+                            <Run Text="{Binding TimeTakenString}"/>
+                        </TextBlock>
+                        
+                        <!-- Score Circle -->
+                        <Grid Margin="0,0,0,32" HorizontalAlignment="Center">
+                            <Ellipse Width="150" Height="150" 
+                                     Fill="{Binding ScoreBackgroundColor}" 
+                                     Opacity="0.1"/>
+                            <Ellipse Width="140" Height="140" 
+                                     Stroke="{Binding ScoreColor}" 
+                                     StrokeThickness="8" 
+                                     Fill="Transparent"/>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding ScorePercentage, StringFormat='{}{0:F0}%'}" 
+                                           FontSize="36" FontWeight="Bold" 
+                                           Foreground="{Binding ScoreColor}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Final Score" 
+                                           FontSize="14" Foreground="#6B7280"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <!-- Score Details -->
+                        <Grid Margin="0,0,0,24">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Correct Answers -->
+                            <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                <TextBlock Text="✅" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding CorrectAnswers}" 
+                                           FontSize="20" FontWeight="Bold" 
+                                           Foreground="#10B981" 
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Correct" 
+                                           FontSize="12" Foreground="#6B7280" 
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <!-- Incorrect Answers -->
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <TextBlock Text="❌" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding IncorrectAnswers}" 
+                                           FontSize="20" FontWeight="Bold" 
+                                           Foreground="#EF4444" 
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Incorrect" 
+                                           FontSize="12" Foreground="#6B7280" 
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <!-- Points Earned -->
+                            <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                <TextBlock Text="🎯" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                <TextBlock FontSize="20" FontWeight="Bold" 
+                                           Foreground="#3B82F6" 
+                                           HorizontalAlignment="Center">
+                                    <Run Text="{Binding PointsEarned}"/>
+                                    <Run Text="/"/>
+                                    <Run Text="{Binding TotalPoints}"/>
+                                </TextBlock>
+                                <TextBlock Text="Points" 
+                                           FontSize="12" Foreground="#6B7280" 
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <!-- Class Rank -->
+                            <StackPanel Grid.Column="3" HorizontalAlignment="Center">
+                                <TextBlock Text="🏆" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding ClassRank}" 
+                                           FontSize="20" FontWeight="Bold" 
+                                           Foreground="#F59E0B" 
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Class Rank" 
+                                           FontSize="12" Foreground="#6B7280" 
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <!-- Performance Badge -->
+                        <Border Background="{Binding PerformanceBadgeColor}" 
+                                CornerRadius="8" Padding="16,8" 
+                                HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding PerformanceBadgeText}" 
+                                       FontSize="14" FontWeight="SemiBold" 
+                                       Foreground="White"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Question Breakdown -->
+                <Border Background="White" CornerRadius="16" Padding="24">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="20" OffsetX="0" OffsetY="4" 
+                                          Color="#000000" Opacity="0.08"/>
+                    </Border.Effect>
+                    
+                    <StackPanel>
+                        <TextBlock Text="Question Breakdown" 
+                                   FontSize="20" FontWeight="SemiBold" 
+                                   Foreground="#1F2937" 
+                                   Margin="0,0,0,16"/>
+                        
+                        <ItemsControl ItemsSource="{Binding QuestionResults}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:QuestionResultViewModel}">
+                                    <Border Background="#F9FAFB" CornerRadius="8" 
+                                            Padding="20" Margin="0,0,0,12"
+                                            BorderThickness="2" 
+                                            BorderBrush="{Binding IsCorrect, Converter={StaticResource BoolToColorConverter}}">
+                                        <StackPanel>
+                                            <!-- Question Header -->
+                                            <Grid Margin="0,0,0,12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding StatusIcon}" 
+                                                               FontSize="18" 
+                                                               Margin="0,0,8,0"/>
+                                                    <TextBlock FontSize="14" FontWeight="Medium" 
+                                                               Foreground="#1F2937">
+                                                        <Run Text="Question"/>
+                                                        <Run Text="{Binding QuestionNumber}"/>
+                                                    </TextBlock>
+                                                    <Border Background="{Binding TypeColor}"
+                                                            Padding="6,2" CornerRadius="3"
+                                                            Margin="8,0,0,0">
+                                                        <TextBlock Text="{Binding QuestionType}" 
+                                                                   FontSize="12" FontWeight="Medium"
+                                                                   Foreground="White"/>
+                                                    </Border>
+                                                </StackPanel>
+                                                
+                                                <TextBlock Grid.Column="1" 
+                                                           FontSize="14" FontWeight="Medium"
+                                                           Foreground="{Binding IsCorrect, Converter={StaticResource BoolToTextColorConverter}}">
+                                                    <Run Text="{Binding PointsEarned}"/>
+                                                    <Run Text="/"/>
+                                                    <Run Text="{Binding TotalPoints}"/>
+                                                    <Run Text="pts"/>
+                                                </TextBlock>
+                                            </Grid>
+                                            
+                                            <!-- Question Text -->
+                                            <TextBlock Text="{Binding QuestionText}" 
+                                                       FontSize="14" 
+                                                       Foreground="#374151" 
+                                                       TextWrapping="Wrap"
+                                                       Margin="0,0,0,12"/>
+                                            
+                                            <!-- Answer Details -->
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                
+                                                <!-- Your Answer -->
+                                                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4">
+                                                    <TextBlock Text="Your Answer:" 
+                                                               FontSize="12" FontWeight="Medium" 
+                                                               Foreground="#6B7280" 
+                                                               Width="100"/>
+                                                    <TextBlock Text="{Binding UserAnswer}" 
+                                                               FontSize="12" 
+                                                               Foreground="#1F2937"/>
+                                                </StackPanel>
+                                                
+                                                <!-- Correct Answer (if wrong) -->
+                                                <StackPanel Grid.Row="1" Orientation="Horizontal" 
+                                                            IsVisible="{Binding !IsCorrect}" 
+                                                            Margin="0,0,0,4">
+                                                    <TextBlock Text="Correct Answer:" 
+                                                               FontSize="12" FontWeight="Medium" 
+                                                               Foreground="#6B7280" 
+                                                               Width="100"/>
+                                                    <TextBlock Text="{Binding CorrectAnswer}" 
+                                                               FontSize="12" FontWeight="Medium"
+                                                               Foreground="#10B981"/>
+                                                </StackPanel>
+                                                
+                                                <!-- Explanation (if available) -->
+                                                <StackPanel Grid.Row="2" 
+                                                            IsVisible="{Binding HasExplanation}">
+                                                    <TextBlock Text="Explanation:" 
+                                                               FontSize="12" FontWeight="Medium" 
+                                                               Foreground="#6B7280" 
+                                                               Margin="0,8,0,4"/>
+                                                    <TextBlock Text="{Binding Explanation}" 
+                                                               FontSize="12" 
+                                                               Foreground="#374151"
+                                                               TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Action Buttons -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="16">
+                    <Button Content="← Back to Dashboard" 
+                            Background="Transparent" 
+                            BorderBrush="#D1D5DB" BorderThickness="1"
+                            Foreground="#6B7280"
+                            FontSize="16" Padding="20,12"
+                            CornerRadius="8"
+                            Command="{Binding GoBackCommand}"/>
+                    
+                    <Button Content="View All Attempts" 
+                            Classes="primary"
+                            FontSize="16" FontWeight="SemiBold"
+                            Padding="20,12"
+                            Command="{Binding ViewAttemptsCommand}">
+                        <Button.Styles>
+                            <Style Selector="Button.primary">
+                                <Setter Property="Background" Value="#3B82F6"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="CornerRadius" Value="8"/>
+                            </Style>
+                            <Style Selector="Button.primary:pointerover">
+                                <Setter Property="Background" Value="#2563EB"/>
+                            </Style>
+                        </Button.Styles>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+
+    <Window.Resources>
+        <vm:BoolToColorConverter x:Key="BoolToColorConverter"/>
+        <vm:BoolToTextColorConverter x:Key="BoolToTextColorConverter"/>
+    </Window.Resources>
+</Window> 
