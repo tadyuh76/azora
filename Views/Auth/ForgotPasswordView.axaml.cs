@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace AvaloniaAzora.Views
+namespace AvaloniaAzora.Views.Auth
 {
     public partial class ForgotPasswordView : UserControl
     {

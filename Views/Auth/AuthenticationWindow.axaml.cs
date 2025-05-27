@@ -2,7 +2,7 @@ using Avalonia.Controls;
 using AvaloniaAzora.ViewModels;
 using CommunityToolkit.Mvvm.Input;
 
-namespace AvaloniaAzora.Views
+namespace AvaloniaAzora.Views.Auth
 {
     public partial class AuthenticationWindow : Window
     {
@@ -34,37 +34,37 @@ namespace AvaloniaAzora.Views
             _emailVerificationViewModel.BackToSignInCommand = new RelayCommand(() => ShowView("SignIn"));
 
             // Set DataContext for each view
-            SignInView.DataContext = _signInViewModel;
-            SignUpView.DataContext = _signUpViewModel;
-            ForgotPasswordView.DataContext = _forgotPasswordViewModel;
-            EmailVerificationView.DataContext = _emailVerificationViewModel;
+            this.FindControl<Control>("SignInView")!.DataContext = _signInViewModel;
+            this.FindControl<Control>("SignUpView")!.DataContext = _signUpViewModel;
+            this.FindControl<Control>("ForgotPasswordView")!.DataContext = _forgotPasswordViewModel;
+            this.FindControl<Control>("EmailVerificationView")!.DataContext = _emailVerificationViewModel;
         }
 
         private void ShowView(string viewName)
         {
             // Hide all views first
-            SignInView.IsVisible = false;
-            SignUpView.IsVisible = false;
-            ForgotPasswordView.IsVisible = false;
-            EmailVerificationView.IsVisible = false;
+            this.FindControl<Control>("SignInView")!.IsVisible = false;
+            this.FindControl<Control>("SignUpView")!.IsVisible = false;
+            this.FindControl<Control>("ForgotPasswordView")!.IsVisible = false;
+            this.FindControl<Control>("EmailVerificationView")!.IsVisible = false;
 
             // Show the requested view
             switch (viewName)
             {
                 case "SignIn":
-                    SignInView.IsVisible = true;
+                    this.FindControl<Control>("SignInView")!.IsVisible = true;
                     break;
                 case "SignUp":
-                    SignUpView.IsVisible = true;
+                    this.FindControl<Control>("SignUpView")!.IsVisible = true;
                     break;
                 case "ForgotPassword":
-                    ForgotPasswordView.IsVisible = true;
+                    this.FindControl<Control>("ForgotPasswordView")!.IsVisible = true;
                     break;
                 case "EmailVerification":
-                    EmailVerificationView.IsVisible = true;
+                    this.FindControl<Control>("EmailVerificationView")!.IsVisible = true;
                     break;
                 default:
-                    SignInView.IsVisible = true; // Default to SignIn
+                    this.FindControl<Control>("SignInView")!.IsVisible = true; // Default to SignIn
                     break;
             }
         }

@@ -5,7 +5,7 @@ using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
 using AvaloniaAzora.ViewModels;
-using AvaloniaAzora.Views;
+using AvaloniaAzora.Views.Auth;
 
 namespace AvaloniaAzora;
 

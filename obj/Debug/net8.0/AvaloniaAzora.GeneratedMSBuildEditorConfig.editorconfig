@@ -22,20 +22,20 @@ build_property.EnableGeneratedComInterfaceComImportInterop =
 [/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/App.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/AuthenticationWindow.axaml]
+[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/AuthenticationWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/EmailVerificationView.axaml]
+[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/EmailVerificationView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/ForgotPasswordView.axaml]
+[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/ForgotPasswordView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/MainWindow.axaml]
+[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/MainWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/SignInView.axaml]
+[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/SignInView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/SignUpView.axaml]
+[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/SignUpView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml

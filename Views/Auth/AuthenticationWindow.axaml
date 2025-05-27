@@ -1,0 +1,43 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaAzora.ViewModels"
+        xmlns:views="using:AvaloniaAzora.Views.Auth"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+        x:Class="AvaloniaAzora.Views.Auth.AuthenticationWindow"
+        Title="Avalonia Azora - Authentication"
+        Width="1000" Height="700"
+        MinWidth="800" MinHeight="600"
+        MaxWidth="1600" MaxHeight="1200"
+        WindowStartupLocation="CenterScreen"
+        CanResize="True"
+        Icon="/Assets/avalonia-logo.ico">
+
+    <!-- Responsive Grid that adapts to window size -->
+    <Grid Background="#F5F7FA">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Center container that maintains aspect ratio -->
+        <Border HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                MaxWidth="500"
+                MinWidth="400">
+            
+            <Grid>
+                <!-- Default view: Sign In -->
+                <views:SignInView Name="SignInView"/>
+
+                <!-- Other views can be shown programmatically -->
+                <views:SignUpView Name="SignUpView" IsVisible="False"/>
+
+                <views:ForgotPasswordView Name="ForgotPasswordView" IsVisible="False"/>
+
+                <views:EmailVerificationView Name="EmailVerificationView" IsVisible="False"/>
+            </Grid>
+            
+        </Border>
+    </Grid>
+</Window> 

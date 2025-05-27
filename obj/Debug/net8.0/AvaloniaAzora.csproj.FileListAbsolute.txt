@@ -5,6 +5,7 @@
 /Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/obj/Debug/net8.0/AvaloniaAzora.AssemblyInfoInputs.cache
 /Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/obj/Debug/net8.0/AvaloniaAzora.AssemblyInfo.cs
 /Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/obj/Debug/net8.0/AvaloniaAzora.csproj.CoreCompileInputs.cache
+/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/obj/Debug/net8.0/AvaloniaAzora.sourcelink.json
 /Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/obj/Debug/net8.0/AvaloniaAzora.dll
 /Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/obj/Debug/net8.0/refint/AvaloniaAzora.dll
 /Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/obj/Debug/net8.0/AvaloniaAzora.pdb
