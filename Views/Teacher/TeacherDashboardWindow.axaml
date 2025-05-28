@@ -177,7 +177,7 @@
                             <TextBlock Grid.Column="0" Text="My Classrooms" FontSize="24" FontWeight="Bold" 
                                        Foreground="#1F2937" VerticalAlignment="Center"/>
                             <Button Grid.Column="1" Content="+ Create Classroom" 
-                                    Classes="primary" Padding="16,8" CornerRadius="6"/>
+                                    Classes="primary" Padding="16,8" CornerRadius="6" Click="OnCreateClassroomClicked"/>
                         </Grid>
                         
                         <ItemsControl ItemsSource="{Binding TeachingClasses}">
@@ -305,7 +305,7 @@
                                 </Border.Effect>
                                 <Button Content="📝 Create New Test" 
                                         Classes="primary" HorizontalAlignment="Stretch"
-                                        Padding="12,8" CornerRadius="6"/>
+                                        Padding="12,8" CornerRadius="6" Click="OnCreateTestClicked"/>
                             </Border>
                             
                             <Border Background="White" CornerRadius="8" Padding="16" Margin="0,0,0,8">

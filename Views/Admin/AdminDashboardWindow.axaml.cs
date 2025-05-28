@@ -6,6 +6,12 @@ namespace AvaloniaAzora.Views.Admin
 {
     public partial class AdminDashboardWindow : Window
     {
+        // This constructor is for design-time only
+        public AdminDashboardWindow()
+        {
+            InitializeComponent();
+        }
+
         public AdminDashboardWindow(Guid userId)
         {
             InitializeComponent();

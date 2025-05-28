@@ -1,0 +1,22 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaAzora.ViewModels"
+        x:Class="AvaloniaAzora.Views.Teacher.CreateClassroomWindow"
+        Title="Create Classroom"
+        Width="400" Height="300"
+        WindowStartupLocation="CenterOwner"
+        x:DataType="vm:CreateClassroomViewModel">
+    <Design.DataContext>
+        <vm:CreateClassroomViewModel/>
+    </Design.DataContext>
+    <StackPanel Margin="20" Spacing="10">
+        <TextBlock Text="Class Name" FontWeight="SemiBold"/>
+        <TextBox Text="{Binding ClassName, Mode=TwoWay}" Watermark="Enter class name"/>
+        <TextBlock Text="Description" FontWeight="SemiBold"/>
+        <TextBox Text="{Binding Description, Mode=TwoWay}" AcceptsReturn="True" Height="80" Watermark="Enter description"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+            <Button Content="Cancel" Click="OnCancelClicked"/>
+            <Button Content="Create" Click="OnCreateClicked"/>
+        </StackPanel>
+    </StackPanel>
+</Window> 

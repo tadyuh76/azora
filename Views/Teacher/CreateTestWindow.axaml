@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaAzora.ViewModels"
+        x:Class="AvaloniaAzora.Views.Teacher.CreateTestWindow"
+        Title="Create Test"
+        Width="400" Height="350"
+        WindowStartupLocation="CenterOwner"
+        x:DataType="vm:CreateTestViewModel">
+    <Design.DataContext>
+        <vm:CreateTestViewModel/>
+    </Design.DataContext>
+    <StackPanel Margin="20" Spacing="10">
+        <TextBlock Text="Title" FontWeight="SemiBold"/>
+        <TextBox Text="{Binding Title, Mode=TwoWay}" Watermark="Enter test title"/>
+        <TextBlock Text="Description" FontWeight="SemiBold"/>
+        <TextBox Text="{Binding Description, Mode=TwoWay}" AcceptsReturn="True" Height="80" Watermark="Enter description"/>
+        <TextBlock Text="Time Limit (minutes)" FontWeight="SemiBold"/>
+        <NumericUpDown Minimum="0" Value="{Binding TimeLimit, Mode=TwoWay}"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+            <Button Content="Cancel" Click="OnCancelClicked"/>
+            <Button Content="Create" Click="OnCreateClicked"/>
+        </StackPanel>
+    </StackPanel>
+</Window> 

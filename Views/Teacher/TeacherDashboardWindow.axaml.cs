@@ -6,15 +6,47 @@ namespace AvaloniaAzora.Views.Teacher
 {
     public partial class TeacherDashboardWindow : Window
     {
+        private readonly Guid _userId;
+        private readonly TeacherDashboardViewModel _viewModel;
+
+        // This constructor is for design-time only
+        public TeacherDashboardWindow()
+        {
+            InitializeComponent();
+            _viewModel = new TeacherDashboardViewModel();
+            DataContext = _viewModel;
+        }
+
         public TeacherDashboardWindow(Guid userId)
         {
             InitializeComponent();
 
-            var viewModel = new TeacherDashboardViewModel();
-            DataContext = viewModel;
+            _userId = userId;
+            _viewModel = new TeacherDashboardViewModel();
+            DataContext = _viewModel;
 
             // Load dashboard data
-            _ = viewModel.LoadDashboardDataAsync(userId);
+            _ = _viewModel.LoadDashboardDataAsync(_userId);
+        }
+
+        private void OnCreateClassroomClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            var window = new CreateClassroomWindow(_userId);
+            window.Closed += (s, args) =>
+            {
+                _ = _viewModel.LoadDashboardDataAsync(_userId);
+            };
+            window.Show();
+        }
+
+        private void OnCreateTestClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            var window = new CreateTestWindow(_userId);
+            window.Closed += (s, args) =>
+            {
+                _ = _viewModel.LoadDashboardDataAsync(_userId);
+            };
+            window.Show();
         }
     }
 }
