@@ -93,17 +93,43 @@ namespace AvaloniaAzora.Services
         // Admin Activity Logs
         Task<IEnumerable<Log>> GetRecentActivityLogsAsync(int count = 50);
         Task<bool> LogActivityAsync(string action, string description, Guid? userId = null);
+
+        // Admin Classroom Management
+        Task<bool> DeleteClassAsync(Guid classId);
+        Task<bool> ArchiveClassAsync(Guid classId);
+        Task<IEnumerable<Class>> SearchClassesAsync(string searchTerm, bool? isActive = null);
+        Task<IEnumerable<ClassEnrollment>> GetClassEnrollmentsAsync(Guid classId);
+        Task<bool> EnrollStudentInClassAsync(Guid classId, Guid studentId);
+        Task<bool> RemoveStudentFromClassAsync(Guid classId, Guid studentId);
+        Task<bool> BulkEnrollStudentsAsync(Guid classId, IEnumerable<Guid> studentIds);
+        Task<IEnumerable<User>> GetAvailableStudentsForClassAsync(Guid classId);
+        Task<Dictionary<string, object>> GetClassStatisticsAsync(Guid classId);
+        Task<bool> TransferStudentBetweenClassesAsync(Guid studentId, Guid fromClassId, Guid toClassId);
     
-    // Admin Classroom Management
-    Task<bool> DeleteClassAsync(Guid classId);
-    Task<bool> ArchiveClassAsync(Guid classId);
-    Task<IEnumerable<Class>> SearchClassesAsync(string searchTerm, bool? isActive = null);
-    Task<IEnumerable<ClassEnrollment>> GetClassEnrollmentsAsync(Guid classId);
-    Task<bool> EnrollStudentInClassAsync(Guid classId, Guid studentId);
-    Task<bool> RemoveStudentFromClassAsync(Guid classId, Guid studentId);
-    Task<bool> BulkEnrollStudentsAsync(Guid classId, IEnumerable<Guid> studentIds);
-    Task<IEnumerable<User>> GetAvailableStudentsForClassAsync(Guid classId);
-    Task<Dictionary<string, object>> GetClassStatisticsAsync(Guid classId);
-    Task<bool> TransferStudentBetweenClassesAsync(Guid studentId, Guid fromClassId, Guid toClassId);
+    
+    // Test Management - Add these missing methods
+        Task<IEnumerable<Test>> GetAllTestsWithQuestionsAsync();
+        Task<Test?> GetTestWithQuestionsAsync(Guid testId);
+        Task<bool> DeleteTestAsync(Guid testId);
+        Task<Dictionary<string, int>> GetTestUsageStatisticsAsync();
+
+        // Question Bank Management - Add these missing methods  
+        Task<IEnumerable<Question>> GetAllQuestionsAsync();
+        Task<IEnumerable<Question>> SearchQuestionsAsync(string searchTerm, Guid? categoryId = null);
+        Task<bool> DeleteQuestionAsync(Guid questionId);
+        Task<IEnumerable<Question>> GetQuestionsByCategoryAsync(Guid categoryId);
+        Task<Dictionary<Guid, int>> GetQuestionUsageCountAsync();
+
+        // Category Management - Add these missing methods
+        Task<IEnumerable<Category>> GetAllCategoriesAsync();
+        Task<Category> CreateCategoryAsync(Category category);
+        Task<Category> UpdateCategoryAsync(Category category);
+        Task<bool> DeleteCategoryAsync(Guid categoryId);
+
+        // Assessment Management - Add these missing methods
+        Task<IEnumerable<Attempt>> GetAllAttemptsAsync();
+        Task<Attempt?> GetAttemptWithDetailsAsync(Guid attemptId);
+        Task<bool> DeleteAttemptAsync(Guid attemptId);
+        Task<Dictionary<string, object>> GetAssessmentStatisticsAsync();
     }
 }

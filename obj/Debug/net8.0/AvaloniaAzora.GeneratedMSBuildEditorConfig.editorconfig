@@ -28,6 +28,12 @@ build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 [C:/Users/Asus/Desktop/Azora/azora/Views/Admin/AdminDashboardWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
+[C:/Users/Asus/Desktop/Azora/azora/Views/Admin/AuditLogsView.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/Asus/Desktop/Azora/azora/Views/Admin/ClassroomEditView.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
 [C:/Users/Asus/Desktop/Azora/azora/Views/Auth/AuthenticationWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
