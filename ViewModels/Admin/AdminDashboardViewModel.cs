@@ -58,7 +58,8 @@ namespace AvaloniaAzora.ViewModels
         [ObservableProperty]
         private string _systemStatusColor = "#10B981";
 
-        public ObservableCollection<RecentActivityViewModel> RecentActivities { get; } = new();
+        // RENAMED: Use AdminRecentActivityViewModel instead of RecentActivityViewModel
+        public ObservableCollection<AdminRecentActivityViewModel> RecentActivities { get; } = new();
 
         // Commands
         public ICommand ManageUsersCommand { get; }
@@ -199,9 +200,10 @@ namespace AvaloniaAzora.ViewModels
                 
                 foreach (var log in logs)
                 {
-                    var activityViewModel = new RecentActivityViewModel
+                    // FIXED: Use AdminRecentActivityViewModel instead of RecentActivityViewModel
+                    var activityViewModel = new AdminRecentActivityViewModel
                     {
-                        _activityTitle = log.EventType ?? "System Activity",
+                        ActivityTitle = log.EventType ?? "System Activity",
                         ActivityDescription = log.Description ?? "Recent system activity logged",
                         TimeAgo = GetTimeAgo(log.Timestamp),
                         ActivityColor = GetActivityColor(log.EventType ?? "system")
@@ -215,7 +217,8 @@ namespace AvaloniaAzora.ViewModels
             {
                 Console.WriteLine($"INFO: Could not load recent activities: {ex.Message}");
                 RecentActivities.Clear();
-                RecentActivities.Add(new RecentActivityViewModel
+                // FIXED: Use AdminRecentActivityViewModel instead of RecentActivityViewModel
+                RecentActivities.Add(new AdminRecentActivityViewModel
                 {
                     ActivityTitle = "System Started",
                     ActivityDescription = "Admin dashboard loaded successfully",
@@ -276,7 +279,8 @@ namespace AvaloniaAzora.ViewModels
         }
     }
 
-    public partial class RecentActivityViewModel : ViewModelBase
+    // RENAMED: AdminRecentActivityViewModel to avoid conflict with Teacher's RecentActivityViewModel
+    public partial class AdminRecentActivityViewModel : ViewModelBase
     {
         [ObservableProperty]
         private string _activityTitle = string.Empty;

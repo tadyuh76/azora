@@ -74,6 +74,7 @@ namespace AvaloniaAzora.Services
         Task<int> GetTotalUsersCountAsync();
         Task<int> GetActiveUsersCountAsync();
         Task<int> GetUserCountByRoleAsync(string role);
+        
 
         // Admin Class Management
 

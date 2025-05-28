@@ -144,7 +144,8 @@ namespace AvaloniaAzora.ViewModels.Admin
                 // You would typically show a dialog to get user input here
                 // For simplicity, we're creating a test with placeholder data
                 
-                var creator = await _dataService.GetUserByRoleAsync("teacher").FirstOrDefaultAsync();
+                var users = await _dataService.GetUsersByRoleAsync("teacher");
+                var creator = users.FirstOrDefault();
                 if (creator == null)
                 {
                     ShowError("No teacher found to assign as test creator.");
