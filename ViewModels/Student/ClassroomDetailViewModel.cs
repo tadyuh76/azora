@@ -33,12 +33,6 @@ namespace AvaloniaAzora.ViewModels.Student
         private string _instructorEmail = string.Empty;
 
         [ObservableProperty]
-        private string _schedule = "Mon, Wed, Fri - 10:00 AM";
-
-        [ObservableProperty]
-        private string _location = "Room 204, Science Building";
-
-        [ObservableProperty]
         private int _studentCount;
 
         [ObservableProperty]
@@ -49,6 +43,9 @@ namespace AvaloniaAzora.ViewModels.Student
 
         [ObservableProperty]
         private bool _isLoading = true;
+
+        // Events
+        public event EventHandler? GoBackRequested;
 
         public ClassroomDetailViewModel()
         {
@@ -143,7 +140,10 @@ namespace AvaloniaAzora.ViewModels.Student
                             TimeLimit = classTest.Test.TimeLimit ?? 45, // Default 45 minutes
                             AttemptCount = attemptCount,
                             MaxAttempts = classTest.LimitAttempts ?? 2,
-                            IsCompleted = userAttempts.Any(a => a.Score.HasValue) // Has at least one scored attempt
+                            IsCompleted = userAttempts.Any(a => a.Score.HasValue), // Has at least one scored attempt
+                            BestScore = userAttempts.Max(a => a.Score) ?? 0,
+                            BestAttemptId = userAttempts.FirstOrDefault(a => a.Score.HasValue)?.Id,
+                            UserId = userId
                         };
 
                         if (testCard.IsCompleted || (classTest.DueDate.HasValue && classTest.DueDate.Value < DateTimeOffset.Now))
@@ -198,6 +198,7 @@ namespace AvaloniaAzora.ViewModels.Student
         {
             // This will be handled by the view to close the window
             Console.WriteLine("🔙 Going back to dashboard");
+            GoBackRequested?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -233,31 +234,48 @@ namespace AvaloniaAzora.ViewModels.Student
         [ObservableProperty]
         private bool _isCompleted;
 
+        [ObservableProperty]
+        private float _bestScore = 0;
+
+        [ObservableProperty]
+        private Guid? _bestAttemptId;
+
+        [ObservableProperty]
+        private Guid _userId;
+
         public string DueDateString => DueDate.ToString("MMM dd, hh:mm tt");
         public string StatusText => IsCompleted ? "Completed" : "Upcoming";
         public string AttemptText => $"{AttemptCount}/{MaxAttempts} attempts";
+        public bool CanRetake => AttemptCount < MaxAttempts;
 
         [RelayCommand]
         private void StartTest()
         {
-            Console.WriteLine($"🎯 Opening test details: {TestName}");
-
-            // Open test detail window
-            var testDetailViewModel = new TestDetailViewModel();
-            var testDetailWindow = new Views.Student.TestDetailWindow(testDetailViewModel);
-
-            // Get the current user ID from the parent - we need to pass it down
-            // For now, we'll retrieve it from the authentication service
-            var authService = (AvaloniaAzora.Services.IAuthenticationService)AvaloniaAzora.Services.ServiceProvider.Instance.GetService(typeof(AvaloniaAzora.Services.IAuthenticationService))!;
-            var currentUser = authService.GetCurrentUser();
-
-            // Safely parse the user ID with null check
-            var userId = currentUser?.Id != null ? Guid.Parse(currentUser.Id) : Guid.NewGuid();
-
-            // Load test details
-            _ = testDetailViewModel.LoadTestDetailsAsync(ClassTestId, userId);
-
-            testDetailWindow.Show();
+            Console.WriteLine($"🎯 Starting test: {TestName}");
+            TestStartRequested?.Invoke(this, new TestStartEventArgs { ClassTestId = ClassTestId, UserId = UserId });
         }
+
+        [RelayCommand]
+        private void ViewTest()
+        {
+            Console.WriteLine($"📋 Viewing test detail: {TestName}");
+            ViewTestRequested?.Invoke(this, new ViewTestEventArgs { ClassTestId = ClassTestId, UserId = UserId });
+        }
+
+        // Events
+        public static event EventHandler<TestStartEventArgs>? TestStartRequested;
+        public static event EventHandler<ViewTestEventArgs>? ViewTestRequested;
+    }
+
+    public class TestStartEventArgs : EventArgs
+    {
+        public Guid ClassTestId { get; set; }
+        public Guid UserId { get; set; }
+    }
+
+    public class ViewTestEventArgs : EventArgs
+    {
+        public Guid ClassTestId { get; set; }
+        public Guid UserId { get; set; }
     }
 }

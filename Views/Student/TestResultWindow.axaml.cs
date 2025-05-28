@@ -9,6 +9,7 @@ namespace AvaloniaAzora.Views.Student
         public TestResultWindow()
         {
             InitializeComponent();
+            WindowState = WindowState.Maximized;
         }
 
         public TestResultWindow(Guid attemptId, Guid userId) : this()

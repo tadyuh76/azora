@@ -339,6 +339,17 @@ namespace AvaloniaAzora.Services
                 .ToListAsync();
         }
 
+        public async Task<List<Attempt>> GetAttemptsByStudentAndClassTestAsync(Guid studentId, Guid classTestId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Attempts
+                .Include(a => a.ClassTest)
+                    .ThenInclude(ct => ct!.Test)
+                .Where(a => a.StudentId == studentId && a.ClassTestId == classTestId)
+                .OrderByDescending(a => a.StartTime)
+                .ToListAsync();
+        }
+
         public async Task<Attempt?> GetAttemptByIdAsync(Guid id)
         {
             using var context = _contextFactory.CreateDbContext();
@@ -392,6 +403,16 @@ namespace AvaloniaAzora.Services
             return await context.UserAnswers
                 .Include(ua => ua.Question)
                 .Where(ua => ua.AttemptId == attemptId)
+                .ToListAsync();
+        }
+
+        public async Task<List<UserAnswer>> GetAnswersByClassTestAndQuestionAsync(Guid classTestId, Guid questionId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.UserAnswers
+                .Include(ua => ua.Attempt)
+                .Include(ua => ua.Question)
+                .Where(ua => ua.Attempt != null && ua.Attempt.ClassTestId == classTestId && ua.QuestionId == questionId)
                 .ToListAsync();
         }
 

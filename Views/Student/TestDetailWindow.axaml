@@ -3,11 +3,11 @@
         xmlns:vm="using:AvaloniaAzora.ViewModels.Student"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="700"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
         x:Class="AvaloniaAzora.Views.Student.TestDetailWindow"
         x:DataType="vm:TestDetailViewModel"
         Title="{Binding TestTitle, StringFormat='Test: {0}'}"
-        Width="800" Height="700"
+        Width="1200" Height="800"
         Background="#F8FAFC"
         WindowStartupLocation="CenterOwner">
 
@@ -17,7 +17,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Content -->
+        <!-- Header -->
         <Border Grid.Row="0" Background="White" BoxShadow="0 2 10 0 #0000000A" Padding="20">
             <StackPanel HorizontalAlignment="Center">
                 <Border Width="80" Height="80" Background="#3B82F6" CornerRadius="40" Margin="0,0,0,20">
@@ -28,213 +28,264 @@
                            Foreground="#1F2937" 
                            TextAlignment="Center"
                            Margin="0,0,0,8"/>
-                <TextBlock Text="Mathematics 101" 
+                <TextBlock Text="{Binding TestDescription}" 
                            FontSize="16" Foreground="#6B7280" 
                            TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           MaxWidth="600"
                            Margin="0,0,0,20"/>
             </StackPanel>
         </Border>
 
         <!-- Content -->
-        <ScrollViewer Grid.Row="1" Padding="32">
-            <StackPanel MaxWidth="600" HorizontalAlignment="Center">
-                
-                <!-- Instructions Panel -->
-                <Border Background="#F0F9FF" CornerRadius="16" Padding="24" Margin="0,0,0,24">
-                    <StackPanel>
-                        <TextBlock Text="Instructions" 
-                                   FontSize="20" FontWeight="SemiBold" 
-                                   Foreground="#1F2937" 
-                                   Margin="0,0,0,16"/>
-                        
-                        <TextBlock Text="Read each question carefully. You have 45 minutes to complete this quiz. Make sure to answer all questions before submitting." 
-                                   FontSize="14" Foreground="#374151" TextWrapping="Wrap"
-                                   Margin="0,0,0,16"/>
+        <ScrollViewer Grid.Row="1" Padding="40" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid HorizontalAlignment="Center" MaxWidth="1400">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" MinWidth="500"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="1*" MinWidth="350"/>
+                </Grid.ColumnDefinitions>
 
-                        <StackPanel Spacing="12">
-                            <TextBlock Text="• Read each question carefully. You have the full time limit to complete this test." 
-                                      FontSize="14" Foreground="#374151" TextWrapping="Wrap"/>
-                            <TextBlock Text="• Make sure to answer all questions before submitting." 
-                                      FontSize="14" Foreground="#374151" TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <!-- Quiz Stats -->
-                <Grid Margin="0,0,0,24">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Questions -->
-                    <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="16" Margin="4">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="8" 
-                                       FontSize="40" FontWeight="Bold" 
+                <!-- Left Column - Main Content -->
+                <StackPanel Grid.Column="0" Spacing="24">
+                    
+                    <!-- Instructions Panel -->
+                    <Border Background="#F0F9FF" CornerRadius="16" Padding="24">
+                        <StackPanel>
+                            <TextBlock Text="Instructions" 
+                                       FontSize="20" FontWeight="SemiBold" 
                                        Foreground="#1F2937" 
-                                       HorizontalAlignment="Center"/>
-                            <TextBlock Text="Questions" 
-                                       FontSize="14" Foreground="#6B7280" 
-                                       HorizontalAlignment="Center"/>
+                                       Margin="0,0,0,16"/>
+                            
+                            <TextBlock Text="{Binding TestDescription}" 
+                                       FontSize="14" Foreground="#374151" TextWrapping="Wrap"
+                                       Margin="0,0,0,16"/>
+
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="• Read each question carefully. You have the full time limit to complete this test." 
+                                          FontSize="14" Foreground="#374151" TextWrapping="Wrap"/>
+                                <TextBlock Text="• Make sure to answer all questions before submitting." 
+                                          FontSize="14" Foreground="#374151" TextWrapping="Wrap"/>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
 
-                    <!-- Time Limit -->
-                    <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="16" Margin="4">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock FontSize="40" FontWeight="Bold" 
-                                       Foreground="#1F2937" 
-                                       HorizontalAlignment="Center">
-                                <Run Text="45"/>
-                            </TextBlock>
-                            <TextBlock Text="Minutes" 
-                                       FontSize="14" Foreground="#6B7280" 
-                                       HorizontalAlignment="Center"/>
+                    <!-- Question Types -->
+                    <Border Background="White" CornerRadius="16" Padding="24">
+                        <StackPanel>
+                            <TextBlock Text="Question Types:" 
+                                      FontSize="18" FontWeight="SemiBold" 
+                                      Foreground="#1F2937" 
+                                      Margin="0,0,0,16"/>
+
+                            <ItemsControl ItemsSource="{Binding QuestionTypes}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:QuestionTypeInfo}">
+                                        <Border Background="#F9FAFB" CornerRadius="8" Padding="16" Margin="0,0,0,8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <Border Grid.Column="0" 
+                                                        Background="{Binding TypeColor}" 
+                                                        CornerRadius="4" 
+                                                        Width="12" Height="12" 
+                                                        Margin="0,0,12,0"/>
+                                                
+                                                <TextBlock Grid.Column="1" 
+                                                          Text="{Binding TypeName}" 
+                                                          FontSize="14" FontWeight="Medium" 
+                                                          Foreground="#1F2937" 
+                                                          VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
                     </Border>
 
-                    <!-- Total Points -->
-                    <Border Grid.Column="2" Background="White" CornerRadius="12" Padding="16" Margin="4">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="53" 
-                                       FontSize="40" FontWeight="Bold" 
+                    <!-- Previous Attempts Section -->
+                    <Border Background="White" CornerRadius="16" Padding="24" Margin="0,0,0,100"
+                            IsVisible="{Binding HasPreviousAttempts}">
+                        <StackPanel>
+                            <TextBlock Text="Previous Attempts" 
+                                       FontSize="20" FontWeight="SemiBold" 
                                        Foreground="#1F2937" 
-                                       HorizontalAlignment="Center"/>
-                            <TextBlock Text="Total Points" 
-                                       FontSize="14" Foreground="#6B7280" 
-                                       HorizontalAlignment="Center"/>
+                                       Margin="0,0,0,16"/>
+                            
+                            <ItemsControl ItemsSource="{Binding PreviousAttempts}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:AttemptInfo}">
+                                        <Border Background="#F9FAFB" CornerRadius="8" 
+                                                Padding="20" Margin="0,0,0,12"
+                                                BorderBrush="#E5E7EB" BorderThickness="1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <!-- Calendar Icon -->
+                                                <Border Grid.Column="0" 
+                                                        Background="#3B82F6" 
+                                                        CornerRadius="8" 
+                                                        Width="40" Height="40" 
+                                                        Margin="0,0,16,0">
+                                                    <TextBlock Text="📅" 
+                                                               FontSize="20" 
+                                                               HorizontalAlignment="Center" 
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
+                                                
+                                                <!-- Attempt Info -->
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding AttemptTitle}" 
+                                                               FontSize="16" FontWeight="SemiBold" 
+                                                               Foreground="#1F2937"/>
+                                                    <TextBlock Text="{Binding DateString}" 
+                                                               FontSize="14" 
+                                                               Foreground="#6B7280"/>
+                                                </StackPanel>
+                                                
+                                                <!-- Score -->
+                                                <StackPanel Grid.Column="2" HorizontalAlignment="Center" 
+                                                            VerticalAlignment="Center" Margin="16,0">
+                                                    <TextBlock Text="{Binding ScoreText}" 
+                                                               FontSize="18" FontWeight="Bold" 
+                                                               Foreground="{Binding ScoreColor}"
+                                                               HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding PointsText}" 
+                                                               FontSize="12" 
+                                                               Foreground="#6B7280"
+                                                               HorizontalAlignment="Center"/>
+                                                </StackPanel>
+                                                
+                                                <!-- Time -->
+                                                <StackPanel Grid.Column="3" HorizontalAlignment="Center" 
+                                                            VerticalAlignment="Center" Margin="16,0">
+                                                    <TextBlock Text="{Binding TimeSpent}" 
+                                                               FontSize="16" FontWeight="Bold" 
+                                                               Foreground="#1F2937"
+                                                               HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="Time Spent" 
+                                                               FontSize="12" 
+                                                               Foreground="#6B7280"
+                                                               HorizontalAlignment="Center"/>
+                                                </StackPanel>
+                                                
+                                                <!-- Status -->
+                                                <Border Grid.Column="4" 
+                                                        Background="{Binding StatusColor}" 
+                                                        CornerRadius="4" 
+                                                        Padding="8,4" 
+                                                        Margin="16,0">
+                                                    <TextBlock Text="{Binding StatusText}" 
+                                                               FontSize="12" FontWeight="Medium" 
+                                                               Foreground="White"/>
+                                                </Border>
+                                                
+                                                <!-- View Result Button -->
+                                                <Button Grid.Column="5" 
+                                                        Content="👁 View Result" 
+                                                        Background="Transparent" 
+                                                        BorderBrush="#D1D5DB" BorderThickness="1"
+                                                        Foreground="#6B7280"
+                                                        FontSize="14" Padding="12,8"
+                                                        CornerRadius="6"
+                                                        Margin="16,0,0,0"
+                                                        Command="{Binding $parent[ItemsControl].((vm:TestDetailViewModel)DataContext).ViewAttemptResultCommand}"
+                                                        CommandParameter="{Binding AttemptId}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
                     </Border>
-                </Grid>
+                </StackPanel>
 
-                <!-- Question Types -->
-                <Border Background="White" CornerRadius="16" Padding="24" Margin="0,0,0,24">
-                    <StackPanel>
-                        <TextBlock Text="Question Types:" 
-                                  FontSize="18" FontWeight="SemiBold" 
-                                  Foreground="#1F2937" 
-                                  Margin="0,0,0,16"/>
+                <!-- Right Column - Test Stats and Actions -->
+                <StackPanel Grid.Column="2" Spacing="24">
+                    
+                    <!-- Test Stats -->
+                    <Border Background="White" CornerRadius="16" Padding="24">
+                        <StackPanel>
+                            <TextBlock Text="Test Overview" 
+                                       FontSize="18" FontWeight="SemiBold" 
+                                       Foreground="#1F2937" 
+                                       Margin="0,0,0,20"/>
 
-                        <!-- Multiple Choice -->
-                        <Border Background="#F9FAFB" CornerRadius="8" Padding="16" Margin="0,0,0,8">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <Border Grid.Column="0" 
-                                        Background="#3B82F6" 
-                                        CornerRadius="4" 
-                                        Width="12" Height="12" 
-                                        Margin="0,0,12,0"/>
-                                
-                                <TextBlock Grid.Column="1" 
-                                          Text="Multiple Choice" 
-                                          FontSize="14" FontWeight="Medium" 
-                                          Foreground="#1F2937" 
-                                          VerticalAlignment="Center"/>
-                                
-                                <TextBlock Grid.Column="2" 
-                                          Text="4 questions" 
-                                          FontSize="14" 
-                                          Foreground="#6B7280" 
-                                          VerticalAlignment="Center"/>
-                            </Grid>
-                        </Border>
+                            <!-- Questions -->
+                            <StackPanel Margin="0,0,0,16">
+                                <TextBlock Text="{Binding QuestionCount}" 
+                                           FontSize="32" FontWeight="Bold" 
+                                           Foreground="#1F2937" 
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Questions" 
+                                           FontSize="14" Foreground="#6B7280" 
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
 
-                        <!-- True/False -->
-                        <Border Background="#F9FAFB" CornerRadius="8" Padding="16" Margin="0,0,0,8">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <Border Grid.Column="0" 
-                                        Background="#10B981" 
-                                        CornerRadius="4" 
-                                        Width="12" Height="12" 
-                                        Margin="0,0,12,0"/>
-                                
-                                <TextBlock Grid.Column="1" 
-                                          Text="True/False" 
-                                          FontSize="14" FontWeight="Medium" 
-                                          Foreground="#1F2937" 
-                                          VerticalAlignment="Center"/>
-                                
-                                <TextBlock Grid.Column="2" 
-                                          Text="4 questions" 
-                                          FontSize="14" 
-                                          Foreground="#6B7280" 
-                                          VerticalAlignment="Center"/>
-                            </Grid>
-                        </Border>
+                            <!-- Time Limit -->
+                            <StackPanel Margin="0,0,0,16">
+                                <TextBlock Text="{Binding TimeLimit}" 
+                                           FontSize="32" FontWeight="Bold" 
+                                           Foreground="#1F2937" 
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Minutes" 
+                                           FontSize="14" Foreground="#6B7280" 
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
 
-                        <!-- Short Answer -->
-                        <Border Background="#F9FAFB" CornerRadius="8" Padding="16">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <Border Grid.Column="0" 
-                                        Background="#F59E0B" 
-                                        CornerRadius="4" 
-                                        Width="12" Height="12" 
-                                        Margin="0,0,12,0"/>
-                                
-                                <TextBlock Grid.Column="1" 
-                                          Text="Short Answer" 
-                                          FontSize="14" FontWeight="Medium" 
-                                          Foreground="#1F2937" 
-                                          VerticalAlignment="Center"/>
-                                
-                                <TextBlock Grid.Column="2" 
-                                          Text="0 questions" 
-                                          FontSize="14" 
-                                          Foreground="#6B7280" 
-                                          VerticalAlignment="Center"/>
-                            </Grid>
-                        </Border>
-                    </StackPanel>
-                </Border>
+                            <!-- Total Points -->
+                            <StackPanel>
+                                <TextBlock Text="{Binding TotalPoints}" 
+                                           FontSize="32" FontWeight="Bold" 
+                                           Foreground="#1F2937" 
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Total Points" 
+                                           FontSize="14" Foreground="#6B7280" 
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
 
-                <!-- Start Test Button -->
-                <Button Content="Start Test"
-                        Classes="primary"
-                        FontSize="18" FontWeight="SemiBold"
-                        Padding="32,16"
-                        Margin="0,32,0,100"
-                        HorizontalAlignment="Center"
-                        Command="{Binding StartTestCommand}"
-                        IsEnabled="{Binding CanStartTest}">
-                    <Button.Styles>
-                        <Style Selector="Button.primary">
-                            <Setter Property="Background" Value="#3B82F6"/>
-                            <Setter Property="Foreground" Value="White"/>
-                            <Setter Property="BorderThickness" Value="0"/>
-                            <Setter Property="CornerRadius" Value="8"/>
-                        </Style>
-                        <Style Selector="Button.primary:pointerover">
-                            <Setter Property="Background" Value="#2563EB"/>
-                        </Style>
-                        <Style Selector="Button.primary:pressed">
-                            <Setter Property="Background" Value="#1D4ED8"/>
-                        </Style>
-                        <Style Selector="Button.primary:disabled">
-                            <Setter Property="Background" Value="#9CA3AF"/>
-                            <Setter Property="Opacity" Value="0.6"/>
-                        </Style>
-                    </Button.Styles>
-                </Button>
-            </StackPanel>
+                    <!-- Start Test Button -->
+                    <Button Content="{Binding ButtonText}"
+                            Classes="primary"
+                            FontSize="18" FontWeight="SemiBold"
+                            Padding="32,16"
+                            HorizontalAlignment="Stretch"
+                            Command="{Binding StartTestCommand}"
+                            IsEnabled="{Binding CanStartTest}">
+                        <Button.Styles>
+                            <Style Selector="Button.primary">
+                                <Setter Property="Background" Value="#3B82F6"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="CornerRadius" Value="8"/>
+                            </Style>
+                            <Style Selector="Button.primary:pointerover">
+                                <Setter Property="Background" Value="#2563EB"/>
+                            </Style>
+                            <Style Selector="Button.primary:pressed">
+                                <Setter Property="Background" Value="#1D4ED8"/>
+                            </Style>
+                            <Style Selector="Button.primary:disabled">
+                                <Setter Property="Background" Value="#9CA3AF"/>
+                                <Setter Property="Opacity" Value="0.6"/>
+                            </Style>
+                        </Button.Styles>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </Window> 

@@ -36,7 +36,14 @@ namespace AvaloniaAzora.ViewModels.Student
         [ObservableProperty]
         private bool _isLoading = true;
 
+        [ObservableProperty]
+        private string _buttonText = "Start Test";
+
+        [ObservableProperty]
+        private bool _hasPreviousAttempts = false;
+
         public ObservableCollection<QuestionTypeInfo> QuestionTypes { get; } = new();
+        public ObservableCollection<AttemptInfo> PreviousAttempts { get; } = new();
 
         private Guid _classTestId;
         private Guid _userId;
@@ -44,6 +51,7 @@ namespace AvaloniaAzora.ViewModels.Student
         // Events
         public event EventHandler? GoBackRequested;
         public event EventHandler<TestStartEventArgs>? StartTestRequested;
+        public event EventHandler<ViewAttemptResultEventArgs>? ViewAttemptResultRequested;
 
         public TestDetailViewModel()
         {
@@ -90,6 +98,9 @@ namespace AvaloniaAzora.ViewModels.Student
                 // Analyze question types
                 AnalyzeQuestionTypes(questions);
 
+                // Load previous attempts
+                await LoadPreviousAttemptsAsync();
+
                 Console.WriteLine($"✅ Test details loaded: {TestTitle} ({QuestionCount} questions)");
             }
             catch (Exception ex)
@@ -113,20 +124,23 @@ namespace AvaloniaAzora.ViewModels.Student
 
             foreach (var group in typeGroups)
             {
-                var questionType = new QuestionTypeInfo
+                // Only add types that actually have questions
+                if (group.Count() > 0)
                 {
-                    TypeName = GetDisplayName(group.Key),
-                    Count = group.Count(),
-                    TypeColor = GetTypeColor(group.Key)
-                };
-                QuestionTypes.Add(questionType);
+                    var questionType = new QuestionTypeInfo
+                    {
+                        TypeName = GetDisplayName(group.Key),
+                        Count = group.Count(), // Keep count for internal use
+                        TypeColor = GetTypeColor(group.Key)
+                    };
+                    QuestionTypes.Add(questionType);
+                }
             }
 
-            // If no questions, show demo types
+            // If no questions, show demo types (only multiple choice and short answer)
             if (!QuestionTypes.Any())
             {
-                QuestionTypes.Add(new QuestionTypeInfo { TypeName = "Multiple Choice", Count = 4, TypeColor = "#3B82F6" });
-                QuestionTypes.Add(new QuestionTypeInfo { TypeName = "True/False", Count = 4, TypeColor = "#10B981" });
+                QuestionTypes.Add(new QuestionTypeInfo { TypeName = "Multiple Choice", Count = 0, TypeColor = "#3B82F6" });
                 QuestionTypes.Add(new QuestionTypeInfo { TypeName = "Short Answer", Count = 0, TypeColor = "#F59E0B" });
             }
         }
@@ -136,7 +150,6 @@ namespace AvaloniaAzora.ViewModels.Student
             return type?.ToLower() switch
             {
                 "multiple_choice" => "Multiple Choice",
-                "true_false" => "True/False",
                 "short_answer" => "Short Answer",
                 _ => "Multiple Choice"
             };
@@ -147,7 +160,6 @@ namespace AvaloniaAzora.ViewModels.Student
             return type?.ToLower() switch
             {
                 "multiple_choice" => "#3B82F6", // Blue
-                "true_false" => "#10B981",      // Green
                 "short_answer" => "#F59E0B",    // Orange
                 _ => "#6B7280"                  // Gray
             };
@@ -163,9 +175,8 @@ namespace AvaloniaAzora.ViewModels.Student
             CanStartTest = true;
 
             QuestionTypes.Clear();
-            QuestionTypes.Add(new QuestionTypeInfo { TypeName = "Multiple Choice", Count = 4, TypeColor = "#3B82F6" });
-            QuestionTypes.Add(new QuestionTypeInfo { TypeName = "True/False", Count = 4, TypeColor = "#10B981" });
-            QuestionTypes.Add(new QuestionTypeInfo { TypeName = "Short Answer", Count = 0, TypeColor = "#F59E0B" });
+            QuestionTypes.Add(new QuestionTypeInfo { TypeName = "Multiple Choice", Count = 6, TypeColor = "#3B82F6" });
+            QuestionTypes.Add(new QuestionTypeInfo { TypeName = "Short Answer", Count = 2, TypeColor = "#F59E0B" });
         }
 
         [RelayCommand]
@@ -205,6 +216,83 @@ namespace AvaloniaAzora.ViewModels.Student
                 });
             }
         }
+
+        [RelayCommand]
+        private void ViewAttemptResult(Guid attemptId)
+        {
+            Console.WriteLine($"📊 Viewing attempt result: {attemptId}");
+            ViewAttemptResultRequested?.Invoke(this, new ViewAttemptResultEventArgs
+            {
+                AttemptId = attemptId,
+                UserId = _userId
+            });
+        }
+
+        private async Task LoadPreviousAttemptsAsync()
+        {
+            try
+            {
+                PreviousAttempts.Clear();
+
+                // Get all attempts for this test by this user
+                var attempts = await _dataService.GetAttemptsByStudentAndClassTestAsync(_userId, _classTestId);
+
+                if (attempts.Count > 0)
+                {
+                    HasPreviousAttempts = true;
+                    ButtonText = "Retake Test";
+
+                    foreach (var attempt in attempts)
+                    {
+                        var attemptInfo = new AttemptInfo
+                        {
+                            AttemptId = attempt.Id,
+                            AttemptTitle = $"Attempt #{attempts.IndexOf(attempt) + 1}",
+                            DateString = attempt.EndTime?.ToString("MMM dd, yyyy, hh:mm tt") ?? "In Progress",
+                            ScoreText = attempt.Score?.ToString("F0") + "%" ?? "N/A",
+                            PointsText = $"{attempt.Score * TotalPoints / 100:F0}/{TotalPoints} points",
+                            TimeSpent = CalculateTimeSpent(attempt),
+                            StatusText = attempt.EndTime.HasValue ? "completed" : "in progress",
+                            StatusColor = attempt.EndTime.HasValue ? "#10B981" : "#F59E0B",
+                            ScoreColor = GetScoreColor(attempt.Score ?? 0)
+                        };
+
+                        PreviousAttempts.Add(attemptInfo);
+                    }
+
+                    Console.WriteLine($"📊 Loaded {attempts.Count} previous attempts");
+                }
+                else
+                {
+                    HasPreviousAttempts = false;
+                    ButtonText = "Start Test";
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error loading previous attempts: {ex.Message}");
+                HasPreviousAttempts = false;
+                ButtonText = "Start Test";
+            }
+        }
+
+        private string CalculateTimeSpent(Attempt attempt)
+        {
+            if (attempt.EndTime.HasValue)
+            {
+                var timeSpent = attempt.EndTime.Value - attempt.StartTime;
+                return $"{timeSpent.Minutes}m";
+            }
+            return "N/A";
+        }
+
+        private string GetScoreColor(double score)
+        {
+            if (score >= 90) return "#10B981"; // Green
+            if (score >= 80) return "#3B82F6"; // Blue
+            if (score >= 70) return "#F59E0B"; // Orange
+            return "#EF4444"; // Red
+        }
     }
 
     public partial class QuestionTypeInfo : ObservableObject
@@ -217,5 +305,40 @@ namespace AvaloniaAzora.ViewModels.Student
 
         [ObservableProperty]
         private string _typeColor = "#6B7280";
+    }
+
+    public partial class AttemptInfo : ObservableObject
+    {
+        [ObservableProperty]
+        private string _attemptTitle = string.Empty;
+
+        [ObservableProperty]
+        private string _dateString = string.Empty;
+
+        [ObservableProperty]
+        private string _scoreText = string.Empty;
+
+        [ObservableProperty]
+        private string _pointsText = string.Empty;
+
+        [ObservableProperty]
+        private string _timeSpent = string.Empty;
+
+        [ObservableProperty]
+        private string _statusText = string.Empty;
+
+        [ObservableProperty]
+        private string _statusColor = string.Empty;
+
+        [ObservableProperty]
+        private string _scoreColor = string.Empty;
+
+        public Guid AttemptId { get; set; }
+    }
+
+    public class ViewAttemptResultEventArgs : EventArgs
+    {
+        public Guid AttemptId { get; set; }
+        public Guid UserId { get; set; }
     }
 }

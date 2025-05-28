@@ -52,12 +52,14 @@ namespace AvaloniaAzora.Services
         // Attempt operations
         Task<List<Attempt>> GetAttemptsByStudentIdAsync(Guid studentId);
         Task<List<Attempt>> GetAttemptsByClassTestIdAsync(Guid classTestId);
+        Task<List<Attempt>> GetAttemptsByStudentAndClassTestAsync(Guid studentId, Guid classTestId);
         Task<Attempt?> GetAttemptByIdAsync(Guid id);
         Task<Attempt> CreateAttemptAsync(Attempt attempt);
         Task UpdateAttemptAsync(Attempt attempt);
 
         // UserAnswer operations
         Task<List<UserAnswer>> GetAnswersByAttemptIdAsync(Guid attemptId);
+        Task<List<UserAnswer>> GetAnswersByClassTestAndQuestionAsync(Guid classTestId, Guid questionId);
         Task<UserAnswer?> GetUserAnswerByIdAsync(Guid id);
         Task<UserAnswer> SaveUserAnswerAsync(UserAnswer userAnswer);
         Task UpdateUserAnswerAsync(UserAnswer userAnswer);

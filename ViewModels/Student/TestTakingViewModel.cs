@@ -57,6 +57,7 @@ namespace AvaloniaAzora.ViewModels.Student
         // Events
         public event EventHandler<TestCompletedEventArgs>? TestCompleted;
         public event EventHandler? TestAborted;
+        public event EventHandler<ReviewTestEventArgs>? ReviewTestRequested;
 
         public TestTakingViewModel()
         {
@@ -104,9 +105,21 @@ namespace AvaloniaAzora.ViewModels.Student
 
                     Console.WriteLine($"🔍 Creating attempt with UTC time: {attempt.StartTime}");
 
-                    await _dataService.CreateAttemptAsync(attempt);
-                    _attemptId = attempt.Id;
+                    var createdAttempt = await _dataService.CreateAttemptAsync(attempt);
+                    _attemptId = createdAttempt.Id;
                     Console.WriteLine($"✅ Created attempt: {_attemptId}");
+
+                    // Verify the attempt was created by trying to retrieve it
+                    var verifyAttempt = await _dataService.GetAttemptByIdAsync(_attemptId);
+                    if (verifyAttempt == null)
+                    {
+                        Console.WriteLine($"⚠️ Could not verify attempt creation, using demo mode");
+                        _attemptId = Guid.NewGuid();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"✅ Verified attempt exists in database: {_attemptId}");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -240,15 +253,25 @@ namespace AvaloniaAzora.ViewModels.Student
                     break;
 
                 case "true_false":
-                    questionViewModel.IsTrueFalse = true;
-                    questionViewModel.QuestionType = "True/False";
-                    questionViewModel.TypeColor = "#10B981";
+                    // Convert true/false to multiple choice with True/False options
+                    questionViewModel.IsMultipleChoice = true;
+                    questionViewModel.QuestionType = "Multiple Choice";
+                    questionViewModel.TypeColor = "#3B82F6";
                     questionViewModel.Difficulty = CapitalizeFirstLetter(question.Difficulty ?? "easy");
 
-                    if (existingAnswer?.AnswerText == "true")
-                        questionViewModel.TrueSelected = true;
-                    else if (existingAnswer?.AnswerText == "false")
-                        questionViewModel.FalseSelected = true;
+                    // Add True and False as multiple choice options
+                    questionViewModel.AnswerOptions.Add(new AnswerOptionViewModel
+                    {
+                        Text = "True",
+                        Index = 1,
+                        IsSelected = existingAnswer?.AnswerText == "true"
+                    });
+                    questionViewModel.AnswerOptions.Add(new AnswerOptionViewModel
+                    {
+                        Text = "False",
+                        Index = 2,
+                        IsSelected = existingAnswer?.AnswerText == "false"
+                    });
                     break;
 
                 case "short_answer":
@@ -315,7 +338,7 @@ namespace AvaloniaAzora.ViewModels.Student
             q1.AnswerOptions.Add(new AnswerOptionViewModel { Text = "x = 6", Index = 4 });
             demoQuestions.Add(q1);
 
-            // Question 2 - True/False
+            // Question 2 - True/False (converted to Multiple Choice)
             var q2 = new QuestionViewModel
             {
                 Id = Guid.NewGuid(),
@@ -324,11 +347,13 @@ namespace AvaloniaAzora.ViewModels.Student
                 Type = "true_false",
                 Points = 3,
                 IsCurrentQuestion = false,
-                IsTrueFalse = true,
-                QuestionType = "True/False",
-                TypeColor = "#10B981",
+                IsMultipleChoice = true,
+                QuestionType = "Multiple Choice",
+                TypeColor = "#3B82F6",
                 Difficulty = "Easy"
             };
+            q2.AnswerOptions.Add(new AnswerOptionViewModel { Text = "True", Index = 1 });
+            q2.AnswerOptions.Add(new AnswerOptionViewModel { Text = "False", Index = 2 });
             demoQuestions.Add(q2);
 
             // Question 3 - Multiple Choice
@@ -367,7 +392,7 @@ namespace AvaloniaAzora.ViewModels.Student
             };
             demoQuestions.Add(q4);
 
-            // Question 5 - True/False
+            // Question 5 - True/False (converted to Multiple Choice)
             var q5 = new QuestionViewModel
             {
                 Id = Guid.NewGuid(),
@@ -376,11 +401,13 @@ namespace AvaloniaAzora.ViewModels.Student
                 Type = "true_false",
                 Points = 3,
                 IsCurrentQuestion = false,
-                IsTrueFalse = true,
-                QuestionType = "True/False",
-                TypeColor = "#10B981",
+                IsMultipleChoice = true,
+                QuestionType = "Multiple Choice",
+                TypeColor = "#3B82F6",
                 Difficulty = "Easy"
             };
+            q5.AnswerOptions.Add(new AnswerOptionViewModel { Text = "True", Index = 1 });
+            q5.AnswerOptions.Add(new AnswerOptionViewModel { Text = "False", Index = 2 });
             demoQuestions.Add(q5);
 
             // Add all questions to the collection
@@ -435,7 +462,7 @@ namespace AvaloniaAzora.ViewModels.Student
             if (remaining <= TimeSpan.Zero)
             {
                 TimeRemainingString = "00:00";
-                _ = SubmitTest(); // Auto-submit when time runs out
+                _ = SubmitTestCommand.ExecuteAsync(null); // Auto-submit when time runs out
                 return;
             }
 
@@ -464,19 +491,6 @@ namespace AvaloniaAzora.ViewModels.Student
         }
 
         [RelayCommand]
-        private void SelectTrueFalse(string value)
-        {
-            if (CurrentQuestion == null) return;
-
-            CurrentQuestion.TrueSelected = value == "true";
-            CurrentQuestion.FalseSelected = value == "false";
-
-            UpdateQuestionStatus(CurrentQuestion);
-            UpdateProgress();
-            _ = AutoSaveCurrentAnswer();
-        }
-
-        [RelayCommand]
         private void PreviousQuestion()
         {
             if (CurrentQuestionIndex > 0)
@@ -497,8 +511,8 @@ namespace AvaloniaAzora.ViewModels.Student
             }
             else
             {
-                // Last question - submit test
-                await SubmitTest();
+                // Last question - show review window instead of directly submitting
+                ReviewTest();
             }
         }
 
@@ -520,136 +534,18 @@ namespace AvaloniaAzora.ViewModels.Student
             TestAborted?.Invoke(this, EventArgs.Empty);
         }
 
-        private void NavigateToQuestion(int index)
+        [RelayCommand]
+        private void ReviewTest()
         {
-            // Update current question indicators
-            if (CurrentQuestion != null)
-                CurrentQuestion.IsCurrentQuestion = false;
-
-            CurrentQuestionIndex = index;
-
-            if (CurrentQuestion != null)
-                CurrentQuestion.IsCurrentQuestion = true;
-
-            UpdateNavigationState();
-            OnPropertyChanged(nameof(CurrentQuestion));
-            OnPropertyChanged(nameof(CurrentQuestionNumber));
-        }
-
-        private void UpdateNavigationState()
-        {
-            CanGoPrevious = CurrentQuestionIndex > 0;
-            NextButtonText = CurrentQuestionIndex < TotalQuestions - 1 ? "Next →" : "Submit Test";
-        }
-
-        private void UpdateProgress()
-        {
-            var answeredCount = Questions.Count(q => q.IsAnswered);
-            ProgressPercentage = TotalQuestions > 0 ? (double)answeredCount / TotalQuestions * 100 : 0;
-        }
-
-        private void UpdateQuestionStatus(QuestionViewModel question)
-        {
-            bool isAnswered = false;
-
-            switch (question.Type)
+            // Trigger review event to show review window
+            ReviewTestRequested?.Invoke(this, new ReviewTestEventArgs
             {
-                case "multiple_choice":
-                    isAnswered = question.AnswerOptions.Any(o => o.IsSelected);
-                    break;
-                case "true_false":
-                    isAnswered = question.TrueSelected || question.FalseSelected;
-                    break;
-                case "short_answer":
-                    isAnswered = !string.IsNullOrWhiteSpace(question.ShortAnswerText);
-                    break;
-            }
-
-            question.IsAnswered = isAnswered;
-            question.StatusColor = isAnswered ? "#10B981" : "#E5E7EB"; // Green if answered, gray if not
-            question.StatusTextColor = isAnswered ? "White" : "#6B7280";
+                Questions = Questions.ToList(),
+                TestTitle = TestTitle
+            });
         }
 
-        private async Task AutoSaveCurrentAnswer()
-        {
-            if (CurrentQuestion == null) return;
-
-            try
-            {
-                string? answerText = null;
-
-                switch (CurrentQuestion.Type)
-                {
-                    case "multiple_choice":
-                        var selectedOption = CurrentQuestion.AnswerOptions.FirstOrDefault(o => o.IsSelected);
-                        // Save the index (as string) of the selected option
-                        answerText = selectedOption?.Index.ToString();
-                        break;
-                    case "true_false":
-                        if (CurrentQuestion.TrueSelected) answerText = "true";
-                        else if (CurrentQuestion.FalseSelected) answerText = "false";
-                        break;
-                    case "short_answer":
-                        answerText = CurrentQuestion.ShortAnswerText?.Trim();
-                        break;
-                }
-
-                if (answerText != null)
-                {
-                    try
-                    {
-                        // Check if this answer already exists (prevent duplicates)
-                        var existingAnswers = await _dataService.GetAnswersByAttemptIdAsync(_attemptId);
-                        var existingAnswer = existingAnswers.FirstOrDefault(a => a.QuestionId == CurrentQuestion.Id);
-
-                        if (existingAnswer != null)
-                        {
-                            // Update existing answer only if it's different
-                            if (existingAnswer.AnswerText != answerText)
-                            {
-                                existingAnswer.AnswerText = answerText;
-                                existingAnswer.AnsweredAt = DateTimeOffset.UtcNow; // Use UTC time
-                                await _dataService.UpdateUserAnswerAsync(existingAnswer);
-                                Console.WriteLine($"✅ Updated answer for question {CurrentQuestion.QuestionNumber}: '{answerText}'");
-                            }
-                        }
-                        else
-                        {
-                            // Create new answer
-                            var userAnswer = new UserAnswer
-                            {
-                                Id = Guid.NewGuid(),
-                                AttemptId = _attemptId,
-                                QuestionId = CurrentQuestion.Id,
-                                AnswerText = answerText,
-                                AnsweredAt = DateTimeOffset.UtcNow // Use UTC time
-                            };
-
-                            await _dataService.SaveUserAnswerAsync(userAnswer);
-                            Console.WriteLine($"✅ Saved new answer for question {CurrentQuestion.QuestionNumber}: '{answerText}'");
-                        }
-                    }
-                    catch (Exception dbEx)
-                    {
-                        Console.WriteLine($"⚠️ Could not save to database: {dbEx.Message}");
-                        if (dbEx.InnerException != null)
-                        {
-                            Console.WriteLine($"⚠️ Inner exception: {dbEx.InnerException.Message}");
-                        }
-                        Console.WriteLine($"📝 Demo mode: Answer '{answerText}' recorded locally for question {CurrentQuestion.QuestionNumber}");
-                    }
-
-                    // Update UI to show answer is saved
-                    UpdateQuestionStatus(CurrentQuestion);
-                    UpdateProgress();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"⚠️ Error auto-saving answer: {ex.Message}");
-            }
-        }
-
+        [RelayCommand]
         private async Task SubmitTest()
         {
             try
@@ -734,6 +630,137 @@ namespace AvaloniaAzora.ViewModels.Student
             }
         }
 
+        private void NavigateToQuestion(int index)
+        {
+            // Update current question indicators
+            if (CurrentQuestion != null)
+                CurrentQuestion.IsCurrentQuestion = false;
+
+            CurrentQuestionIndex = index;
+
+            if (CurrentQuestion != null)
+                CurrentQuestion.IsCurrentQuestion = true;
+
+            UpdateNavigationState();
+            OnPropertyChanged(nameof(CurrentQuestion));
+            OnPropertyChanged(nameof(CurrentQuestionNumber));
+        }
+
+        private void UpdateNavigationState()
+        {
+            CanGoPrevious = CurrentQuestionIndex > 0;
+            NextButtonText = CurrentQuestionIndex < TotalQuestions - 1 ? "Next →" : "Submit Test";
+        }
+
+        private void UpdateProgress()
+        {
+            var answeredCount = Questions.Count(q => q.IsAnswered);
+            ProgressPercentage = TotalQuestions > 0 ? (double)answeredCount / TotalQuestions * 100 : 0;
+        }
+
+        private void UpdateQuestionStatus(QuestionViewModel question)
+        {
+            bool isAnswered = false;
+
+            switch (question.Type)
+            {
+                case "multiple_choice":
+                    isAnswered = question.AnswerOptions.Any(o => o.IsSelected);
+                    break;
+                case "true_false":
+                    isAnswered = question.AnswerOptions.Any(o => o.IsSelected);
+                    break;
+                case "short_answer":
+                    isAnswered = !string.IsNullOrWhiteSpace(question.ShortAnswerText);
+                    break;
+            }
+
+            question.IsAnswered = isAnswered;
+            question.StatusColor = isAnswered ? "#10B981" : "#E5E7EB"; // Green if answered, gray if not
+            question.StatusTextColor = isAnswered ? "White" : "#6B7280";
+        }
+
+        private async Task AutoSaveCurrentAnswer()
+        {
+            if (CurrentQuestion == null) return;
+
+            try
+            {
+                string? answerText = null;
+
+                switch (CurrentQuestion.Type)
+                {
+                    case "multiple_choice":
+                        var selectedOption = CurrentQuestion.AnswerOptions.FirstOrDefault(o => o.IsSelected);
+                        // Save the index (as string) of the selected option
+                        answerText = selectedOption?.Index.ToString();
+                        break;
+                    case "true_false":
+                        var selectedTrueFalseOption = CurrentQuestion.AnswerOptions.FirstOrDefault(o => o.IsSelected);
+                        // Save the selected text
+                        answerText = selectedTrueFalseOption?.Text;
+                        break;
+                    case "short_answer":
+                        answerText = CurrentQuestion.ShortAnswerText?.Trim();
+                        break;
+                }
+
+                if (answerText != null)
+                {
+                    try
+                    {
+                        // Check if this answer already exists (prevent duplicates)
+                        var existingAnswers = await _dataService.GetAnswersByAttemptIdAsync(_attemptId);
+                        var existingAnswer = existingAnswers.FirstOrDefault(a => a.QuestionId == CurrentQuestion.Id);
+
+                        if (existingAnswer != null)
+                        {
+                            // Update existing answer only if it's different
+                            if (existingAnswer.AnswerText != answerText)
+                            {
+                                existingAnswer.AnswerText = answerText;
+                                existingAnswer.AnsweredAt = DateTimeOffset.UtcNow; // Use UTC time
+                                await _dataService.UpdateUserAnswerAsync(existingAnswer);
+                                Console.WriteLine($"✅ Updated answer for question {CurrentQuestion.QuestionNumber}: '{answerText}'");
+                            }
+                        }
+                        else
+                        {
+                            // Create new answer
+                            var userAnswer = new UserAnswer
+                            {
+                                Id = Guid.NewGuid(),
+                                AttemptId = _attemptId,
+                                QuestionId = CurrentQuestion.Id,
+                                AnswerText = answerText,
+                                AnsweredAt = DateTimeOffset.UtcNow // Use UTC time
+                            };
+
+                            await _dataService.SaveUserAnswerAsync(userAnswer);
+                            Console.WriteLine($"✅ Saved new answer for question {CurrentQuestion.QuestionNumber}: '{answerText}'");
+                        }
+                    }
+                    catch (Exception dbEx)
+                    {
+                        Console.WriteLine($"⚠️ Could not save to database: {dbEx.Message}");
+                        if (dbEx.InnerException != null)
+                        {
+                            Console.WriteLine($"⚠️ Inner exception: {dbEx.InnerException.Message}");
+                        }
+                        Console.WriteLine($"📝 Demo mode: Answer '{answerText}' recorded locally for question {CurrentQuestion.QuestionNumber}");
+                    }
+
+                    // Update UI to show answer is saved
+                    UpdateQuestionStatus(CurrentQuestion);
+                    UpdateProgress();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error auto-saving answer: {ex.Message}");
+            }
+        }
+
         private async Task<float> CalculateScoreAsync()
         {
             try
@@ -794,9 +821,16 @@ namespace AvaloniaAzora.ViewModels.Student
                         StringComparison.OrdinalIgnoreCase);
 
                 case "true_false":
-                    // For true/false, compare the boolean values
-                    return string.Equals(userAnswer.AnswerText.Trim(), question.CorrectAnswer?.Trim(),
-                        StringComparison.OrdinalIgnoreCase);
+                    // For true/false, compare the text values ("True"/"False" vs "true"/"false")
+                    var userAnswerText = userAnswer.AnswerText.Trim();
+                    var correctAnswerText = question.CorrectAnswer?.Trim();
+
+                    // Handle both "True"/"False" (from UI) and "true"/"false" (from database)
+                    return string.Equals(userAnswerText, correctAnswerText, StringComparison.OrdinalIgnoreCase) ||
+                           (string.Equals(userAnswerText, "True", StringComparison.OrdinalIgnoreCase) &&
+                            string.Equals(correctAnswerText, "true", StringComparison.OrdinalIgnoreCase)) ||
+                           (string.Equals(userAnswerText, "False", StringComparison.OrdinalIgnoreCase) &&
+                            string.Equals(correctAnswerText, "false", StringComparison.OrdinalIgnoreCase));
 
                 case "short_answer":
                     // For short answer, compare trimmed and lowercased text
@@ -830,7 +864,7 @@ namespace AvaloniaAzora.ViewModels.Student
                         isAnswered = question.AnswerOptions.Any(o => o.IsSelected);
                         break;
                     case "true_false":
-                        isAnswered = question.TrueSelected || question.FalseSelected;
+                        isAnswered = question.AnswerOptions.Any(o => o.IsSelected);
                         break;
                     case "short_answer":
                         isAnswered = !string.IsNullOrWhiteSpace(question.ShortAnswerText);
@@ -971,5 +1005,11 @@ namespace AvaloniaAzora.ViewModels.Student
         public Guid AttemptId { get; set; }
         public Guid UserId { get; set; }
         public float Score { get; set; }
+    }
+
+    public class ReviewTestEventArgs : EventArgs
+    {
+        public List<QuestionViewModel> Questions { get; set; } = new();
+        public string TestTitle { get; set; } = string.Empty;
     }
 }

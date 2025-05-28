@@ -88,61 +88,31 @@
                                               Color="#000000" Opacity="0.05"/>
                         </Border.Effect>
                         
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            
-                            <!-- Instructor Info -->
-                            <StackPanel Grid.Column="0">
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <Border Background="{StaticResource PrimaryLightBrush}" 
-                                            CornerRadius="20" Width="40" Height="40"
-                                            Margin="0,0,12,0">
-                                        <TextBlock Text="DSJ" FontSize="14" FontWeight="Bold"
-                                                   Foreground="{StaticResource PrimaryBrush}"
-                                                   HorizontalAlignment="Center" 
-                                                   VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding InstructorName}" 
-                                                   FontSize="16" FontWeight="SemiBold" 
-                                                   Foreground="#1F2937"/>
-                                        <TextBlock Text="{Binding InstructorEmail}" 
-                                                   FontSize="14" Foreground="#6B7280"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </StackPanel>
-                            
-                            <!-- Schedule -->
-                            <StackPanel Grid.Column="1">
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                    <TextBlock Text="📅" FontSize="16" Margin="0,0,8,0"/>
-                                    <TextBlock Text="Schedule" FontSize="16" FontWeight="SemiBold" 
+                        <!-- Instructor Info -->
+                        <StackPanel HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <Border Background="{StaticResource PrimaryLightBrush}" 
+                                        CornerRadius="20" Width="40" Height="40"
+                                        Margin="0,0,12,0">
+                                    <TextBlock Text="DSJ" FontSize="14" FontWeight="Bold"
+                                               Foreground="{StaticResource PrimaryBrush}"
+                                               HorizontalAlignment="Center" 
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding InstructorName}" 
+                                               FontSize="16" FontWeight="SemiBold" 
                                                Foreground="#1F2937"/>
+                                    <TextBlock Text="{Binding InstructorEmail}" 
+                                               FontSize="14" Foreground="#6B7280"/>
                                 </StackPanel>
-                                <TextBlock Text="{Binding Schedule}" 
-                                           FontSize="14" Foreground="#6B7280"/>
                             </StackPanel>
-                            
-                            <!-- Location -->
-                            <StackPanel Grid.Column="2">
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                    <TextBlock Text="📍" FontSize="16" Margin="0,0,8,0"/>
-                                    <TextBlock Text="Location" FontSize="16" FontWeight="SemiBold" 
-                                               Foreground="#1F2937"/>
-                                </StackPanel>
-                                <TextBlock Text="{Binding Location}" 
-                                           FontSize="14" Foreground="#6B7280"/>
-                            </StackPanel>
-                        </Grid>
+                        </StackPanel>
                     </Border>
                     
-                                        <!-- Tests Section with Tabs -->
+                    <!-- Tests Section with Tabs -->
                     <TabControl Background="Transparent" BorderThickness="0" 
-                                MinHeight="400" Height="500">
+                                MinHeight="400" Height="500" Margin="0,0,0,100">
                         <!-- Upcoming Tests Tab -->
                         <TabItem>
                             <TabItem.Header>
@@ -331,14 +301,24 @@
                                                     
                                                     <!-- Footer -->
                                                     <Grid Grid.Row="3">
-                                                        <Button Content="View Results" 
-                                                                Background="Transparent"
-                                                                Foreground="{StaticResource PrimaryBrush}"
-                                                                BorderThickness="1"
-                                                                BorderBrush="{StaticResource PrimaryBrush}"
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        
+                                                        <!-- Score Display -->
+                                                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <TextBlock Text="📊" FontSize="14" Margin="0,0,6,0"/>
+                                                            <TextBlock Text="Best Score:" FontSize="12" Foreground="#6B7280" Margin="0,0,4,0"/>
+                                                            <TextBlock Text="{Binding BestScore, StringFormat='{}{0:F0}%'}" 
+                                                                       FontSize="12" Foreground="#10B981" FontWeight="SemiBold"/>
+                                                        </StackPanel>
+                                                        
+                                                        <!-- View Test Button -->
+                                                        <Button Grid.Column="1" Content="📋 View Test" 
+                                                                Classes="primary"
                                                                 Padding="16,8" FontSize="14"
-                                                                CornerRadius="6"
-                                                                HorizontalAlignment="Right"/>
+                                                                Command="{Binding ViewTestCommand}"/>
                                                     </Grid>
                                                 </Grid>
                                             </Border>

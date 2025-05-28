@@ -13,6 +13,7 @@ namespace AvaloniaAzora.Views
         public StudentDashboardWindow()
         {
             InitializeComponent();
+            WindowState = WindowState.Maximized;
         }
 
         public StudentDashboardWindow(Guid userId) : this()

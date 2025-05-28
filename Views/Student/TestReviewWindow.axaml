@@ -1,0 +1,231 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaAzora.ViewModels.Student"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1400" d:DesignHeight="900"
+        x:Class="AvaloniaAzora.Views.Student.TestReviewWindow"
+        x:DataType="vm:TestReviewViewModel"
+        Title="{Binding TestTitle, StringFormat='Review: {0}'}"
+        Width="1400" Height="900"
+        WindowState="Maximized"
+        Background="#F8FAFC"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="80"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" BoxShadow="0 2 10 0 #0000000A">
+            <Grid Margin="32,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="📋" FontSize="24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="{Binding TestTitle}" 
+                                   FontSize="20" FontWeight="Bold" 
+                                   Foreground="#1F2937"/>
+                        <TextBlock Text="Review Your Answers" 
+                                   FontSize="14" 
+                                   Foreground="#6B7280"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <TextBlock FontSize="14" Foreground="#6B7280">
+                        <Run Text="{Binding AnsweredCount}"/>
+                        <Run Text="of"/>
+                        <Run Text="{Binding TotalQuestions}"/>
+                        <Run Text="answered"/>
+                    </TextBlock>
+                    <Button Content="Submit Test" 
+                            Background="#1F2937" 
+                            Foreground="White"
+                            BorderThickness="0"
+                            FontSize="14" FontWeight="SemiBold"
+                            Padding="20,12"
+                            CornerRadius="8"
+                            Command="{Binding SubmitTestCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Questions Review -->
+        <ScrollViewer Grid.Row="1" Padding="32" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="24" Margin="0,0,0,100">
+                <ItemsControl ItemsSource="{Binding Questions}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:QuestionReviewViewModel}">
+                            <Border Background="White" CornerRadius="12" 
+                                    Padding="24" Margin="0,0,0,16"
+                                    BoxShadow="0 2 10 0 #0000000A">
+                                
+                                <!-- Question Header -->
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="#1F2937" Margin="0,0,0,8">
+                                                <Run Text="Question"/>
+                                                <Run Text="{Binding QuestionNumber}"/>
+                                            </TextBlock>
+                                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                                <Border Background="{Binding TypeColor}"
+                                                        Padding="6,2" CornerRadius="3">
+                                                    <TextBlock Text="{Binding QuestionType}" 
+                                                               FontSize="12" FontWeight="Medium"
+                                                               Foreground="White"/>
+                                                </Border>
+                                                <TextBlock FontSize="12" Foreground="#6B7280" VerticalAlignment="Center">
+                                                    <Run Text="{Binding Points}"/>
+                                                    <Run Text="points"/>
+                                                </TextBlock>
+                                                <Border Background="#F3F4F6"
+                                                        Padding="6,2" CornerRadius="3">
+                                                    <TextBlock Text="{Binding Difficulty}" 
+                                                               FontSize="12" FontWeight="Medium"
+                                                               Foreground="#4B5563"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        
+                                        <Border Grid.Column="1" 
+                                                Background="{Binding IsAnswered, Converter={StaticResource BoolToStatusColorConverter}}"
+                                                Padding="8,4" CornerRadius="4">
+                                            <TextBlock Text="{Binding StatusText}" 
+                                                       FontSize="12" FontWeight="Medium"
+                                                       Foreground="White"/>
+                                        </Border>
+                                    </Grid>
+                                    
+                                    <!-- Question Text -->
+                                    <TextBlock Text="{Binding QuestionText}" 
+                                               FontSize="16" 
+                                               Foreground="#374151" 
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,0,16"/>
+                                    
+                                    <!-- Answer Display -->
+                                    <Border Background="#F9FAFB" CornerRadius="8" Padding="16">
+                                        <StackPanel>
+                                            <!-- Multiple Choice Options -->
+                                            <StackPanel IsVisible="{Binding IsMultipleChoice}" Spacing="8">
+                                                <ItemsControl ItemsSource="{Binding AnswerOptions}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Background="{Binding IsSelected, Converter={StaticResource BoolToAnswerColorConverter}}"
+                                                                    CornerRadius="6" Padding="12,8" Margin="0,0,0,4"
+                                                                    BorderThickness="1"
+                                                                    BorderBrush="{Binding IsSelected, Converter={StaticResource BoolToBorderColorConverter}}">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <RadioButton IsChecked="{Binding IsSelected}" 
+                                                                                 IsEnabled="False"
+                                                                                 Margin="0,0,8,0"/>
+                                                                    <TextBlock Text="{Binding Text}" 
+                                                                               FontSize="14" 
+                                                                               Foreground="#1F2937"/>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                            
+                                            <!-- Short Answer -->
+                                            <StackPanel IsVisible="{Binding IsShortAnswer}">
+                                                <TextBlock Text="Your Answer:" FontSize="12" FontWeight="Medium" 
+                                                           Foreground="#6B7280" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding ShortAnswerText}" 
+                                                         FontSize="14" MinHeight="80"
+                                                         TextWrapping="Wrap"
+                                                         IsReadOnly="True"
+                                                         Background="White"
+                                                         BorderBrush="#D1D5DB"
+                                                         BorderThickness="1"
+                                                         CornerRadius="4"
+                                                         Padding="12"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#E5E7EB" BorderThickness="0,1,0,0">
+            <Grid Margin="32,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Content="← Back to Test" 
+                        Background="Transparent" 
+                        BorderBrush="#D1D5DB" BorderThickness="1"
+                        Foreground="#6B7280"
+                        FontSize="14" Padding="16,10"
+                        CornerRadius="6"
+                        Command="{Binding BackToTestCommand}"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" 
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Spacing="16">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding AnsweredCount}" 
+                                   FontSize="24" FontWeight="Bold" 
+                                   Foreground="#10B981" 
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Answered" 
+                                   FontSize="12" 
+                                   Foreground="#6B7280" 
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Text="/" FontSize="20" Foreground="#D1D5DB" VerticalAlignment="Center"/>
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding TotalQuestions}" 
+                                   FontSize="24" FontWeight="Bold" 
+                                   Foreground="#6B7280" 
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Total" 
+                                   FontSize="12" 
+                                   Foreground="#6B7280" 
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <Button Grid.Column="2" Content="Submit Test" 
+                        Background="#1F2937" 
+                        Foreground="White"
+                        BorderThickness="0"
+                        FontSize="14" FontWeight="SemiBold"
+                        Padding="20,12"
+                        CornerRadius="8"
+                        Command="{Binding SubmitTestCommand}"/>
+            </Grid>
+        </Border>
+    </Grid>
+
+    <Window.Resources>
+        <vm:BoolToColorConverter x:Key="BoolToColorConverter"/>
+        <vm:BoolToStatusColorConverter x:Key="BoolToStatusColorConverter"/>
+        <vm:BoolToAnswerColorConverter x:Key="BoolToAnswerColorConverter"/>
+        <vm:BoolToBorderColorConverter x:Key="BoolToBorderColorConverter"/>
+    </Window.Resources>
+</Window> 

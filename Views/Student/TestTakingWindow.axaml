@@ -156,16 +156,24 @@
                                    Foreground="#1F2937"/>
                     </StackPanel>
 
-                    <!-- Submit Test Button -->
-                    <Button Grid.Column="3" Content="Submit Test" 
-                            Background="#1F2937" 
-                            Foreground="White"
-                            BorderThickness="0"
-                            FontSize="14" FontWeight="SemiBold"
-                            Padding="20,12"
-                            CornerRadius="8"
-                            VerticalAlignment="Center"
-                            Command="{Binding NextQuestionCommand}"/>
+                    <!-- Review and Submit Buttons -->
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <Button Content="📋 Review" 
+                                Background="Transparent" 
+                                BorderBrush="#D1D5DB" BorderThickness="1"
+                                Foreground="#6B7280"
+                                FontSize="14" Padding="16,10"
+                                CornerRadius="6"
+                                Command="{Binding ReviewTestCommand}"/>
+                        <Button Content="Submit Test" 
+                                Background="#1F2937" 
+                                Foreground="White"
+                                BorderThickness="0"
+                                FontSize="14" FontWeight="SemiBold"
+                                Padding="20,12"
+                                CornerRadius="8"
+                                Command="{Binding NextQuestionCommand}"/>
+                    </StackPanel>
                 </Grid>
             </Border>
 
@@ -229,60 +237,6 @@
                                    Foreground="#1F2937" 
                                    TextWrapping="Wrap"
                                    Margin="0,0,0,32"/>
-
-                        <!-- True/False Questions -->
-                        <StackPanel IsVisible="{Binding CurrentQuestion.IsTrueFalse}" 
-                                    Spacing="16">
-                            <StackPanel Orientation="Horizontal" Spacing="16">
-                                <Button Background="{Binding CurrentQuestion.TrueSelected, Converter={StaticResource BoolToColorConverter}}" 
-                                        CornerRadius="8" 
-                                        Padding="24,16" 
-                                        BorderThickness="2" 
-                                        BorderBrush="#E5E7EB"
-                                        Width="200"
-                                        Command="{Binding SelectTrueFalseCommand}"
-                                        CommandParameter="true">
-                                    <StackPanel Orientation="Horizontal" 
-                                                HorizontalAlignment="Center">
-                                        <RadioButton IsChecked="{Binding CurrentQuestion.TrueSelected}" 
-                                                     GroupName="TrueFalse"
-                                                     Margin="0,0,12,0"
-                                                     IsHitTestVisible="False"/>
-                                        <TextBlock Text="True" 
-                                                   FontSize="16" FontWeight="Medium"
-                                                   Foreground="#1F2937"/>
-                                    </StackPanel>
-                                </Button>
-                                
-                                <Button Background="{Binding CurrentQuestion.FalseSelected, Converter={StaticResource BoolToColorConverter}}" 
-                                        CornerRadius="8" 
-                                        Padding="24,16" 
-                                        BorderThickness="2" 
-                                        BorderBrush="#E5E7EB"
-                                        Width="200"
-                                        Command="{Binding SelectTrueFalseCommand}"
-                                        CommandParameter="false">
-                                    <StackPanel Orientation="Horizontal" 
-                                                HorizontalAlignment="Center">
-                                        <RadioButton IsChecked="{Binding CurrentQuestion.FalseSelected}" 
-                                                     GroupName="TrueFalse"
-                                                     Margin="0,0,12,0"
-                                                     IsHitTestVisible="False"/>
-                                        <TextBlock Text="False" 
-                                                   FontSize="16" FontWeight="Medium"
-                                                   Foreground="#1F2937"/>
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
-
-                            <!-- Auto-save indicator -->
-                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,16,0,0">
-                                <TextBlock Text="💾" FontSize="16"/>
-                                <TextBlock Text="Answer saved automatically" 
-                                           FontSize="14" 
-                                           Foreground="#10B981"/>
-                            </StackPanel>
-                        </StackPanel>
 
                         <!-- Multiple Choice Questions -->
                         <StackPanel IsVisible="{Binding CurrentQuestion.IsMultipleChoice}" 

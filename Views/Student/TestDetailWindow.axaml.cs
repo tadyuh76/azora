@@ -21,6 +21,7 @@ namespace AvaloniaAzora.Views.Student
             {
                 viewModel.GoBackRequested += OnGoBackRequested;
                 viewModel.StartTestRequested += OnStartTestRequested;
+                viewModel.ViewAttemptResultRequested += OnViewAttemptResultRequested;
             }
         }
 
@@ -36,20 +37,29 @@ namespace AvaloniaAzora.Views.Student
             Close();
         }
 
+        private void OnViewAttemptResultRequested(object? sender, ViewAttemptResultEventArgs e)
+        {
+            try
+            {
+                Console.WriteLine($"📊 Opening test result for attempt: {e.AttemptId}");
+                var resultWindow = new TestResultWindow(e.AttemptId, e.UserId);
+                resultWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error opening test result: {ex.Message}");
+            }
+        }
+
         protected override void OnClosed(EventArgs e)
         {
             if (DataContext is TestDetailViewModel viewModel)
             {
                 viewModel.GoBackRequested -= OnGoBackRequested;
                 viewModel.StartTestRequested -= OnStartTestRequested;
+                viewModel.ViewAttemptResultRequested -= OnViewAttemptResultRequested;
             }
             base.OnClosed(e);
         }
-    }
-
-    public class TestStartEventArgs : EventArgs
-    {
-        public Guid ClassTestId { get; set; }
-        public Guid UserId { get; set; }
     }
 }

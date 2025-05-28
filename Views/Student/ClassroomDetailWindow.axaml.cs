@@ -10,6 +10,7 @@ namespace AvaloniaAzora.Views.Student
         public ClassroomDetailWindow()
         {
             InitializeComponent();
+            WindowState = WindowState.Maximized;
         }
 
         public ClassroomDetailWindow(Guid classId, Guid userId) : this()
@@ -34,6 +35,11 @@ namespace AvaloniaAzora.Views.Student
                 Opened += async (sender, e) => await LoadDataAsync(viewModel, classId, userId);
 
                 Console.WriteLine("✅ Opened event handler attached");
+
+                // Subscribe to events
+                viewModel.GoBackRequested += OnGoBackRequested;
+                TestCardViewModel.TestStartRequested += OnTestStartRequested;
+                TestCardViewModel.ViewTestRequested += OnViewTestRequested;
             }
             catch (Exception ex)
             {
@@ -57,6 +63,65 @@ namespace AvaloniaAzora.Views.Student
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 // You could show an error dialog here
             }
+        }
+
+        private void OnGoBackRequested(object? sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void OnTestStartRequested(object? sender, TestStartEventArgs e)
+        {
+            try
+            {
+                Console.WriteLine($"🎯 Starting test: {e.ClassTestId}");
+
+                var testDetailViewModel = new TestDetailViewModel();
+                var testDetailWindow = new TestDetailWindow(testDetailViewModel);
+
+                // Load test details
+                _ = testDetailViewModel.LoadTestDetailsAsync(e.ClassTestId, e.UserId);
+
+                testDetailWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error starting test: {ex.Message}");
+            }
+        }
+
+        private void OnViewTestRequested(object? sender, ViewTestEventArgs e)
+        {
+            try
+            {
+                Console.WriteLine($"📋 Viewing test detail: {e.ClassTestId}");
+
+                var testDetailViewModel = new TestDetailViewModel();
+                var testDetailWindow = new TestDetailWindow(testDetailViewModel);
+
+                // Load test details
+                _ = testDetailViewModel.LoadTestDetailsAsync(e.ClassTestId, e.UserId);
+
+                testDetailWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error viewing test detail: {ex.Message}");
+            }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            if (DataContext is ClassroomDetailViewModel viewModel)
+            {
+                viewModel.GoBackRequested -= OnGoBackRequested;
+            }
+
+            // Unsubscribe from static events
+            TestCardViewModel.TestStartRequested -= OnTestStartRequested;
+            TestCardViewModel.ViewTestRequested -= OnViewTestRequested;
+
+            base.OnClosed(e);
         }
     }
 }
