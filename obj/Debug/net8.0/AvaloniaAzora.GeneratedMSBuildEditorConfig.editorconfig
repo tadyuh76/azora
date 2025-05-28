@@ -64,11 +64,26 @@ build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 [/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Student/TestTakingWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
+[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/AddStudentToClassWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/AssignTestToClassWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
 [/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/CreateClassroomWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
 [/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/CreateTestWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
+[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/EditTestWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/TeacherClassroomDetailWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
 [/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/TeacherDashboardWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/TestAnalyticsWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml

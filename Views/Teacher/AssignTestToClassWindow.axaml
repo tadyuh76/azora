@@ -1,0 +1,220 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:AvaloniaAzora.ViewModels"
+        xmlns:models="using:AvaloniaAzora.Models"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
+        x:Class="AvaloniaAzora.Views.Teacher.AssignTestToClassWindow"
+        Title="Assign Test to Class"
+        Width="1000" Height="700"
+        WindowStartupLocation="CenterScreen"
+        Background="#F8F9FA">
+
+    <Design.DataContext>
+        <vm:AssignTestToClassViewModel />
+    </Design.DataContext>
+
+    <Window.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="BoxShadow" Value="0 4 16 0 #10000000"/>
+        </Style>
+        <Style Selector="Border.test-item">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="Border.test-item:pointerover">
+            <Setter Property="BorderBrush" Value="#4a6cd3"/>
+            <Setter Property="BoxShadow" Value="0 4 12 0 #10000000"/>
+        </Style>
+        <Style Selector="Border.test-item.selected">
+            <Setter Property="BorderBrush" Value="#4a6cd3"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BoxShadow" Value="0 4 16 0 #20000000"/>
+        </Style>
+        <Style Selector="TextBox, ComboBox, NumericUpDown, CalendarDatePicker">
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style Selector="Button.action">
+            <Setter Property="Background" Value="#2B2B2B"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.secondary">
+            <Setter Property="Background" Value="#e2e8f0"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="24"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Panel - Test Selection -->
+        <Border Grid.Column="0" Classes="card" Margin="24">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                    <TextBlock Text="📝 Select Test to Assign" 
+                               FontSize="24" FontWeight="Bold" 
+                               Foreground="#1F2937"
+                               Margin="0,0,0,8"/>
+                    <TextBlock Name="ClassNameText" 
+                               Text="Class: Loading..." 
+                               FontSize="16" Foreground="#6B7280"/>
+                </StackPanel>
+
+                <!-- Create New Test Button -->
+                <Button Grid.Row="1" 
+                        Content="➕ Create New Test" 
+                        Classes="action" 
+                        Click="OnCreateNewTestClicked"
+                        Margin="0,0,0,20"/>
+
+                <!-- Tests List -->
+                <ScrollViewer Grid.Row="2">
+                    <StackPanel Name="TestsListPanel">
+                        <!-- Test items will be populated here -->
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- Right Panel - Assignment Settings -->
+        <Border Grid.Column="2" Classes="card" Margin="0,24,24,24">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Assignment Form -->
+                <StackPanel Grid.Row="0" Name="AssignmentPanel" IsVisible="False">
+                    <TextBlock Text="🎯 Assignment Settings" 
+                               FontSize="20" FontWeight="Bold" 
+                               Foreground="#1F2937"
+                               Margin="0,0,0,20"/>
+
+                    <!-- Selected Test Info -->
+                    <Border Name="SelectedTestPanel" 
+                            Background="#F0F9FF" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,20">
+                        <StackPanel>
+                            <TextBlock Name="SelectedTestTitle" 
+                                       Text="Test Title" 
+                                       FontSize="16" FontWeight="SemiBold" 
+                                       Foreground="#1F2937"/>
+                            <TextBlock Name="SelectedTestDescription" 
+                                       Text="Test description..." 
+                                       FontSize="14" Foreground="#6B7280" 
+                                       Margin="0,4,0,0"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Assignment Settings -->
+                    <StackPanel Spacing="16">
+                        <Grid ColumnDefinitions="Auto,16,*">
+                            <TextBlock Grid.Column="0" 
+                                       Text="Start Date:" 
+                                       FontWeight="Medium" 
+                                       VerticalAlignment="Center"/>
+                            <CalendarDatePicker Grid.Column="2" 
+                                                Name="StartDatePicker"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,16,*">
+                            <TextBlock Grid.Column="0" 
+                                       Text="Due Date:" 
+                                       FontWeight="Medium" 
+                                       VerticalAlignment="Center"/>
+                            <CalendarDatePicker Grid.Column="2" 
+                                                Name="DueDatePicker"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,16,*">
+                            <TextBlock Grid.Column="0" 
+                                       Text="Max Attempts:" 
+                                       FontWeight="Medium" 
+                                       VerticalAlignment="Center"/>
+                            <NumericUpDown Grid.Column="2" 
+                                           Name="LimitAttemptsNumericUpDown"
+                                           Minimum="1" Maximum="10"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,16,*">
+                            <TextBlock Grid.Column="0" 
+                                       Text="Passing Score:" 
+                                       FontWeight="Medium" 
+                                       VerticalAlignment="Center"/>
+                            <NumericUpDown Grid.Column="2" 
+                                           Name="PassingScoreNumericUpDown"
+                                           Minimum="0" Maximum="100" 
+                                           Increment="5"
+                                           FormatString="N0"/>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Empty State -->
+                <StackPanel Grid.Row="1" Name="EmptyStatePanel" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center">
+                    <TextBlock Text="📝" 
+                               FontSize="48" 
+                               HorizontalAlignment="Center" 
+                               Margin="0,0,0,16"/>
+                    <TextBlock Text="Select a test to assign" 
+                               FontSize="16" 
+                               Foreground="#6B7280" 
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Action Buttons -->
+                <StackPanel Grid.Row="2" 
+                           Name="ActionButtonsPanel" 
+                           Orientation="Horizontal" 
+                           HorizontalAlignment="Right" 
+                           Spacing="12"
+                           IsVisible="False">
+                    <Button Content="Cancel" 
+                            Classes="secondary" 
+                            Click="OnCancelClicked"/>
+                    <Button Content="Assign Test" 
+                            Classes="action" 
+                            Click="OnAssignClicked"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window> 

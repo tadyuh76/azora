@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "7Z6HePokKac=",
+  "dgSpecHash": "Ov384/4H79I=",
   "success": true,
   "projectFilePath": "/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/AvaloniaAzora.csproj",
   "expectedPackageFiles": [
@@ -66,8 +66,12 @@
     "/Users/tadyuh/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512",
     "/Users/tadyuh/.nuget/packages/npgsql/8.0.0/npgsql.8.0.0.nupkg.sha512",
     "/Users/tadyuh/.nuget/packages/npgsql.entityframeworkcore.postgresql/8.0.0/npgsql.entityframeworkcore.postgresql.8.0.0.nupkg.sha512",
+    "/Users/tadyuh/.nuget/packages/scottplot/5.0.55/scottplot.5.0.55.nupkg.sha512",
+    "/Users/tadyuh/.nuget/packages/scottplot.avalonia/5.0.55/scottplot.avalonia.5.0.55.nupkg.sha512",
     "/Users/tadyuh/.nuget/packages/skiasharp/2.88.9/skiasharp.2.88.9.nupkg.sha512",
+    "/Users/tadyuh/.nuget/packages/skiasharp.harfbuzz/2.88.9/skiasharp.harfbuzz.2.88.9.nupkg.sha512",
     "/Users/tadyuh/.nuget/packages/skiasharp.nativeassets.linux/2.88.9/skiasharp.nativeassets.linux.2.88.9.nupkg.sha512",
+    "/Users/tadyuh/.nuget/packages/skiasharp.nativeassets.linux.nodependencies/2.88.9/skiasharp.nativeassets.linux.nodependencies.2.88.9.nupkg.sha512",
     "/Users/tadyuh/.nuget/packages/skiasharp.nativeassets.macos/2.88.9/skiasharp.nativeassets.macos.2.88.9.nupkg.sha512",
     "/Users/tadyuh/.nuget/packages/skiasharp.nativeassets.webassembly/2.88.9/skiasharp.nativeassets.webassembly.2.88.9.nupkg.sha512",
     "/Users/tadyuh/.nuget/packages/skiasharp.nativeassets.win32/2.88.9/skiasharp.nativeassets.win32.2.88.9.nupkg.sha512",

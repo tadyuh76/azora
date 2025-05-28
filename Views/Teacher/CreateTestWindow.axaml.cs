@@ -13,6 +13,9 @@ namespace AvaloniaAzora.Views.Teacher
         private readonly IDataService _dataService;
         private readonly CreateTestViewModel _viewModel;
 
+        // Event to notify when test is created
+        public event EventHandler<Guid>? TestCreated;
+
         // This constructor is for design-time only
         public CreateTestWindow()
         {
@@ -55,7 +58,11 @@ namespace AvaloniaAzora.Views.Teacher
                 CreatedAt = DateTimeOffset.UtcNow
             };
 
-            await _dataService.CreateTestAsync(newTest);
+            var createdTest = await _dataService.CreateTestAsync(newTest);
+
+            // Notify that test was created
+            TestCreated?.Invoke(this, createdTest.Id);
+
             Close();
         }
     }

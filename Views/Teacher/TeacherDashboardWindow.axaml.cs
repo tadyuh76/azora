@@ -48,5 +48,14 @@ namespace AvaloniaAzora.Views.Teacher
             };
             window.Show();
         }
+
+        private void OnViewClassClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            if (sender is Button button && button.CommandParameter is Guid classId)
+            {
+                var window = new TeacherClassroomDetailWindow(classId, _userId);
+                window.Show();
+            }
+        }
     }
 }

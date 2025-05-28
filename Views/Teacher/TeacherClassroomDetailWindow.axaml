@@ -1,0 +1,270 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1400" d:DesignHeight="900"
+        x:Class="AvaloniaAzora.Views.Teacher.TeacherClassroomDetailWindow"
+        Title="Classroom Management"
+        Width="1400" Height="900"
+        WindowStartupLocation="CenterScreen"
+        Background="#F8F9FA">
+
+    <Window.Styles>
+        <Style Selector="Button.action">
+            <Setter Property="Background" Value="#2B2B2B"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style Selector="Button.secondary">
+            <Setter Property="Background" Value="#e2e8f0"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style Selector="Button.link">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#4a6cd3"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+        </Style>
+        <Style Selector="Border.info-card">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="24"/>
+            <Setter Property="BoxShadow" Value="0 2 8 0 #10000000"/>
+        </Style>
+        <Style Selector="Border.student-card">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="MinHeight" Value="80"/>
+        </Style>
+        <Style Selector="Border.student-card:pointerover">
+            <Setter Property="BoxShadow" Value="0 4 12 0 #10000000"/>
+        </Style>
+        <Style Selector="Border.test-card">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="MinHeight" Value="120"/>
+        </Style>
+        <Style Selector="Border.test-card:pointerover">
+            <Setter Property="BorderBrush" Value="#4a6cd3"/>
+            <Setter Property="BoxShadow" Value="0 4 12 0 #10000000"/>
+        </Style>
+        <Style Selector="Border.status-badge">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+        </Style>
+        <Style Selector="Border.status-active">
+            <Setter Property="Background" Value="#10B981"/>
+        </Style>
+        <Style Selector="Border.status-inactive">
+            <Setter Property="Background" Value="#6B7280"/>
+        </Style>
+        <!-- Improved Tab Styles -->
+        <Style Selector="TabControl">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style Selector="TabItem">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Padding" Value="24,16"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#6B7280"/>
+            <Setter Property="BorderThickness" Value="0,0,0,3"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+        <Style Selector="TabItem:selected">
+            <Setter Property="Foreground" Value="#4a6cd3"/>
+            <Setter Property="BorderBrush" Value="#4a6cd3"/>
+            <Setter Property="Background" Value="White"/>
+        </Style>
+        <Style Selector="TabItem:pointerover">
+            <Setter Property="Foreground" Value="#4a6cd3"/>
+            <Setter Property="Background" Value="#F8F9FA"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" 
+                BorderBrush="#E5E7EB" BorderThickness="0,0,0,1"
+                Padding="32,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Back Button -->
+                <Button Grid.Column="0" Name="BackButton"
+                        Classes="link" 
+                        Content="← Back to Dashboard"
+                        FontSize="16" FontWeight="Medium"
+                        VerticalAlignment="Center"
+                        Margin="0,0,24,0"
+                        Click="OnBackClicked"/>
+                
+                <!-- Class Info -->
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Background="#4285F4" CornerRadius="8" 
+                                Width="40" Height="40" Margin="0,0,16,0">
+                            <TextBlock Text="🎓" FontSize="20" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Name="ClassNameText" 
+                                       FontSize="28" FontWeight="Bold" 
+                                       Foreground="#1F2937"/>
+                            <TextBlock Name="DescriptionText" 
+                                       FontSize="16" Foreground="#6B7280" 
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Info Cards -->
+        <Grid Grid.Row="1" Margin="32,24,32,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="32"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Students Card -->
+            <Border Grid.Column="0" Classes="info-card">
+                <StackPanel>
+                    <TextBlock Text="👥" FontSize="24" Margin="0,0,0,8"/>
+                    <TextBlock Name="StudentCountText" 
+                               FontSize="32" FontWeight="Bold" 
+                               Foreground="#1F2937"/>
+                    <TextBlock Text="Students" 
+                               FontSize="14" Foreground="#6B7280"/>
+                    <TextBlock Text="Enrolled" 
+                               FontSize="12" Foreground="#9CA3AF"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Tests Card -->
+            <Border Grid.Column="2" Classes="info-card">
+                <StackPanel>
+                    <TextBlock Text="📝" FontSize="24" Margin="0,0,0,8"/>
+                    <TextBlock Name="TestCountText" 
+                               FontSize="32" FontWeight="Bold" 
+                               Foreground="#1F2937"/>
+                    <TextBlock Text="Tests" 
+                               FontSize="14" Foreground="#6B7280"/>
+                    <TextBlock Text="Active" 
+                               FontSize="12" Foreground="#9CA3AF"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Main Content with Improved Tabs -->
+        <TabControl Grid.Row="2" Margin="32,24" Background="White" 
+                    BorderBrush="#E5E7EB" BorderThickness="0,1,0,0">
+            <!-- Students Tab -->
+            <TabItem Header="👥 Students Management">
+                <Grid Margin="24">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Students Header with Action Button -->
+                    <Grid Grid.Row="0" Margin="0,0,0,24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" 
+                                   Name="StudentsTabCountText"
+                                   Text="Students (0)" 
+                                   FontSize="24" FontWeight="SemiBold" 
+                                   Foreground="#1F2937" 
+                                   VerticalAlignment="Center"/>
+                        
+                        <Button Grid.Column="1" Content="⭐ Add Student" 
+                                Classes="action" Click="OnAddStudentClicked"/>
+                    </Grid>
+                    
+                    <!-- Students List -->
+                    <ScrollViewer Grid.Row="1">
+                        <StackPanel Name="StudentsPanel">
+                            <!-- Student cards will be added programmatically -->
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <!-- Tests Tab -->
+            <TabItem Header="📝 Tests Management">
+                <Grid Margin="24">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Tests Header with Action Buttons -->
+                    <Grid Grid.Row="0" Margin="0,0,0,24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" 
+                                   Name="TestsTabCountText"
+                                   Text="Tests (0)" 
+                                   FontSize="24" FontWeight="SemiBold" 
+                                   Foreground="#1F2937" 
+                                   VerticalAlignment="Center"/>
+                        
+                        <Button Grid.Column="1" Content="📝 Create Test" 
+                                Classes="action" Click="OnCreateTestClicked"
+                                Margin="0,0,12,0"/>
+                        
+                        <Button Grid.Column="2" Content="➕ Assign Test" 
+                                Classes="action" Click="OnAddTestClicked"/>
+                    </Grid>
+                    
+                    <!-- Tests List -->
+                    <ScrollViewer Grid.Row="1">
+                        <StackPanel Name="TestsPanel">
+                            <!-- Test cards will be added programmatically -->
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window> 

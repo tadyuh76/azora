@@ -161,7 +161,7 @@ namespace AvaloniaAzora.ViewModels
                         var classTests = await _dataService.GetClassTestsByClassIdAsync(enrollment.Class.Id);
                         Console.WriteLine($"   Found {classTests.Count} tests for class: {enrollment.Class.ClassName}");
 
-                        var upcomingTests = classTests.Where(ct => ct.DueDate.HasValue && ct.DueDate.Value > DateTimeOffset.Now).ToList();
+                        var upcomingTests = classTests.Where(ct => ct.DueDate.HasValue && ct.DueDate.Value > DateTimeOffset.UtcNow).ToList();
                         Console.WriteLine($"   {upcomingTests.Count} upcoming tests in {enrollment.Class.ClassName}");
 
                         foreach (var classTest in upcomingTests)
@@ -172,7 +172,7 @@ namespace AvaloniaAzora.ViewModels
                                 {
                                     AssessmentName = classTest.Test.Title,
                                     ClassName = enrollment.Class.ClassName,
-                                    DueDate = classTest.DueDate ?? DateTimeOffset.Now,
+                                    DueDate = classTest.DueDate ?? DateTimeOffset.UtcNow,
                                     AssessmentType = GetAssessmentType(classTest.Test.Title)
                                 };
                                 UpcomingAssessments.Add(assessment);

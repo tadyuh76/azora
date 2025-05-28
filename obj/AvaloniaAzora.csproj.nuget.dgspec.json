@@ -96,6 +96,10 @@
               "target": "Package",
               "version": "[8.0.0, )"
             },
+            "ScottPlot.Avalonia": {
+              "target": "Package",
+              "version": "[5.0.55, )"
+            },
             "Supabase": {
               "target": "Package",
               "version": "[1.1.1, )"

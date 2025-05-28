@@ -36,6 +36,9 @@ namespace AvaloniaAzora.ViewModels.Student
         private int _totalPoints = 0;
 
         [ObservableProperty]
+        private int _totalQuestions = 0;
+
+        [ObservableProperty]
         private string _classRank = "#8";
 
         [ObservableProperty]
@@ -278,6 +281,7 @@ namespace AvaloniaAzora.ViewModels.Student
             // Update summary
             CorrectAnswers = correctCount;
             IncorrectAnswers = questions.Count - correctCount;
+            TotalQuestions = questions.Count;
             TotalPoints = totalPointsValue;
             PointsEarned = earnedPointsValue;
             ScorePercentage = totalPointsValue > 0 ? (double)earnedPointsValue / totalPointsValue * 100 : 0;
@@ -437,6 +441,7 @@ namespace AvaloniaAzora.ViewModels.Student
             ScorePercentage = 81;
             CorrectAnswers = 3;
             IncorrectAnswers = 2;
+            TotalQuestions = 5;
             PointsEarned = 22;
             TotalPoints = 27;
             ClassRank = "#8";

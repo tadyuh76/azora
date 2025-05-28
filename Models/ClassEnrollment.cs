@@ -19,7 +19,7 @@ namespace AvaloniaAzora.Models
         public Guid? StudentId { get; set; }
 
         [Column("enrollment_date")]
-        public DateTimeOffset EnrollmentDate { get; set; } = DateTimeOffset.Now;
+        public DateTimeOffset EnrollmentDate { get; set; } = DateTimeOffset.UtcNow;
 
         // Navigation properties
         [ForeignKey("ClassId")]

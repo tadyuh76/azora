@@ -30,7 +30,7 @@ namespace AvaloniaAzora.Models
         public string? AnswerText { get; set; }
 
         [Column("answered_at")]
-        public DateTimeOffset AnsweredAt { get; set; } = DateTimeOffset.Now;
+        public DateTimeOffset AnsweredAt { get; set; } = DateTimeOffset.UtcNow;
 
         // Navigation properties
         [ForeignKey("AttemptId")]

@@ -19,7 +19,7 @@ namespace AvaloniaAzora.Models
         public Guid? ClassTestId { get; set; }
 
         [Column("start_time")]
-        public DateTimeOffset StartTime { get; set; } = DateTimeOffset.Now;
+        public DateTimeOffset StartTime { get; set; } = DateTimeOffset.UtcNow;
 
         [Column("end_time")]
         public DateTimeOffset? EndTime { get; set; }

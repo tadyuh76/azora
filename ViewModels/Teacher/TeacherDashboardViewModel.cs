@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 
 namespace AvaloniaAzora.ViewModels
 {
@@ -39,6 +40,18 @@ namespace AvaloniaAzora.ViewModels
 
         [ObservableProperty]
         private string _averagePerformance = "0%";
+
+        [ObservableProperty]
+        private ObservableCollection<Class> _teachingClassesData = new();
+
+        [ObservableProperty]
+        private int _totalClasses;
+
+        [ObservableProperty]
+        private int _totalStudents;
+
+        [ObservableProperty]
+        private int _totalTests;
 
         public TeacherDashboardViewModel()
         {
@@ -95,6 +108,7 @@ namespace AvaloniaAzora.ViewModels
                 var classes = await _dataService.GetClassesByTeacherIdAsync(userId);
 
                 TeachingClasses.Clear();
+                TeachingClassesData.Clear();
                 foreach (var classEntity in classes)
                 {
                     var studentCount = await _dataService.GetClassEnrollmentCountAsync(classEntity.Id);
@@ -112,6 +126,7 @@ namespace AvaloniaAzora.ViewModels
                     };
 
                     TeachingClasses.Add(cardViewModel);
+                    TeachingClassesData.Add(classEntity);
                 }
 
                 Console.WriteLine($"✅ Loaded {TeachingClasses.Count} teaching classes");
@@ -209,6 +224,55 @@ namespace AvaloniaAzora.ViewModels
                 "chemistry" => "#06B6D4",
                 _ => "#6B7280"
             };
+        }
+
+        public async Task CalculateStatisticsAsync(Guid userId)
+        {
+            try
+            {
+                // Calculate total classes
+                TotalClasses = TeachingClassesData.Count;
+
+                // Calculate total students (deduplicated across classes)
+                var studentIds = new HashSet<Guid>();
+                foreach (var classItem in TeachingClassesData)
+                {
+                    var enrollments = await _dataService.GetEnrollmentsByClassIdAsync(classItem.Id);
+                    foreach (var enrollment in enrollments)
+                    {
+                        if (enrollment.StudentId.HasValue)
+                        {
+                            studentIds.Add(enrollment.StudentId.Value);
+                        }
+                    }
+                }
+                TotalStudents = studentIds.Count;
+
+                // Calculate total tests
+                var testCount = 0;
+                foreach (var classItem in TeachingClassesData)
+                {
+                    var tests = await _dataService.GetTestsByClassIdAsync(classItem.Id);
+                    testCount += tests.Count;
+                }
+                TotalTests = testCount;
+
+                // Update statistics
+                ActiveClassroomsCount = TotalClasses.ToString();
+                TotalStudentsCount = TotalStudents.ToString();
+                ActiveTestsCount = TotalTests.ToString();
+                AveragePerformance = "87%"; // Placeholder for now
+
+                Console.WriteLine($"✅ Statistics calculated: {ActiveClassroomsCount} classes, {TotalStudentsCount} students, {ActiveTestsCount} tests");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error calculating statistics: {ex.Message}");
+                ActiveClassroomsCount = "0";
+                TotalStudentsCount = "0";
+                ActiveTestsCount = "0";
+                AveragePerformance = "0%";
+            }
         }
     }
 }

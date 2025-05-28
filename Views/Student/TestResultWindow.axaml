@@ -140,23 +140,30 @@
                                     <TextBlock Text="Final Score" 
                                                FontSize="14" Foreground="#6B7280"
                                                HorizontalAlignment="Center"/>
-                                    <TextBlock Text="{Binding PointsEarned, StringFormat='{}{0}/27 points'}" 
-                                               FontSize="12" Foreground="#6B7280"
-                                               HorizontalAlignment="Center"/>
+                                    <TextBlock FontSize="12" Foreground="#6B7280"
+                                               HorizontalAlignment="Center">
+                                        <Run Text="{Binding PointsEarned}"/>
+                                        <Run Text="/"/>
+                                        <Run Text="{Binding TotalPoints}"/>
+                                        <Run Text=" points"/>
+                                    </TextBlock>
                                 </StackPanel>
                                 
                                 <!-- Correct Answers -->
                                 <StackPanel Grid.Column="1" HorizontalAlignment="Center">
-                                    <TextBlock Text="{Binding CorrectAnswers, StringFormat='{}{0}/5'}" 
-                                               FontSize="32" FontWeight="Bold" 
+                                    <TextBlock FontSize="32" FontWeight="Bold" 
                                                Foreground="#1F2937" 
-                                               HorizontalAlignment="Center"/>
+                                               HorizontalAlignment="Center">
+                                        <Run Text="{Binding CorrectAnswers}"/>
+                                        <Run Text="/"/>
+                                        <Run Text="{Binding TotalQuestions}"/>
+                                    </TextBlock>
                                     <TextBlock Text="Correct Answers" 
                                                FontSize="14" Foreground="#6B7280" 
                                                HorizontalAlignment="Center"/>
                                     <ProgressBar Height="4" Width="80" Margin="0,4,0,0"
                                                  Value="{Binding CorrectAnswers}" 
-                                                 Maximum="5"
+                                                 Maximum="{Binding TotalQuestions}"
                                                  Background="#E5E7EB"
                                                  Foreground="#1F2937"/>
                                 </StackPanel>

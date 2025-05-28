@@ -135,7 +135,7 @@ namespace AvaloniaAzora.ViewModels.Student
                             TestId = classTest.Test.Id,
                             TestName = classTest.Test.Title,
                             TestType = GetTestType(classTest.Test.Title),
-                            DueDate = classTest.DueDate ?? DateTimeOffset.Now,
+                            DueDate = classTest.DueDate ?? DateTimeOffset.UtcNow,
                             QuestionCount = questionCount,
                             TimeLimit = classTest.Test.TimeLimit ?? 45, // Default 45 minutes
                             AttemptCount = attemptCount,
@@ -146,7 +146,7 @@ namespace AvaloniaAzora.ViewModels.Student
                             UserId = userId
                         };
 
-                        if (testCard.IsCompleted || (classTest.DueDate.HasValue && classTest.DueDate.Value < DateTimeOffset.Now))
+                        if (testCard.IsCompleted || (classTest.DueDate.HasValue && classTest.DueDate.Value < DateTimeOffset.UtcNow))
                         {
                             CompletedTests.Add(testCard);
                         }

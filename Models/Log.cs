@@ -16,7 +16,7 @@ namespace AvaloniaAzora.Models
         public Guid? UserId { get; set; }
 
         [Column("timestamp")]
-        public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.Now;
+        public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
 
         [Column("event_type")]
         public string? EventType { get; set; }

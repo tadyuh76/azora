@@ -278,7 +278,8 @@
                                                 <Button Grid.Column="3" Content="View" 
                                                         Classes="primary"
                                                         Padding="12,6" CornerRadius="4" FontSize="12"
-                                                        Command="{Binding ViewClassCommand}"/>
+                                                        Click="OnViewClassClicked"
+                                                        CommandParameter="{Binding ClassId}"/>
                                             </Grid>
                                         </Grid>
                                     </Border>
@@ -287,7 +288,7 @@
                         </ItemsControl>
                     </StackPanel>
                     
-                    <!-- Recent Activity and Quick Actions Section -->
+                    <!-- Quick Actions Section (Removed Recent Activity) -->
                     <StackPanel Grid.Column="2">
                         <!-- Quick Actions -->
                         <StackPanel Margin="0,0,0,32">
@@ -315,7 +316,7 @@
                                 </Border.Effect>
                                 <Button Content="🏫 Create Classroom" 
                                         Classes="secondary" HorizontalAlignment="Stretch"
-                                        Padding="12,8" CornerRadius="6"/>
+                                        Padding="12,8" CornerRadius="6" Click="OnCreateClassroomClicked"/>
                             </Border>
                             
                             <Border Background="White" CornerRadius="8" Padding="16">
@@ -327,53 +328,6 @@
                                         Classes="secondary" HorizontalAlignment="Stretch"
                                         Padding="12,8" CornerRadius="6"/>
                             </Border>
-                        </StackPanel>
-                        
-                        <!-- Recent Activity -->
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                                <TextBlock Text="🔔" FontSize="20" Margin="0,0,8,0" 
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Text="Recent Activity" FontSize="20" FontWeight="Bold" 
-                                           Foreground="#1F2937" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            
-                            <ItemsControl ItemsSource="{Binding RecentActivities}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type vm:RecentActivityViewModel}">
-                                        <Border Background="White" CornerRadius="8" 
-                                                Margin="0,0,0,12" Padding="16">
-                                            <Border.Effect>
-                                                <DropShadowEffect BlurRadius="6" OffsetX="0" OffsetY="1" 
-                                                                  Color="#000000" Opacity="0.1"/>
-                                            </Border.Effect>
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="4"/>
-                                                    <ColumnDefinition Width="16"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                
-                                                <!-- Color Bar -->
-                                                <Border Grid.Column="0" Background="{Binding ActivityColor}" 
-                                                        CornerRadius="2"/>
-                                                
-                                                <!-- Content -->
-                                                <StackPanel Grid.Column="2">
-                                                    <TextBlock Text="{Binding ActivityTitle}" 
-                                                               FontSize="16" FontWeight="SemiBold" 
-                                                               Foreground="#1F2937" Margin="0,0,0,4"/>
-                                                    <TextBlock Text="{Binding ActivityDescription}" 
-                                                               FontSize="14" Foreground="#6B7280" 
-                                                               Margin="0,0,0,8"/>
-                                                    <TextBlock Text="{Binding TimeAgo}" 
-                                                               FontSize="12" Foreground="#9CA3AF"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
                         </StackPanel>
                     </StackPanel>
                 </Grid>

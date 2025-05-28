@@ -1,0 +1,362 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:AvaloniaAzora.ViewModels"
+        xmlns:models="using:AvaloniaAzora.Models"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+        x:Class="AvaloniaAzora.Views.Teacher.EditTestWindow"
+        Title="Edit Test"
+        Width="1000" Height="700"
+        WindowStartupLocation="CenterScreen"
+        Background="#F8F9FA">
+
+    <Design.DataContext>
+        <vm:EditTestViewModel />
+    </Design.DataContext>
+
+    <Window.Styles>
+        <Style Selector="Button.action">
+            <Setter Property="Background" Value="#4a6cd3"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="MinWidth" Value="140"/>
+        </Style>
+        <Style Selector="Button.secondary">
+            <Setter Property="Background" Value="#e2e8f0"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="MinWidth" Value="100"/>
+        </Style>
+        <Style Selector="Button.link">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#4a6cd3"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+        </Style>
+        <Style Selector="TextBlock.header">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+        </Style>
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="BoxShadow" Value="0 4 16 0 #10000000"/>
+        </Style>
+        <Style Selector="Border.question-card">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="Border.question-card:pointerover">
+            <Setter Property="BorderBrush" Value="#4a6cd3"/>
+            <Setter Property="BoxShadow" Value="0 4 12 0 #10000000"/>
+        </Style>
+        <Style Selector="TextBox, ComboBox, NumericUpDown">
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+    </Window.Styles>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" 
+                BorderBrush="#E5E7EB" BorderThickness="0,0,0,1"
+                Padding="24,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Back Button -->
+                <Button Grid.Column="0" Name="BackButton"
+                        Classes="link" 
+                        Content="← Back"
+                        FontSize="16" FontWeight="Medium"
+                        VerticalAlignment="Center"
+                        Margin="0,0,24,0"/>
+                
+                <!-- Title -->
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="Edit Test" 
+                               FontSize="24" FontWeight="Bold" 
+                               Foreground="#1F2937"/>
+                    <TextBlock Text="Modify test content and questions" 
+                               FontSize="14" Foreground="#6B7280" 
+                               Margin="0,4,0,0"/>
+                </StackPanel>
+                
+                <!-- Update Button -->
+                <Button Grid.Column="2" Content="Update Test" 
+                        Classes="action" Click="OnUpdateTestClicked" 
+                        VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+        
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="1" Padding="24,20">
+            <Grid ColumnDefinitions="350,24,*">
+                <!-- Left Panel - Test Details -->
+                <StackPanel Grid.Column="0">
+                    <Border Classes="card">
+                        <StackPanel>
+                            <TextBlock Text="Test Details" Classes="header"/>
+                            
+                            <StackPanel>
+                                <TextBlock Text="Test Title" Classes="label"/>
+                                <TextBox Name="TitleTextBox" 
+                                         Watermark="Enter test title"
+                                         Margin="0,0,0,16"/>
+                                
+                                <TextBlock Text="Description" Classes="label"/>
+                                <TextBox Name="DescriptionTextBox" 
+                                         Watermark="Enter test description"
+                                         AcceptsReturn="True" 
+                                         TextWrapping="Wrap"
+                                         Height="80"
+                                         Margin="0,0,0,16"/>
+                                
+                                <TextBlock Text="Time Limit (minutes)" Classes="label"/>
+                                <NumericUpDown Name="TimeLimitNumericUpDown"
+                                               Minimum="1" Maximum="300"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Add Question Card -->
+                    <Border Classes="card" Margin="0,0,0,80">
+                        <StackPanel>
+                            <TextBlock Text="Add New Question" Classes="header"/>
+                            
+                            <StackPanel>
+                                <TextBlock Text="Question Type" Classes="label"/>
+                                <ComboBox Name="QuestionTypeComboBox" 
+                                          Grid.Row="0" Grid.Column="1"
+                                          Margin="0,0,0,16"
+                                          Padding="10" CornerRadius="8"
+                                          BorderBrush="#D1D5DB"
+                                          FontSize="14"
+                                          SelectionChanged="OnQuestionTypeChanged">
+                                    <ComboBoxItem Content="Multiple Choice" Tag="multiple_choice"/>
+                                    <ComboBoxItem Content="Short Answer" Tag="short_answer"/>
+                                </ComboBox>
+
+                                <TextBlock Text="Question Text:" 
+                                           Grid.Row="1" Grid.Column="0"
+                                           FontWeight="Medium" 
+                                           VerticalAlignment="Top" Margin="0,8,0,0"/>
+                                <TextBox Name="NewQuestionTextBox" 
+                                         Grid.Row="1" Grid.Column="1"
+                                         Watermark="Enter question text..."
+                                         Margin="0,0,0,16"
+                                         MinHeight="80"
+                                         TextWrapping="Wrap"
+                                         AcceptsReturn="True"
+                                         VerticalContentAlignment="Top"
+                                         Padding="10" CornerRadius="8"
+                                         BorderBrush="#D1D5DB"/>
+
+                                <!-- Answer Options Panel (for Multiple Choice) -->
+                                <Border Name="AnswerOptionsPanel" 
+                                        Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                        Background="#F8F9FA"
+                                        CornerRadius="8"
+                                        Padding="16"
+                                        Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <TextBlock Text="Answer Options:" 
+                                                   FontWeight="Medium" 
+                                                   Margin="0,0,0,12"/>
+                                        
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="16"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="12"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            
+                                            <TextBox Name="Answer1TextBox" 
+                                                     Grid.Row="0" Grid.Column="0"
+                                                     Watermark="Option A"
+                                                     Padding="10" CornerRadius="6"
+                                                     BorderBrush="#D1D5DB"/>
+                                            
+                                            <TextBox Name="Answer2TextBox" 
+                                                     Grid.Row="0" Grid.Column="2"
+                                                     Watermark="Option B"
+                                                     Padding="10" CornerRadius="6"
+                                                     BorderBrush="#D1D5DB"/>
+                                            
+                                            <TextBox Name="Answer3TextBox" 
+                                                     Grid.Row="2" Grid.Column="0"
+                                                     Watermark="Option C"
+                                                     Padding="10" CornerRadius="6"
+                                                     BorderBrush="#D1D5DB"/>
+                                            
+                                            <TextBox Name="Answer4TextBox" 
+                                                     Grid.Row="2" Grid.Column="2"
+                                                     Watermark="Option D"
+                                                     Padding="10" CornerRadius="6"
+                                                     BorderBrush="#D1D5DB"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Correct Answer Panel -->
+                                <Border Name="CorrectAnswerPanel"
+                                        Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                        Background="#F0F9FF"
+                                        CornerRadius="8"
+                                        Padding="16"
+                                        Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <!-- Multiple Choice Correct Answer -->
+                                        <StackPanel Name="MultipleChoiceAnswerPanel">
+                                            <TextBlock Text="Correct Answer:" 
+                                                       FontWeight="Medium" 
+                                                       Margin="0,0,0,8"/>
+                                            <ComboBox Name="CorrectAnswerComboBox"
+                                                      Padding="10" CornerRadius="6"
+                                                      BorderBrush="#D1D5DB">
+                                                <ComboBoxItem Content="Option A" Tag="A"/>
+                                                <ComboBoxItem Content="Option B" Tag="B"/>
+                                                <ComboBoxItem Content="Option C" Tag="C"/>
+                                                <ComboBoxItem Content="Option D" Tag="D"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                        
+                                        <!-- Short Answer Correct Answer -->
+                                        <StackPanel Name="ShortAnswerPanel" IsVisible="False">
+                                            <TextBlock Text="Correct Answer:" 
+                                                       FontWeight="Medium" 
+                                                       Margin="0,0,0,8"/>
+                                            <TextBox Name="CorrectAnswerTextBox" 
+                                                     Watermark="Enter the correct answer..."
+                                                     Padding="10" CornerRadius="6"
+                                                     BorderBrush="#D1D5DB"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Points Field -->
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="120"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <TextBlock Text="Points:" 
+                                               Grid.Column="0"
+                                               FontWeight="Medium" 
+                                               VerticalAlignment="Center"/>
+                                    <NumericUpDown Name="QuestionPointsNumericUpDown"
+                                                   Grid.Column="2"
+                                                   Minimum="1" 
+                                                   Maximum="100"
+                                                   Value="1"
+                                                   Padding="10" 
+                                                   CornerRadius="6"
+                                                   BorderBrush="#D1D5DB"/>
+                                </Grid>
+                                
+                                <Button Content="Add Question" 
+                                        Classes="action" 
+                                        Click="OnAddQuestionClicked"
+                                        HorizontalAlignment="Stretch"
+                                        Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+                
+                <!-- Right Panel - Questions List -->
+                <StackPanel Grid.Column="2">
+                    <Border Classes="card">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Top">
+                                <TextBlock Name="QuestionsCountText" Text="Questions (0)" Classes="header"/>
+                            </StackPanel>
+                            
+                            <!-- Empty state -->
+                            <Border Name="EmptyQuestionsPanel" 
+                                    Background="#F9FAFB" CornerRadius="8" 
+                                    Padding="32" Margin="0,16,0,0">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <Border Background="#F3F4F6" CornerRadius="50" 
+                                            Width="80" Height="80" Margin="0,0,0,16">
+                                        <TextBlock Text="❓" FontSize="32" 
+                                                   HorizontalAlignment="Center" 
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="No Questions Yet" 
+                                               FontSize="18" FontWeight="SemiBold" 
+                                               Foreground="#1F2937"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Add questions using the form on the left" 
+                                               FontSize="14" Foreground="#6B7280" 
+                                               HorizontalAlignment="Center" 
+                                               Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- Questions List -->
+                            <ScrollViewer>
+                                <StackPanel Name="QuestionsPanel">
+                                    <!-- Questions will be added programmatically -->
+                                </StackPanel>
+                            </ScrollViewer>
+                        </DockPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+        
+        <!-- Footer Actions -->
+        <Border Grid.Row="2" Background="White" 
+                BorderBrush="#E5E7EB" BorderThickness="0,1,0,0"
+                Padding="32,20">
+            <StackPanel Orientation="Horizontal" 
+                        HorizontalAlignment="Right" 
+                        Spacing="16">
+                <Button Content="Close" Classes="secondary" Click="OnCloseClicked"/>
+                <Button Content="Update Test" Classes="action" Click="OnUpdateTestClicked"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window> 

@@ -140,7 +140,7 @@ namespace AvaloniaAzora.Services
             {
                 ClassId = classId,
                 StudentId = studentId,
-                EnrollmentDate = DateTimeOffset.Now
+                EnrollmentDate = DateTimeOffset.UtcNow
             };
             context.ClassEnrollments.Add(enrollment);
             await context.SaveChangesAsync();
@@ -272,6 +272,17 @@ namespace AvaloniaAzora.Services
             using var context = _contextFactory.CreateDbContext();
             context.ClassTests.Update(classTest);
             await context.SaveChangesAsync();
+        }
+
+        public async Task RemoveClassTestAsync(Guid classTestId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var classTest = await context.ClassTests.FindAsync(classTestId);
+            if (classTest != null)
+            {
+                context.ClassTests.Remove(classTest);
+                await context.SaveChangesAsync();
+            }
         }
 
         // Question operations

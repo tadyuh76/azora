@@ -42,6 +42,7 @@ namespace AvaloniaAzora.Services
         Task<ClassTest?> GetClassTestByIdAsync(Guid id);
         Task<ClassTest> AssignTestToClassAsync(ClassTest classTest);
         Task UpdateClassTestAsync(ClassTest classTest);
+        Task RemoveClassTestAsync(Guid classTestId);
 
         // Question operations
         Task<List<Question>> GetQuestionsByTestIdAsync(Guid testId);

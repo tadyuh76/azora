@@ -176,3 +176,6 @@
 /Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/obj/Debug/net8.0/AvaloniaAzora.pdb
 /Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/obj/Debug/net8.0/AvaloniaAzora.genruntimeconfig.cache
 /Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/obj/Debug/net8.0/ref/AvaloniaAzora.dll
+/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/bin/Debug/net8.0/ScottPlot.dll
+/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/bin/Debug/net8.0/ScottPlot.Avalonia.dll
+/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/bin/Debug/net8.0/SkiaSharp.HarfBuzz.dll

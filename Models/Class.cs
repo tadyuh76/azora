@@ -23,7 +23,7 @@ namespace AvaloniaAzora.Models
         public string? Description { get; set; }
 
         [Column("created_at")]
-        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.Now;
+        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
         [Column("image_url")]
         public string? ImageUrl { get; set; }

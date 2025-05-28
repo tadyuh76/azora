@@ -26,7 +26,7 @@ namespace AvaloniaAzora.Models
         public int? TimeLimit { get; set; }
 
         [Column("created_at")]
-        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.Now;
+        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
         // Navigation properties
         [ForeignKey("CreatorId")]
