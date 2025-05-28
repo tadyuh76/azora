@@ -139,7 +139,7 @@ namespace AvaloniaAzora.ViewModels.Student
                 var questionPoints = question.Points ?? 5;
                 totalPointsValue += questionPoints;
 
-                // Determine if answer is correct (simplified logic)
+                // Determine if answer is correct
                 bool isCorrect = IsAnswerCorrect(question, userAnswer);
                 if (isCorrect)
                 {
@@ -153,12 +153,13 @@ namespace AvaloniaAzora.ViewModels.Student
                     QuestionText = question.Text,
                     QuestionType = GetDisplayQuestionType(question.Type),
                     TypeColor = GetTypeColor(question.Type),
-                    UserAnswer = userAnswer?.AnswerText ?? "No answer",
-                    CorrectAnswer = question.CorrectAnswer ?? "Not specified",
+                    UserAnswer = FormatUserAnswerForDisplay(question, userAnswer),
+                    CorrectAnswer = FormatCorrectAnswerForDisplay(question),
                     IsCorrect = isCorrect,
                     TotalPoints = questionPoints,
                     PointsEarned = isCorrect ? questionPoints : 0,
                     StatusIcon = isCorrect ? "✅" : "❌",
+                    Difficulty = CapitalizeFirstLetter(question.Difficulty ?? "medium"),
                     Explanation = GetQuestionExplanation(question, isCorrect),
                     HasExplanation = !string.IsNullOrEmpty(GetQuestionExplanation(question, isCorrect))
                 };
@@ -182,24 +183,88 @@ namespace AvaloniaAzora.ViewModels.Student
             if (userAnswer == null || string.IsNullOrEmpty(userAnswer.AnswerText))
                 return false;
 
-            // For demo purposes, use simple logic
-            if (!string.IsNullOrEmpty(question.CorrectAnswer))
-            {
-                return string.Equals(userAnswer.AnswerText.Trim(), question.CorrectAnswer.Trim(),
-                    StringComparison.OrdinalIgnoreCase);
-            }
-
-            // Demo scoring: assume first option is correct for multiple choice
+            // Compare based on question type
             switch (question.Type?.ToLower())
             {
                 case "multiple_choice":
-                    return userAnswer.AnswerText.Contains("x = 4") || userAnswer.AnswerText.Contains("Option A");
+                    // For multiple choice, correct_answer should be the index (1-based) of the correct option
+                    return string.Equals(userAnswer.AnswerText, question.CorrectAnswer?.Trim(),
+                        StringComparison.OrdinalIgnoreCase);
+
                 case "true_false":
-                    return userAnswer.AnswerText.Equals("true", StringComparison.OrdinalIgnoreCase);
+                    // For true/false, compare the boolean values
+                    return string.Equals(userAnswer.AnswerText.Trim(), question.CorrectAnswer?.Trim(),
+                        StringComparison.OrdinalIgnoreCase);
+
                 case "short_answer":
-                    return userAnswer.AnswerText.Length > 10; // Simple length check for demo
+                    // For short answer, compare trimmed and lowercased text
+                    return string.Equals(
+                        userAnswer.AnswerText.Trim().ToLowerInvariant(),
+                        question.CorrectAnswer?.Trim().ToLowerInvariant(),
+                        StringComparison.OrdinalIgnoreCase);
+
                 default:
                     return false;
+            }
+        }
+
+        private string FormatUserAnswerForDisplay(Question question, UserAnswer? userAnswer)
+        {
+            if (userAnswer == null || string.IsNullOrEmpty(userAnswer.AnswerText))
+                return "No answer";
+
+            switch (question.Type?.ToLower())
+            {
+                case "multiple_choice":
+                    // Convert index to actual option text
+                    if (int.TryParse(userAnswer.AnswerText, out int index) &&
+                        question.Answers != null &&
+                        index > 0 && index <= question.Answers.Length)
+                    {
+                        return question.Answers[index - 1];
+                    }
+                    return $"Option {userAnswer.AnswerText}";
+
+                case "true_false":
+                    // Capitalize first letter
+                    return userAnswer.AnswerText.ToLower() == "true" ? "True" : "False";
+
+                case "short_answer":
+                    // Return as is
+                    return userAnswer.AnswerText;
+
+                default:
+                    return userAnswer.AnswerText;
+            }
+        }
+
+        private string FormatCorrectAnswerForDisplay(Question question)
+        {
+            if (string.IsNullOrEmpty(question.CorrectAnswer))
+                return "Not specified";
+
+            switch (question.Type?.ToLower())
+            {
+                case "multiple_choice":
+                    // Convert index to actual option text
+                    if (int.TryParse(question.CorrectAnswer, out int index) &&
+                        question.Answers != null &&
+                        index > 0 && index <= question.Answers.Length)
+                    {
+                        return question.Answers[index - 1];
+                    }
+                    return $"Option {question.CorrectAnswer}";
+
+                case "true_false":
+                    // Capitalize first letter
+                    return question.CorrectAnswer.ToLower() == "true" ? "True" : "False";
+
+                case "short_answer":
+                    // Return as is
+                    return question.CorrectAnswer;
+
+                default:
+                    return question.CorrectAnswer;
             }
         }
 
@@ -358,6 +423,15 @@ namespace AvaloniaAzora.ViewModels.Student
             Console.WriteLine("📋 Viewing all attempts...");
             // This would show a history of all test attempts
         }
+
+        // Helper method to capitalize first letter of a string
+        private string CapitalizeFirstLetter(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return text;
+
+            return char.ToUpper(text[0]) + text.Substring(1).ToLower();
+        }
     }
 
     public partial class QuestionResultViewModel : ObservableObject
@@ -397,6 +471,9 @@ namespace AvaloniaAzora.ViewModels.Student
 
         [ObservableProperty]
         private bool _hasExplanation;
+
+        [ObservableProperty]
+        private string _difficulty = "medium";
     }
 
     public class BoolToTextColorConverter : IValueConverter

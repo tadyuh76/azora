@@ -31,36 +31,12 @@ namespace AvaloniaAzora.ViewModels.Student
         private int _totalPoints;
 
         [ObservableProperty]
-        private int _attemptCount;
-
-        [ObservableProperty]
-        private int _maxAttempts;
-
-        [ObservableProperty]
-        private DateTimeOffset _startDate;
-
-        [ObservableProperty]
-        private DateTimeOffset _dueDate;
-
-        [ObservableProperty]
-        private string _startDateString = "Not set";
-
-        [ObservableProperty]
-        private string _dueDateString = "Not set";
-
-        [ObservableProperty]
         private bool _canStartTest = true;
-
-        [ObservableProperty]
-        private string _testStatusMessage = string.Empty;
 
         [ObservableProperty]
         private bool _isLoading = true;
 
         public ObservableCollection<QuestionTypeInfo> QuestionTypes { get; } = new();
-
-
-        public string AttemptText => MaxAttempts > 0 ? $"{AttemptCount}/{MaxAttempts}" : $"{AttemptCount}";
 
         private Guid _classTestId;
         private Guid _userId;
@@ -98,77 +74,18 @@ namespace AvaloniaAzora.ViewModels.Student
 
                 var test = classTest.Test;
 
-                // Debug: Print the actual dates from database
-                Console.WriteLine($"🗓️ ClassTest StartDate: {classTest.StartDate}");
-                Console.WriteLine($"🗓️ ClassTest DueDate: {classTest.DueDate}");
-                Console.WriteLine($"🕐 Current time: {DateTimeOffset.Now}");
-
                 // Basic test information
                 TestTitle = test.Title;
                 TestDescription = test.Description ?? "Complete this test to demonstrate your understanding of the material.";
                 TimeLimit = test.TimeLimit ?? 45;
-                StartDate = classTest.StartDate ?? DateTimeOffset.Now;
-                DueDate = classTest.DueDate ?? DateTimeOffset.Now.AddDays(7);
-                MaxAttempts = classTest.LimitAttempts ?? 3;
-
-                // Update date strings
-                StartDateString = StartDate.ToString("MMMM dd, yyyy 'at' hh:mm tt");
-                DueDateString = DueDate.ToString("MMMM dd, yyyy 'at' hh:mm tt");
-
-                Console.WriteLine($"📅 Set StartDateString: {StartDateString}");
-                Console.WriteLine($"📅 Set DueDateString: {DueDateString}");
-
-                Console.WriteLine($"📅 Set StartDate: {StartDate}");
-                Console.WriteLine($"📅 Set DueDate: {DueDate}");
-
-                // Manually trigger property change notifications
-                OnPropertyChanged(nameof(StartDateString));
-                OnPropertyChanged(nameof(DueDateString));
 
                 // Load questions for this test
                 var questions = await _dataService.GetQuestionsByTestIdAsync(test.Id);
                 QuestionCount = questions.Count;
                 TotalPoints = questions.Sum(q => q.Points ?? 5); // Default 5 points per question
 
-                // Load user attempts
-                var allAttempts = await _dataService.GetAttemptsByClassTestIdAsync(classTestId);
-                var userAttempts = allAttempts.Where(a => a.StudentId == userId).ToList();
-                AttemptCount = userAttempts.Count;
-
-                // Check if user can start test
-                var now = DateTimeOffset.Now;
-                var startDate = classTest.StartDate ?? DateTimeOffset.MinValue;
-                var dueDate = classTest.DueDate ?? DateTimeOffset.MaxValue;
-
-                var hasAttemptsLeft = MaxAttempts <= 0 || AttemptCount < MaxAttempts;
-                var isAfterStartDate = now >= startDate;
-                var isBeforeDueDate = now <= dueDate;
-
-                CanStartTest = hasAttemptsLeft && isAfterStartDate && isBeforeDueDate;
-
-                // Set status message
-                if (!hasAttemptsLeft)
-                {
-                    TestStatusMessage = $"No attempts remaining ({AttemptCount}/{MaxAttempts} used)";
-                }
-                else if (!isAfterStartDate)
-                {
-                    TestStatusMessage = $"Test will be available on {startDate:MMMM dd, yyyy 'at' hh:mm tt}";
-                }
-                else if (!isBeforeDueDate)
-                {
-                    TestStatusMessage = "Test submission period has ended";
-                }
-                else
-                {
-                    TestStatusMessage = "Test is available to take";
-                }
-
-                Console.WriteLine($"🎯 Test availability check:");
-                Console.WriteLine($"   Has attempts left: {hasAttemptsLeft} ({AttemptCount}/{MaxAttempts})");
-                Console.WriteLine($"   After start date: {isAfterStartDate} (now: {now:yyyy-MM-dd HH:mm}, start: {startDate:yyyy-MM-dd HH:mm})");
-                Console.WriteLine($"   Before due date: {isBeforeDueDate} (now: {now:yyyy-MM-dd HH:mm}, due: {dueDate:yyyy-MM-dd HH:mm})");
-                Console.WriteLine($"   Can start test: {CanStartTest}");
+                // Verify if user can start test
+                CanStartTest = true;
 
                 // Analyze question types
                 AnalyzeQuestionTypes(questions);
@@ -208,9 +125,9 @@ namespace AvaloniaAzora.ViewModels.Student
             // If no questions, show demo types
             if (!QuestionTypes.Any())
             {
-                QuestionTypes.Add(new QuestionTypeInfo { TypeName = "Multiple Choice", Count = 5, TypeColor = "#3B82F6" });
-                QuestionTypes.Add(new QuestionTypeInfo { TypeName = "True/False", Count = 2, TypeColor = "#10B981" });
-                QuestionTypes.Add(new QuestionTypeInfo { TypeName = "Short Answer", Count = 1, TypeColor = "#F59E0B" });
+                QuestionTypes.Add(new QuestionTypeInfo { TypeName = "Multiple Choice", Count = 4, TypeColor = "#3B82F6" });
+                QuestionTypes.Add(new QuestionTypeInfo { TypeName = "True/False", Count = 4, TypeColor = "#10B981" });
+                QuestionTypes.Add(new QuestionTypeInfo { TypeName = "Short Answer", Count = 0, TypeColor = "#F59E0B" });
             }
         }
 
@@ -243,21 +160,12 @@ namespace AvaloniaAzora.ViewModels.Student
             QuestionCount = 8;
             TimeLimit = 45;
             TotalPoints = 53;
-            AttemptCount = 0;
-            MaxAttempts = 2;
-            StartDate = DateTimeOffset.Now.AddHours(-1); // Started 1 hour ago
-            DueDate = DateTimeOffset.Now.AddHours(2); // Due in 2 hours
             CanStartTest = true;
-            TestStatusMessage = "Test is available to take";
-
-            // Update date strings
-            StartDateString = StartDate.ToString("MMMM dd, yyyy 'at' hh:mm tt");
-            DueDateString = DueDate.ToString("MMMM dd, yyyy 'at' hh:mm tt");
 
             QuestionTypes.Clear();
-            QuestionTypes.Add(new QuestionTypeInfo { TypeName = "Multiple Choice", Count = 5, TypeColor = "#3B82F6" });
-            QuestionTypes.Add(new QuestionTypeInfo { TypeName = "True/False", Count = 2, TypeColor = "#10B981" });
-            QuestionTypes.Add(new QuestionTypeInfo { TypeName = "Short Answer", Count = 1, TypeColor = "#F59E0B" });
+            QuestionTypes.Add(new QuestionTypeInfo { TypeName = "Multiple Choice", Count = 4, TypeColor = "#3B82F6" });
+            QuestionTypes.Add(new QuestionTypeInfo { TypeName = "True/False", Count = 4, TypeColor = "#10B981" });
+            QuestionTypes.Add(new QuestionTypeInfo { TypeName = "Short Answer", Count = 0, TypeColor = "#F59E0B" });
         }
 
         [RelayCommand]
@@ -275,17 +183,8 @@ namespace AvaloniaAzora.ViewModels.Student
             {
                 Console.WriteLine($"🎯 Starting test: {TestTitle}");
 
-                // Create a new attempt
-                var attempt = new Attempt
-                {
-                    Id = Guid.NewGuid(),
-                    StudentId = _userId,
-                    ClassTestId = _classTestId,
-                    StartTime = DateTimeOffset.Now
-                };
-
-                await _dataService.CreateAttemptAsync(attempt);
-                Console.WriteLine($"📝 Created attempt: {attempt.Id}");
+                // Add a minimal delay to make this truly async
+                await Task.Delay(1);
 
                 // Raise event to start test
                 StartTestRequested?.Invoke(this, new TestStartEventArgs

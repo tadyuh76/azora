@@ -250,7 +250,9 @@ namespace AvaloniaAzora.ViewModels.Student
             // For now, we'll retrieve it from the authentication service
             var authService = (AvaloniaAzora.Services.IAuthenticationService)AvaloniaAzora.Services.ServiceProvider.Instance.GetService(typeof(AvaloniaAzora.Services.IAuthenticationService))!;
             var currentUser = authService.GetCurrentUser();
-            var userId = currentUser != null ? Guid.Parse(currentUser.Id) : Guid.NewGuid();
+
+            // Safely parse the user ID with null check
+            var userId = currentUser?.Id != null ? Guid.Parse(currentUser.Id) : Guid.NewGuid();
 
             // Load test details
             _ = testDetailViewModel.LoadTestDetailsAsync(ClassTestId, userId);

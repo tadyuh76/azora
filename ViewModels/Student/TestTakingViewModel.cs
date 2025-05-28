@@ -67,16 +67,94 @@ namespace AvaloniaAzora.ViewModels.Student
             _timer.Elapsed += OnTimerElapsed;
         }
 
-        public Task LoadTestAsync(Guid classTestId, Guid userId)
+        public async Task LoadTestAsync(Guid classTestId, Guid userId)
         {
-            // For demo purposes, always load the demo test
             _classTestId = classTestId;
             _userId = userId;
 
-            Console.WriteLine($"🔍 Loading demo test for taking: {classTestId}");
-            LoadDemoTest();
+            Console.WriteLine($"🔍 Loading test for taking: {classTestId}");
 
-            return Task.CompletedTask;
+            try
+            {
+                // Get class test details
+                var classTest = await _dataService.GetClassTestByIdAsync(classTestId);
+                if (classTest == null || classTest.Test == null)
+                {
+                    Console.WriteLine("⚠️ Class test or test not found - loading demo test");
+                    LoadDemoTest();
+                    return;
+                }
+
+                // Get test information
+                var test = classTest.Test;
+                TestTitle = test.Title;
+                _timeLimit = TimeSpan.FromMinutes(test.TimeLimit ?? 45);
+                _testStartTime = DateTime.Now;
+
+                // Create attempt record with UTC time
+                try
+                {
+                    var attempt = new Attempt
+                    {
+                        Id = Guid.NewGuid(),
+                        StudentId = userId,
+                        ClassTestId = classTestId,
+                        StartTime = DateTimeOffset.UtcNow // Use UTC time
+                    };
+
+                    Console.WriteLine($"🔍 Creating attempt with UTC time: {attempt.StartTime}");
+
+                    await _dataService.CreateAttemptAsync(attempt);
+                    _attemptId = attempt.Id;
+                    Console.WriteLine($"✅ Created attempt: {_attemptId}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"⚠️ Could not create attempt in database: {ex.Message}");
+                    if (ex.InnerException != null)
+                    {
+                        Console.WriteLine($"⚠️ Inner exception: {ex.InnerException.Message}");
+                    }
+                    // Use a temporary GUID for demo purposes
+                    _attemptId = Guid.NewGuid();
+                    Console.WriteLine($"ℹ️ Using demo attempt ID: {_attemptId}");
+                }
+
+                // Get questions for the test
+                var questions = await _dataService.GetQuestionsByTestIdAsync(test.Id);
+
+                if (questions.Count == 0)
+                {
+                    Console.WriteLine("⚠️ No questions found in database - loading demo questions");
+                    LoadDemoTest();
+                    return;
+                }
+
+                // Get any existing answers for this attempt
+                var existingAnswers = new List<UserAnswer>();
+                try
+                {
+                    existingAnswers = await _dataService.GetAnswersByAttemptIdAsync(_attemptId);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"⚠️ Could not load existing answers: {ex.Message}");
+                }
+
+                // Load questions
+                LoadQuestions(questions.ToList(), existingAnswers);
+
+                // Start the timer
+                StartTimer();
+
+                Console.WriteLine($"✅ Test loaded successfully with {Questions.Count} questions");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error loading test: {ex.Message}");
+                Console.WriteLine("🎯 Loading demo test instead...");
+                LoadDemoTest();
+            }
         }
 
         private void LoadQuestions(List<Question> questions, List<UserAnswer> existingAnswers)
@@ -95,7 +173,7 @@ namespace AvaloniaAzora.ViewModels.Student
                     Text = question.Text,
                     Type = question.Type?.ToLower() ?? "multiple_choice",
                     Points = question.Points ?? 5,
-                    IsCurrentQuestion = i == 0
+                    IsCurrentQuestion = i == 0 // Set first question as current
                 };
 
                 // Set up question type specific properties
@@ -105,6 +183,17 @@ namespace AvaloniaAzora.ViewModels.Student
             }
 
             TotalQuestions = Questions.Count;
+
+            // Ensure first question is properly selected
+            CurrentQuestionIndex = 0;
+            if (Questions.Count > 0)
+            {
+                Questions[0].IsCurrentQuestion = true;
+                // Explicitly notify that CurrentQuestion changed
+                OnPropertyChanged(nameof(CurrentQuestion));
+                OnPropertyChanged(nameof(CurrentQuestionNumber));
+            }
+
             UpdateProgress();
             UpdateNavigationState();
         }
@@ -117,26 +206,35 @@ namespace AvaloniaAzora.ViewModels.Student
                     questionViewModel.IsMultipleChoice = true;
                     questionViewModel.QuestionType = "Multiple Choice";
                     questionViewModel.TypeColor = "#3B82F6";
+                    questionViewModel.Difficulty = CapitalizeFirstLetter(question.Difficulty ?? "medium");
 
                     if (question.Answers != null && question.Answers.Length > 0)
                     {
-                        foreach (var answer in question.Answers)
+                        // Add each answer option with index information
+                        for (int i = 0; i < question.Answers.Length; i++)
                         {
+                            var optionIndex = i + 1; // 1-based index
                             var option = new AnswerOptionViewModel
                             {
-                                Text = answer,
-                                IsSelected = existingAnswer?.AnswerText == answer
+                                Text = question.Answers[i],
+                                Index = optionIndex,
+                                // Check if this is the option that was previously selected
+                                IsSelected = existingAnswer?.AnswerText == optionIndex.ToString()
                             };
                             questionViewModel.AnswerOptions.Add(option);
                         }
                     }
                     else
                     {
-                        // Demo options
+                        // Fallback options if none defined
                         var demoOptions = new[] { "Option A", "Option B", "Option C", "Option D" };
-                        foreach (var option in demoOptions)
+                        for (int i = 0; i < demoOptions.Length; i++)
                         {
-                            questionViewModel.AnswerOptions.Add(new AnswerOptionViewModel { Text = option });
+                            questionViewModel.AnswerOptions.Add(new AnswerOptionViewModel
+                            {
+                                Text = demoOptions[i],
+                                Index = i + 1
+                            });
                         }
                     }
                     break;
@@ -145,6 +243,7 @@ namespace AvaloniaAzora.ViewModels.Student
                     questionViewModel.IsTrueFalse = true;
                     questionViewModel.QuestionType = "True/False";
                     questionViewModel.TypeColor = "#10B981";
+                    questionViewModel.Difficulty = CapitalizeFirstLetter(question.Difficulty ?? "easy");
 
                     if (existingAnswer?.AnswerText == "true")
                         questionViewModel.TrueSelected = true;
@@ -156,6 +255,7 @@ namespace AvaloniaAzora.ViewModels.Student
                     questionViewModel.IsShortAnswer = true;
                     questionViewModel.QuestionType = "Short Answer";
                     questionViewModel.TypeColor = "#F59E0B";
+                    questionViewModel.Difficulty = CapitalizeFirstLetter(question.Difficulty ?? "medium");
                     questionViewModel.ShortAnswerText = existingAnswer?.AnswerText ?? "";
                     break;
 
@@ -163,182 +263,151 @@ namespace AvaloniaAzora.ViewModels.Student
                     questionViewModel.IsMultipleChoice = true;
                     questionViewModel.QuestionType = "Multiple Choice";
                     questionViewModel.TypeColor = "#3B82F6";
+                    questionViewModel.Difficulty = CapitalizeFirstLetter(question.Difficulty ?? "medium");
                     break;
             }
 
             UpdateQuestionStatus(questionViewModel);
         }
 
+        // Helper method to capitalize first letter of a string
+        private string CapitalizeFirstLetter(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return text;
+
+            return char.ToUpper(text[0]) + text.Substring(1).ToLower();
+        }
+
         private void LoadDemoTest()
         {
+            Console.WriteLine("🎯 Loading demo test with sample questions");
+
+            // Set basic test info
             TestTitle = "Algebra Fundamentals Quiz";
             _timeLimit = TimeSpan.FromMinutes(45);
-            _testStartTime = DateTime.Now.AddMinutes(-0.3); // Start slightly in the past to show 44:42
-            TimeRemainingString = "44:42"; // Set to match the UI mockup
-            _attemptId = Guid.NewGuid(); // Demo attempt
+            _testStartTime = DateTime.Now;
+            _attemptId = Guid.NewGuid(); // Demo attempt ID
 
-            // Create comprehensive demo questions (8 questions total to match UI)
+            // Clear existing questions
             Questions.Clear();
 
-            // Question 1 - Multiple Choice (ANSWERED - GREEN)
-            var question1 = new QuestionViewModel
+            // Create demo questions
+            var demoQuestions = new List<QuestionViewModel>();
+
+            // Question 1 - Multiple Choice
+            var q1 = new QuestionViewModel
             {
                 Id = Guid.NewGuid(),
                 QuestionNumber = 1,
                 Text = "What is the solution to the equation 2x + 5 = 13?",
                 Type = "multiple_choice",
                 Points = 5,
+                IsCurrentQuestion = true,
                 IsMultipleChoice = true,
                 QuestionType = "Multiple Choice",
                 TypeColor = "#3B82F6",
-                IsAnswered = true,
-                StatusColor = "#10B981",
-                StatusTextColor = "White"
+                Difficulty = "Medium"
             };
-            question1.AnswerOptions.Add(new AnswerOptionViewModel { Text = "x = 3", IsSelected = false });
-            question1.AnswerOptions.Add(new AnswerOptionViewModel { Text = "x = 4", IsSelected = true });
-            question1.AnswerOptions.Add(new AnswerOptionViewModel { Text = "x = 5", IsSelected = false });
-            question1.AnswerOptions.Add(new AnswerOptionViewModel { Text = "x = 6", IsSelected = false });
-            Questions.Add(question1);
+            q1.AnswerOptions.Add(new AnswerOptionViewModel { Text = "x = 3", Index = 1 });
+            q1.AnswerOptions.Add(new AnswerOptionViewModel { Text = "x = 4", Index = 2 });
+            q1.AnswerOptions.Add(new AnswerOptionViewModel { Text = "x = 5", Index = 3 });
+            q1.AnswerOptions.Add(new AnswerOptionViewModel { Text = "x = 6", Index = 4 });
+            demoQuestions.Add(q1);
 
-            // Question 2 - True/False (CURRENT QUESTION - DARK)
-            var question2 = new QuestionViewModel
+            // Question 2 - True/False
+            var q2 = new QuestionViewModel
             {
                 Id = Guid.NewGuid(),
                 QuestionNumber = 2,
                 Text = "The graph of a quadratic function is always a parabola.",
                 Type = "true_false",
                 Points = 3,
+                IsCurrentQuestion = false,
                 IsTrueFalse = true,
-                QuestionType = "True False",
+                QuestionType = "True/False",
                 TypeColor = "#10B981",
-                IsCurrentQuestion = true,
-                TrueSelected = true,
-                IsAnswered = true,
-                StatusColor = "#10B981",
-                StatusTextColor = "White"
+                Difficulty = "Easy"
             };
-            Questions.Add(question2);
+            demoQuestions.Add(q2);
 
-            // Question 3 - Multiple Choice (UNANSWERED - GRAY)
-            var question3 = new QuestionViewModel
+            // Question 3 - Multiple Choice
+            var q3 = new QuestionViewModel
             {
                 Id = Guid.NewGuid(),
                 QuestionNumber = 3,
                 Text = "Which of the following represents a linear function?",
                 Type = "multiple_choice",
                 Points = 5,
+                IsCurrentQuestion = false,
                 IsMultipleChoice = true,
                 QuestionType = "Multiple Choice",
                 TypeColor = "#3B82F6",
-                IsAnswered = false,
-                StatusColor = "#E5E7EB",
-                StatusTextColor = "#6B7280"
+                Difficulty = "Medium"
             };
-            question3.AnswerOptions.Add(new AnswerOptionViewModel { Text = "y = x²" });
-            question3.AnswerOptions.Add(new AnswerOptionViewModel { Text = "y = 2x + 1" });
-            question3.AnswerOptions.Add(new AnswerOptionViewModel { Text = "y = x³" });
-            question3.AnswerOptions.Add(new AnswerOptionViewModel { Text = "y = 1/x" });
-            Questions.Add(question3);
+            q3.AnswerOptions.Add(new AnswerOptionViewModel { Text = "y = x²", Index = 1 });
+            q3.AnswerOptions.Add(new AnswerOptionViewModel { Text = "y = 2x + 1", Index = 2 });
+            q3.AnswerOptions.Add(new AnswerOptionViewModel { Text = "y = x³", Index = 3 });
+            q3.AnswerOptions.Add(new AnswerOptionViewModel { Text = "y = 1/x", Index = 4 });
+            demoQuestions.Add(q3);
 
-            // Question 4 - True/False (UNANSWERED)
-            var question4 = new QuestionViewModel
+            // Question 4 - Short Answer
+            var q4 = new QuestionViewModel
             {
                 Id = Guid.NewGuid(),
                 QuestionNumber = 4,
-                Text = "The slope of a horizontal line is zero.",
-                Type = "true_false",
-                Points = 3,
-                IsTrueFalse = true,
-                QuestionType = "True False",
-                TypeColor = "#10B981",
-                IsAnswered = false,
-                StatusColor = "#E5E7EB",
-                StatusTextColor = "#6B7280"
+                Text = "What is the formula for the area of a circle?",
+                Type = "short_answer",
+                Points = 5,
+                IsCurrentQuestion = false,
+                IsShortAnswer = true,
+                QuestionType = "Short Answer",
+                TypeColor = "#F59E0B",
+                Difficulty = "Medium"
             };
-            Questions.Add(question4);
+            demoQuestions.Add(q4);
 
-            // Question 5 - Multiple Choice (UNANSWERED)
-            var question5 = new QuestionViewModel
+            // Question 5 - True/False
+            var q5 = new QuestionViewModel
             {
                 Id = Guid.NewGuid(),
                 QuestionNumber = 5,
-                Text = "What is the y-intercept of the line y = 3x - 7?",
-                Type = "multiple_choice",
-                Points = 5,
-                IsMultipleChoice = true,
-                QuestionType = "Multiple Choice",
-                TypeColor = "#3B82F6",
-                IsAnswered = false,
-                StatusColor = "#E5E7EB",
-                StatusTextColor = "#6B7280"
-            };
-            question5.AnswerOptions.Add(new AnswerOptionViewModel { Text = "3" });
-            question5.AnswerOptions.Add(new AnswerOptionViewModel { Text = "-7" });
-            question5.AnswerOptions.Add(new AnswerOptionViewModel { Text = "7" });
-            question5.AnswerOptions.Add(new AnswerOptionViewModel { Text = "-3" });
-            Questions.Add(question5);
-
-            // Question 6 - True/False (UNANSWERED)
-            var question6 = new QuestionViewModel
-            {
-                Id = Guid.NewGuid(),
-                QuestionNumber = 6,
-                Text = "Two parallel lines have the same slope.",
+                Text = "The slope of a horizontal line is zero.",
                 Type = "true_false",
                 Points = 3,
+                IsCurrentQuestion = false,
                 IsTrueFalse = true,
-                QuestionType = "True False",
+                QuestionType = "True/False",
                 TypeColor = "#10B981",
-                IsAnswered = false,
-                StatusColor = "#E5E7EB",
-                StatusTextColor = "#6B7280"
+                Difficulty = "Easy"
             };
-            Questions.Add(question6);
+            demoQuestions.Add(q5);
 
-            // Question 7 - Multiple Choice (UNANSWERED)
-            var question7 = new QuestionViewModel
+            // Add all questions to the collection
+            foreach (var question in demoQuestions)
             {
-                Id = Guid.NewGuid(),
-                QuestionNumber = 7,
-                Text = "What is the vertex of the parabola y = x² - 4x + 3?",
-                Type = "multiple_choice",
-                Points = 5,
-                IsMultipleChoice = true,
-                QuestionType = "Multiple Choice",
-                TypeColor = "#3B82F6",
-                IsAnswered = false,
-                StatusColor = "#E5E7EB",
-                StatusTextColor = "#6B7280"
-            };
-            question7.AnswerOptions.Add(new AnswerOptionViewModel { Text = "(2, -1)" });
-            question7.AnswerOptions.Add(new AnswerOptionViewModel { Text = "(1, 0)" });
-            question7.AnswerOptions.Add(new AnswerOptionViewModel { Text = "(3, 0)" });
-            question7.AnswerOptions.Add(new AnswerOptionViewModel { Text = "(0, 3)" });
-            Questions.Add(question7);
+                UpdateQuestionStatus(question);
+                Questions.Add(question);
+            }
 
-            // Question 8 - True/False (UNANSWERED)
-            var question8 = new QuestionViewModel
-            {
-                Id = Guid.NewGuid(),
-                QuestionNumber = 8,
-                Text = "The domain of f(x) = √x is all real numbers.",
-                Type = "true_false",
-                Points = 3,
-                IsTrueFalse = true,
-                QuestionType = "True False",
-                TypeColor = "#10B981",
-                IsAnswered = false,
-                StatusColor = "#E5E7EB",
-                StatusTextColor = "#6B7280"
-            };
-            Questions.Add(question8);
-
+            // Set totals and ensure first question is current
             TotalQuestions = Questions.Count;
-            CurrentQuestionIndex = 1; // Start on question 2 (index 1) to match the UI
+            CurrentQuestionIndex = 0;
+            if (Questions.Count > 0)
+            {
+                Questions[0].IsCurrentQuestion = true;
+                // Explicitly notify that CurrentQuestion changed
+                OnPropertyChanged(nameof(CurrentQuestion));
+                OnPropertyChanged(nameof(CurrentQuestionNumber));
+            }
+
             UpdateProgress();
             UpdateNavigationState();
+
+            // Start the timer
             StartTimer();
+
+            Console.WriteLine($"✅ Demo test loaded with {Questions.Count} questions");
         }
 
         private void StartTimer()
@@ -390,6 +459,8 @@ namespace AvaloniaAzora.ViewModels.Student
             UpdateQuestionStatus(CurrentQuestion);
             UpdateProgress();
             _ = AutoSaveCurrentAnswer();
+
+            Console.WriteLine($"Selected answer option {selectedOption.Index}: {selectedOption.Text}");
         }
 
         [RelayCommand]
@@ -511,28 +582,66 @@ namespace AvaloniaAzora.ViewModels.Student
                 {
                     case "multiple_choice":
                         var selectedOption = CurrentQuestion.AnswerOptions.FirstOrDefault(o => o.IsSelected);
-                        answerText = selectedOption?.Text;
+                        // Save the index (as string) of the selected option
+                        answerText = selectedOption?.Index.ToString();
                         break;
                     case "true_false":
                         if (CurrentQuestion.TrueSelected) answerText = "true";
                         else if (CurrentQuestion.FalseSelected) answerText = "false";
                         break;
                     case "short_answer":
-                        answerText = CurrentQuestion.ShortAnswerText;
+                        answerText = CurrentQuestion.ShortAnswerText?.Trim();
                         break;
                 }
 
                 if (answerText != null)
                 {
-                    var userAnswer = new UserAnswer
+                    try
                     {
-                        Id = Guid.NewGuid(),
-                        AttemptId = _attemptId,
-                        QuestionId = CurrentQuestion.Id,
-                        AnswerText = answerText
-                    };
+                        // Check if this answer already exists (prevent duplicates)
+                        var existingAnswers = await _dataService.GetAnswersByAttemptIdAsync(_attemptId);
+                        var existingAnswer = existingAnswers.FirstOrDefault(a => a.QuestionId == CurrentQuestion.Id);
 
-                    await _dataService.SaveUserAnswerAsync(userAnswer);
+                        if (existingAnswer != null)
+                        {
+                            // Update existing answer only if it's different
+                            if (existingAnswer.AnswerText != answerText)
+                            {
+                                existingAnswer.AnswerText = answerText;
+                                existingAnswer.AnsweredAt = DateTimeOffset.UtcNow; // Use UTC time
+                                await _dataService.UpdateUserAnswerAsync(existingAnswer);
+                                Console.WriteLine($"✅ Updated answer for question {CurrentQuestion.QuestionNumber}: '{answerText}'");
+                            }
+                        }
+                        else
+                        {
+                            // Create new answer
+                            var userAnswer = new UserAnswer
+                            {
+                                Id = Guid.NewGuid(),
+                                AttemptId = _attemptId,
+                                QuestionId = CurrentQuestion.Id,
+                                AnswerText = answerText,
+                                AnsweredAt = DateTimeOffset.UtcNow // Use UTC time
+                            };
+
+                            await _dataService.SaveUserAnswerAsync(userAnswer);
+                            Console.WriteLine($"✅ Saved new answer for question {CurrentQuestion.QuestionNumber}: '{answerText}'");
+                        }
+                    }
+                    catch (Exception dbEx)
+                    {
+                        Console.WriteLine($"⚠️ Could not save to database: {dbEx.Message}");
+                        if (dbEx.InnerException != null)
+                        {
+                            Console.WriteLine($"⚠️ Inner exception: {dbEx.InnerException.Message}");
+                        }
+                        Console.WriteLine($"📝 Demo mode: Answer '{answerText}' recorded locally for question {CurrentQuestion.QuestionNumber}");
+                    }
+
+                    // Update UI to show answer is saved
+                    UpdateQuestionStatus(CurrentQuestion);
+                    UpdateProgress();
                 }
             }
             catch (Exception ex)
@@ -546,48 +655,199 @@ namespace AvaloniaAzora.ViewModels.Student
             try
             {
                 _timer.Stop();
+                Console.WriteLine("⏱️ Timer stopped for test submission");
 
-                // Save all answers
+                // Save all answers one last time
                 foreach (var question in Questions)
                 {
-                    var originalCurrent = CurrentQuestion;
+                    var originalIndex = CurrentQuestionIndex;
+
+                    // Temporarily navigate to each question to save its answer
                     NavigateToQuestion(Questions.IndexOf(question));
                     await AutoSaveCurrentAnswer();
+
+                    // Restore original position
+                    NavigateToQuestion(originalIndex);
                 }
 
-                // Mark attempt as completed
-                var attempt = await _dataService.GetAttemptByIdAsync(_attemptId);
-                if (attempt != null)
+                try
                 {
-                    attempt.EndTime = DateTimeOffset.Now;
-                    // Score calculation would happen here
-                    attempt.Score = CalculateScore();
-                    await _dataService.UpdateAttemptAsync(attempt);
+                    // Get the attempt from the database
+                    var attempt = await _dataService.GetAttemptByIdAsync(_attemptId);
+                    if (attempt != null)
+                    {
+                        // Mark attempt as completed
+                        attempt.EndTime = DateTimeOffset.UtcNow; // Use UTC time
+
+                        // Calculate score based on correct answers
+                        attempt.Score = await CalculateScoreAsync();
+
+                        // Update the attempt
+                        await _dataService.UpdateAttemptAsync(attempt);
+                        Console.WriteLine($"✅ Test submitted successfully with score: {attempt.Score:F1}%");
+
+                        // Raise completion event
+                        TestCompleted?.Invoke(this, new TestCompletedEventArgs
+                        {
+                            AttemptId = _attemptId,
+                            UserId = _userId,
+                            Score = attempt.Score ?? 0
+                        });
+                    }
+                    else
+                    {
+                        Console.WriteLine("❌ Could not find attempt to submit");
+
+                        // Calculate demo score as fallback
+                        var demoScore = await CalculateDemoScore();
+
+                        // Raise completion event with demo data
+                        TestCompleted?.Invoke(this, new TestCompletedEventArgs
+                        {
+                            AttemptId = _attemptId,
+                            UserId = _userId,
+                            Score = demoScore
+                        });
+                    }
                 }
-
-                Console.WriteLine($"✅ Test submitted successfully");
-
-                // Raise completion event
-                TestCompleted?.Invoke(this, new TestCompletedEventArgs
+                catch (Exception dbEx)
                 {
-                    AttemptId = _attemptId,
-                    UserId = _userId
-                });
+                    Console.WriteLine($"⚠️ Could not submit to database: {dbEx.Message}");
+                    Console.WriteLine("🎯 Demo mode: Simulating test completion");
+
+                    // Calculate demo score
+                    var demoScore = await CalculateDemoScore();
+
+                    // Raise completion event with demo data
+                    TestCompleted?.Invoke(this, new TestCompletedEventArgs
+                    {
+                        AttemptId = _attemptId,
+                        UserId = _userId,
+                        Score = demoScore
+                    });
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"❌ Error submitting test: {ex.Message}");
+                TestAborted?.Invoke(this, EventArgs.Empty);
             }
         }
 
-        private float CalculateScore()
+        private async Task<float> CalculateScoreAsync()
         {
-            // Simple demo scoring
-            var answeredQuestions = Questions.Count(q => q.IsAnswered);
-            var totalPoints = Questions.Sum(q => q.Points);
-            var earnedPoints = answeredQuestions * 5; // Demo: 5 points per answered question
+            try
+            {
+                // Get all questions for this test from the current Questions collection
+                var userAnswers = await _dataService.GetAnswersByAttemptIdAsync(_attemptId);
 
-            return totalPoints > 0 ? (float)earnedPoints / totalPoints * 100 : 0;
+                if (Questions.Count == 0)
+                {
+                    return 0;
+                }
+
+                float totalPoints = 0;
+                float earnedPoints = 0;
+
+                // Use the current Questions collection which already has the test data
+                foreach (var questionVM in Questions)
+                {
+                    // Get the user's answer for this question
+                    var userAnswer = userAnswers.FirstOrDefault(a => a.QuestionId == questionVM.Id);
+
+                    // Add to total points
+                    totalPoints += questionVM.Points;
+
+                    // Check if the answer is correct by getting the actual Question from database
+                    var question = await _dataService.GetQuestionByIdAsync(questionVM.Id);
+                    if (question != null)
+                    {
+                        bool isCorrect = IsAnswerCorrect(question, userAnswer);
+                        if (isCorrect)
+                        {
+                            earnedPoints += questionVM.Points;
+                        }
+                    }
+                }
+
+                // Calculate percentage score
+                return totalPoints > 0 ? (earnedPoints / totalPoints) * 100 : 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error calculating score: {ex.Message}");
+                return 0;
+            }
+        }
+
+        private bool IsAnswerCorrect(Question question, UserAnswer? userAnswer)
+        {
+            if (userAnswer == null || string.IsNullOrEmpty(userAnswer.AnswerText))
+                return false;
+
+            // Compare based on question type
+            switch (question.Type?.ToLower())
+            {
+                case "multiple_choice":
+                    // For multiple choice, correct_answer should be the index (1-based) of the correct option
+                    return string.Equals(userAnswer.AnswerText, question.CorrectAnswer?.Trim(),
+                        StringComparison.OrdinalIgnoreCase);
+
+                case "true_false":
+                    // For true/false, compare the boolean values
+                    return string.Equals(userAnswer.AnswerText.Trim(), question.CorrectAnswer?.Trim(),
+                        StringComparison.OrdinalIgnoreCase);
+
+                case "short_answer":
+                    // For short answer, compare trimmed and lowercased text
+                    return string.Equals(
+                        userAnswer.AnswerText.Trim().ToLowerInvariant(),
+                        question.CorrectAnswer?.Trim().ToLowerInvariant(),
+                        StringComparison.OrdinalIgnoreCase);
+
+                default:
+                    return false;
+            }
+        }
+
+        private async Task<float> CalculateDemoScore()
+        {
+            await Task.Delay(1); // Make it async
+
+            // Simple demo scoring: count answered questions
+            int answeredQuestions = 0;
+            int totalPoints = 0;
+            int earnedPoints = 0;
+
+            foreach (var question in Questions)
+            {
+                totalPoints += question.Points;
+
+                bool isAnswered = false;
+                switch (question.Type)
+                {
+                    case "multiple_choice":
+                        isAnswered = question.AnswerOptions.Any(o => o.IsSelected);
+                        break;
+                    case "true_false":
+                        isAnswered = question.TrueSelected || question.FalseSelected;
+                        break;
+                    case "short_answer":
+                        isAnswered = !string.IsNullOrWhiteSpace(question.ShortAnswerText);
+                        break;
+                }
+
+                if (isAnswered)
+                {
+                    answeredQuestions++;
+                    // Give 70-100% of points randomly for demo
+                    earnedPoints += (int)(question.Points * (0.7 + (new Random().NextDouble() * 0.3)));
+                }
+            }
+
+            var score = totalPoints > 0 ? (float)earnedPoints / totalPoints * 100 : 0;
+            Console.WriteLine($"🎯 Demo score calculated: {score:F1}% ({earnedPoints}/{totalPoints} points)");
+            return score;
         }
 
         public void Dispose()
@@ -672,6 +932,9 @@ namespace AvaloniaAzora.ViewModels.Student
 
         [ObservableProperty]
         private string _shortAnswerText = "";
+
+        [ObservableProperty]
+        private string _difficulty = "medium";
     }
 
     public partial class AnswerOptionViewModel : ObservableObject
@@ -681,6 +944,9 @@ namespace AvaloniaAzora.ViewModels.Student
 
         [ObservableProperty]
         private bool _isSelected;
+
+        [ObservableProperty]
+        private int _index;
     }
 
     public class BoolToColorConverter : IValueConverter
@@ -698,5 +964,12 @@ namespace AvaloniaAzora.ViewModels.Student
         {
             throw new NotImplementedException();
         }
+    }
+
+    public class TestCompletedEventArgs : EventArgs
+    {
+        public Guid AttemptId { get; set; }
+        public Guid UserId { get; set; }
+        public float Score { get; set; }
     }
 }

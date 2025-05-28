@@ -27,9 +27,27 @@ namespace AvaloniaAzora.Views.Student
 
         private void OnTestCompleted(object? sender, TestCompletedEventArgs e)
         {
-            var resultWindow = new TestResultWindow(e.AttemptId, e.UserId);
-            resultWindow.Show();
-            Close();
+            try
+            {
+                Console.WriteLine($"✅ Test completed event received - AttemptId: {e.AttemptId}, Score: {e.Score:F1}%");
+
+                var resultWindow = new TestResultWindow(e.AttemptId, e.UserId);
+                Console.WriteLine("📊 Created test result window");
+
+                resultWindow.Show();
+                Console.WriteLine("📊 Showing test result window");
+
+                Close();
+                Console.WriteLine("🚪 Closed test taking window");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error showing test result window: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+
+                // Still close the test window even if result window fails
+                Close();
+            }
         }
 
         private void OnTestAborted(object? sender, EventArgs e)
@@ -48,11 +66,5 @@ namespace AvaloniaAzora.Views.Student
             }
             base.OnClosed(e);
         }
-    }
-
-    public class TestCompletedEventArgs : EventArgs
-    {
-        public Guid AttemptId { get; set; }
-        public Guid UserId { get; set; }
     }
 }

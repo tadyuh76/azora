@@ -216,6 +216,13 @@
                                                                    FontSize="12" FontWeight="Medium"
                                                                    Foreground="White"/>
                                                     </Border>
+                                                    <Border Background="#F3F4F6"
+                                                            Padding="6,2" CornerRadius="3"
+                                                            Margin="8,0,0,0">
+                                                        <TextBlock Text="{Binding Difficulty}" 
+                                                                   FontSize="12" FontWeight="Medium"
+                                                                   Foreground="#4B5563"/>
+                                                    </Border>
                                                 </StackPanel>
                                                 
                                                 <TextBlock Grid.Column="1" 
