@@ -1,0 +1,248 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaAzora.ViewModels.Admin"
+        x:Class="AvaloniaAzora.Views.Admin.ClassEnrollmentWindow"
+        Title="Azora - Manage Class Enrollment"
+        Width="1400" Height="800"
+        WindowStartupLocation="CenterScreen"
+        Background="#F8F9FA"
+        x:DataType="vm:ClassEnrollmentViewModel">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" 
+                BorderBrush="#E5E7EB" BorderThickness="0,0,0,1"
+                Padding="24,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Button Content="← Back" Margin="0,0,16,0" 
+                            Background="Transparent" Foreground="#6B7280"
+                            BorderThickness="0" FontSize="14"/>
+                    <StackPanel>
+                        <TextBlock Text="{Binding ClassName}" FontSize="24" FontWeight="Bold" 
+                                   Foreground="#1F2937"/>
+                        <TextBlock Text="{Binding TeacherName, StringFormat='Teacher: {0}'}" 
+                                   FontSize="14" Foreground="#6B7280"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12">
+                    <Button Content="📊 Class Reports" 
+                            Background="#3B82F6" Foreground="White"
+                            Padding="16,8" CornerRadius="6" FontSize="14"/>
+                    <Button Content="🔄 Refresh" 
+                            Command="{Binding RefreshCommand}"
+                            Background="#10B981" Foreground="White"
+                            Padding="16,8" CornerRadius="6" FontSize="14"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Margin="24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="24"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Enrolled Students -->
+            <Border Grid.Column="0" Background="White" CornerRadius="12">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" 
+                                      Color="#000000" Opacity="0.05"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Enrolled Students Header -->
+                    <Border Grid.Row="0" Background="#F9FAFB" 
+                            BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" 
+                            Padding="24,16" CornerRadius="12,12,0,0">
+                        <Grid>
+                            <TextBlock Text="Enrolled Students" FontSize="18" FontWeight="Bold" 
+                                       Foreground="#1F2937" VerticalAlignment="Center"/>
+                            <Border Background="#10B981" CornerRadius="4" Padding="8,4" 
+                                    HorizontalAlignment="Right">
+                                <TextBlock Text="{Binding EnrolledStudents.Count, StringFormat='{0} students'}" 
+                                           FontSize="12" FontWeight="SemiBold" Foreground="White"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Enrolled Students List -->
+                    <ScrollViewer Grid.Row="1" Padding="0">
+                        <ItemsControl ItemsSource="{Binding EnrolledStudents}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" 
+                                            Padding="24,16">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding StudentName}" 
+                                                           FontWeight="SemiBold" FontSize="14" 
+                                                           Foreground="#1F2937"/>
+                                                <TextBlock Text="{Binding Email}" 
+                                                           FontSize="12" Foreground="#6B7280"/>
+                                                <TextBlock Text="{Binding EnrollmentDate, StringFormat='Enrolled: {0:MMM dd, yyyy}'}" 
+                                                           FontSize="12" Foreground="#6B7280"/>
+                                            </StackPanel>
+
+                                            <Button Grid.Column="1" Content="Remove" 
+                                                    Command="{Binding RemoveCommand}"
+                                                    CommandParameter="{Binding StudentId}"
+                                                    Background="#EF4444" Foreground="White"
+                                                    Padding="12,6" CornerRadius="4" FontSize="12"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- Available Students -->
+            <Border Grid.Column="2" Background="White" CornerRadius="12">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" 
+                                      Color="#000000" Opacity="0.05"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Available Students Header -->
+                    <Border Grid.Row="0" Background="#F9FAFB" 
+                            BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" 
+                            Padding="24,16" CornerRadius="12,12,0,0">
+                        <TextBlock Text="Available Students" FontSize="18" FontWeight="Bold" 
+                                   Foreground="#1F2937"/>
+                    </Border>
+
+                    <!-- Search Box -->
+                    <Border Grid.Row="1" Padding="24,16" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
+                        <TextBox Text="{Binding SearchText}" 
+                                 Watermark="Search students by name or email..."
+                                 FontSize="14" Padding="12,8"/>
+                    </Border>
+
+                    <!-- Available Students List -->
+                    <ScrollViewer Grid.Row="2" Padding="0">
+                        <ItemsControl ItemsSource="{Binding AvailableStudents}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" 
+                                            Padding="24,16">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <CheckBox Grid.Column="0" 
+                                                      IsChecked="{Binding IsSelected}" 
+                                                      Margin="0,0,12,0" VerticalAlignment="Center"/>
+
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="{Binding StudentName}" 
+                                                           FontWeight="SemiBold" FontSize="14" 
+                                                           Foreground="#1F2937"/>
+                                                <TextBlock Text="{Binding Email}" 
+                                                           FontSize="12" Foreground="#6B7280"/>
+                                            </StackPanel>
+
+                                            <Button Grid.Column="2" Content="Add" 
+                                                    Command="{Binding AddCommand}"
+                                                    CommandParameter="{Binding StudentId}"
+                                                    Background="#10B981" Foreground="White"
+                                                    Padding="12,6" CornerRadius="4" FontSize="12"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <!-- Bulk Actions -->
+                    <Border Grid.Row="3" Padding="24,16" BorderBrush="#E5E7EB" BorderThickness="0,1,0,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12">
+                            <Button Content="Add Selected" 
+                                    Command="{Binding BulkAddCommand}"
+                                    Background="#3B82F6" Foreground="White"
+                                    Padding="16,8" CornerRadius="6" FontSize="14"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Loading Overlay -->
+            <Border Grid.Column="0" Grid.ColumnSpan="3" 
+                    Background="#80000000" 
+                    IsVisible="{Binding IsLoading}"
+                    CornerRadius="12">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="⟳ Loading..." FontSize="18" Foreground="White" 
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Success/Error Messages -->
+            <Border Grid.Column="0" Grid.ColumnSpan="3" 
+                    IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                    Background="#80000000" CornerRadius="12">
+                <Border Background="White" CornerRadius="8" Padding="24" 
+                        HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="400">
+                    <StackPanel>
+                        <TextBlock Text="❌ Error" FontSize="18" FontWeight="Bold" 
+                                   Foreground="#EF4444" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding ErrorMessage}" FontSize="14" 
+                                   Foreground="#6B7280" TextWrapping="Wrap" HorizontalAlignment="Center"/>
+                        <Button Content="OK" Margin="0,16,0,0" HorizontalAlignment="Center"
+                                Background="#EF4444" Foreground="White" Padding="24,8" CornerRadius="6"/>
+                    </StackPanel>
+                </Border>
+            </Border>
+
+            <Border Grid.Column="0" Grid.ColumnSpan="3" 
+                    IsVisible="{Binding SuccessMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                    Background="#80000000" CornerRadius="12">
+                <Border Background="White" CornerRadius="8" Padding="24" 
+                        HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="400">
+                    <StackPanel>
+                        <TextBlock Text="✅ Success" FontSize="18" FontWeight="Bold" 
+                                   Foreground="#10B981" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding SuccessMessage}" FontSize="14" 
+                                   Foreground="#6B7280" TextWrapping="Wrap" HorizontalAlignment="Center"/>
+                        <Button Content="OK" Margin="0,16,0,0" HorizontalAlignment="Center"
+                                Background="#10B981" Foreground="White" Padding="24,8" CornerRadius="6"/>
+                    </StackPanel>
+                </Border>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

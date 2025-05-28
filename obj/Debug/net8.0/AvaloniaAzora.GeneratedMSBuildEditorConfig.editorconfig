@@ -15,54 +15,54 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = AvaloniaAzora
-build_property.ProjectDir = /Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/
+build_property.ProjectDir = C:\Users\Asus\Desktop\Azora\azora\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/App.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/App.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Styles/AppStyles.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Styles/AppStyles.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Admin/AdminDashboardWindow.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Views/Admin/AdminDashboardWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/AuthenticationWindow.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Views/Auth/AuthenticationWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/EmailVerificationView.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Views/Auth/EmailVerificationView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/ForgotPasswordView.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Views/Auth/ForgotPasswordView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/SignInView.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Views/Auth/SignInView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/SignUpView.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Views/Auth/SignUpView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/MainWindow.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Views/MainWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Student/ClassroomDetailWindow.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Views/Student/ClassroomDetailWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Student/StudentDashboardWindow.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Views/Student/StudentDashboardWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Student/TestDetailWindow.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Views/Student/TestDetailWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Student/TestResultWindow.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Views/Student/TestResultWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Student/TestReviewWindow.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Views/Student/TestReviewWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Student/TestTakingWindow.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Views/Student/TestTakingWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/TeacherDashboardWindow.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Views/Teacher/TeacherDashboardWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml

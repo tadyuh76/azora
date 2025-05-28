@@ -1,0 +1,125 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AvaloniaAzora.ViewModels.Admin"
+             x:Class="AvaloniaAzora.Views.Admin.ClassroomEditView"
+             x:DataType="vm:ClassroomEditViewModel">
+
+    <StackPanel Spacing="24" MinWidth="400">
+        <!-- Header -->
+        <StackPanel Spacing="8">
+            <TextBlock Text="{Binding IsNewClassroom, Converter={StaticResource BoolToTextConverter}, ConverterParameter='Create Classroom|Edit Classroom'}" 
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Foreground="#1F2937"/>
+            <TextBlock Text="Enter classroom information below" 
+                       FontSize="14"
+                       Foreground="#6B7280"/>
+        </StackPanel>
+
+        <!-- Form Fields -->
+        <StackPanel Spacing="16">
+            <!-- Classroom Name -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Classroom Name" 
+                           FontSize="14"
+                           FontWeight="Medium"
+                           Foreground="#374151"/>
+                <TextBox Text="{Binding ClassName}"
+                         FontSize="14"
+                         Height="40"
+                         VerticalContentAlignment="Center"
+                         Background="White"
+                         BorderBrush="#E5E7EB"
+                         BorderThickness="1"
+                         CornerRadius="6"
+                         Padding="12"/>
+            </StackPanel>
+
+            <!-- Description -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Description (Optional)" 
+                           FontSize="14"
+                           FontWeight="Medium"
+                           Foreground="#374151"/>
+                <TextBox Text="{Binding Description}"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         MinHeight="80"
+                         FontSize="14"
+                         Background="White"
+                         BorderBrush="#E5E7EB"
+                         BorderThickness="1"
+                         CornerRadius="6"
+                         Padding="12"/>
+            </StackPanel>
+
+            <!-- Image URL -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Image URL (Optional)" 
+                           FontSize="14"
+                           FontWeight="Medium"
+                           Foreground="#374151"/>
+                <TextBox Text="{Binding ImageUrl}"
+                         FontSize="14"
+                         Height="40"
+                         VerticalContentAlignment="Center"
+                         Background="White"
+                         BorderBrush="#E5E7EB"
+                         BorderThickness="1"
+                         CornerRadius="6"
+                         Padding="12"/>
+            </StackPanel>
+
+            <!-- Teacher -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Teacher" 
+                           FontSize="14"
+                           FontWeight="Medium"
+                           Foreground="#374151"/>
+                <ComboBox ItemsSource="{Binding AvailableTeachers}"
+                          SelectedItem="{Binding SelectedTeacher}"
+                          DisplayMemberBinding="{Binding FullName}"
+                          FontSize="14"
+                          Height="40"
+                          Background="White"
+                          BorderBrush="#E5E7EB"
+                          CornerRadius="6"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Error Message -->
+        <TextBlock Text="{Binding ErrorMessage}"
+                   FontSize="14"
+                   Foreground="#DC2626"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"
+                   TextWrapping="Wrap"/>
+
+        <!-- Action Buttons -->
+        <StackPanel Orientation="Horizontal" 
+                    HorizontalAlignment="Right"
+                    Spacing="12">
+            <Button Content="Cancel"
+                    Command="{Binding CancelCommand}"
+                    Height="40"
+                    Background="#F3F4F6"
+                    Foreground="#374151"
+                    BorderThickness="0"
+                    CornerRadius="6"
+                    FontSize="14"
+                    FontWeight="Medium"
+                    Padding="20,0"/>
+
+            <Button Content="{Binding IsSaving, Converter={StaticResource BoolToTextConverter}, ConverterParameter='Saving...|Save Classroom'}"
+                    Command="{Binding SaveClassroomCommand}"
+                    IsEnabled="{Binding !IsSaving}"
+                    Height="40"
+                    Background="#4F7CFF"
+                    Foreground="White"
+                    BorderThickness="0"
+                    CornerRadius="6"
+                    FontSize="14"
+                    FontWeight="Medium"
+                    Padding="20,0"/>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

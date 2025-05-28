@@ -63,5 +63,47 @@ namespace AvaloniaAzora.Services
         Task<UserAnswer?> GetUserAnswerByIdAsync(Guid id);
         Task<UserAnswer> SaveUserAnswerAsync(UserAnswer userAnswer);
         Task UpdateUserAnswerAsync(UserAnswer userAnswer);
+
+        // Admin User Management
+
+        Task<IEnumerable<User>> SearchUsersAsync(string searchTerm, string? roleFilter = null);
+        Task<bool> DeactivateUserAsync(Guid userId);
+        Task<bool> ReactivateUserAsync(Guid userId);
+        Task<bool> ChangeUserRoleAsync(Guid userId, string newRole);
+        Task<IEnumerable<User>> GetUsersByRoleAsync(string role);
+        Task<int> GetTotalUsersCountAsync();
+        Task<int> GetActiveUsersCountAsync();
+        Task<int> GetUserCountByRoleAsync(string role);
+
+        // Admin Class Management
+
+        Task<int> GetTotalClassesCountAsync();
+        Task<int> GetActiveClassesCountAsync();
+
+        // Admin Test Management
+
+        Task<int> GetTotalTestsCountAsync();
+        Task<int> GetActiveTestsCountAsync();
+
+        // Admin Statistics
+        Task<Dictionary<string, int>> GetUserRoleStatisticsAsync();
+        Task<Dictionary<string, int>> GetClassStatisticsAsync();
+        Task<Dictionary<string, int>> GetTestStatisticsAsync();
+
+        // Admin Activity Logs
+        Task<IEnumerable<Log>> GetRecentActivityLogsAsync(int count = 50);
+        Task<bool> LogActivityAsync(string action, string description, Guid? userId = null);
+    
+    // Admin Classroom Management
+    Task<bool> DeleteClassAsync(Guid classId);
+    Task<bool> ArchiveClassAsync(Guid classId);
+    Task<IEnumerable<Class>> SearchClassesAsync(string searchTerm, bool? isActive = null);
+    Task<IEnumerable<ClassEnrollment>> GetClassEnrollmentsAsync(Guid classId);
+    Task<bool> EnrollStudentInClassAsync(Guid classId, Guid studentId);
+    Task<bool> RemoveStudentFromClassAsync(Guid classId, Guid studentId);
+    Task<bool> BulkEnrollStudentsAsync(Guid classId, IEnumerable<Guid> studentIds);
+    Task<IEnumerable<User>> GetAvailableStudentsForClassAsync(Guid classId);
+    Task<Dictionary<string, object>> GetClassStatisticsAsync(Guid classId);
+    Task<bool> TransferStudentBetweenClassesAsync(Guid studentId, Guid fromClassId, Guid toClassId);
     }
 }

@@ -1,26 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/AvaloniaAzora.csproj": {}
+    "C:\\Users\\Asus\\Desktop\\Azora\\azora\\AvaloniaAzora.csproj": {}
   },
   "projects": {
-    "/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/AvaloniaAzora.csproj": {
+    "C:\\Users\\Asus\\Desktop\\Azora\\azora\\AvaloniaAzora.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/AvaloniaAzora.csproj",
+        "projectUniqueName": "C:\\Users\\Asus\\Desktop\\Azora\\azora\\AvaloniaAzora.csproj",
         "projectName": "AvaloniaAzora",
-        "projectPath": "/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/AvaloniaAzora.csproj",
-        "packagesPath": "/Users/tadyuh/.nuget/packages/",
-        "outputPath": "/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/obj/",
+        "projectPath": "C:\\Users\\Asus\\Desktop\\Azora\\azora\\AvaloniaAzora.csproj",
+        "packagesPath": "C:\\Users\\Asus\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Asus\\Desktop\\Azora\\azora\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/tadyuh/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Asus\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "/usr/local/share/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -117,7 +116,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.407/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.410/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

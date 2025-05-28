@@ -1,0 +1,92 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaAzora.ViewModels.Admin"
+        x:Class="AvaloniaAzora.Views.Admin.UserEditWindow"
+        Title="Azora - Edit User"
+        Width="600" Height="700"
+        WindowStartupLocation="CenterScreen"
+        Background="#F8F9FA"
+        x:DataType="vm:UserEditViewModel">
+
+    <Border Background="White" CornerRadius="12" Margin="24">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" OffsetX="0" OffsetY="4" 
+                              Color="#000000" Opacity="0.1"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="24,20">
+                <TextBlock Text="{Binding IsEditMode, Converter={x:Static BooleanToStringConverter.Instance}, ConverterParameter='Edit User|Create New User'}" 
+                           FontSize="24" FontWeight="Bold" Foreground="#1F2937"/>
+            </Border>
+
+            <!-- Form Content -->
+            <ScrollViewer Grid.Row="1" Padding="24">
+                <StackPanel Spacing="20">
+                    <!-- Email -->
+                    <StackPanel>
+                        <TextBlock Text="Email Address *" FontSize="14" FontWeight="SemiBold" 
+                                   Foreground="#374151" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding Email}" 
+                                 IsEnabled="{Binding IsEditMode, Converter={x:Static BooleanConverters.Not}}"
+                                 Watermark="user@example.com"
+                                 FontSize="14" Padding="12,8" Height="40"/>
+                    </StackPanel>
+
+                    <!-- Full Name -->
+                    <StackPanel>
+                        <TextBlock Text="Full Name" FontSize="14" FontWeight="SemiBold" 
+                                   Foreground="#374151" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding FullName}" 
+                                 Watermark="Enter full name"
+                                 FontSize="14" Padding="12,8" Height="40"/>
+                    </StackPanel>
+
+                    <!-- Role -->
+                    <StackPanel>
+                        <TextBlock Text="Role *" FontSize="14" FontWeight="SemiBold" 
+                                   Foreground="#374151" Margin="0,0,0,8"/>
+                        <ComboBox SelectedItem="{Binding SelectedRole}"
+                                  ItemsSource="{Binding AvailableRoles}"
+                                  FontSize="14" Padding="12,8" Height="40"/>
+                    </StackPanel>
+
+                    <!-- Active Status -->
+                    <StackPanel>
+                        <CheckBox IsChecked="{Binding IsActive}" 
+                                  Content="Active User" 
+                                  FontSize="14" Foreground="#374151"/>
+                        <TextBlock Text="Inactive users cannot log in to the system" 
+                                   FontSize="12" Foreground="#6B7280" Margin="24,4,0,0"/>
+                    </StackPanel>
+
+                    <!-- Password Section (for new users) -->
+                    <StackPanel IsVisible="{Binding IsEditMode, Converter={x:Static BooleanConverters.Not}}">
+                        <TextBlock Text="Password *" FontSize="14" FontWeight="SemiBold" 
+                                   Foreground="#374151" Margin="0,0,0,8"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" 
+                                     Text="{Binding Password}" 
+                                     PasswordChar="•"
+                                     Watermark="Enter password (min 6 characters)"
+                                     FontSize="14" Padding="12,8" Height="40" Margin="0,0,8,0"/>
+                            <Button Grid.Column="1" Content="Generate" 
+                                    Command="{Binding GeneratePasswordCommand}"
+                                    Background="#6B7280" Foreground="White"
+                                    Padding="12,8" CornerRadius="6" FontSize="12"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Confirm Password (for new users) -->
+                    <StackPanel IsVisible="{Binding IsEditMode, Converter={x:Static BooleanConverters.Not}}">
+                        <TextBlock Text="Confirm Password *"
