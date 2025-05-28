@@ -1,0 +1,214 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using AvaloniaAzora.Models;
+using AvaloniaAzora.Services;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace AvaloniaAzora.ViewModels
+{
+    public partial class TeacherDashboardViewModel : ViewModelBase
+    {
+        private readonly IDataService _dataService;
+
+        [ObservableProperty]
+        private User? _currentUser;
+
+        [ObservableProperty]
+        private string _welcomeMessage = "Welcome back!";
+
+        [ObservableProperty]
+        private ObservableCollection<TeacherClassroomCardViewModel> _teachingClasses = new();
+
+        [ObservableProperty]
+        private ObservableCollection<RecentActivityViewModel> _recentActivities = new();
+
+        [ObservableProperty]
+        private bool _isLoading = true;
+
+        [ObservableProperty]
+        private string _activeClassroomsCount = "0";
+
+        [ObservableProperty]
+        private string _totalStudentsCount = "0";
+
+        [ObservableProperty]
+        private string _activeTestsCount = "0";
+
+        [ObservableProperty]
+        private string _averagePerformance = "0%";
+
+        public TeacherDashboardViewModel()
+        {
+            _dataService = AvaloniaAzora.Services.ServiceProvider.Instance.GetRequiredService<IDataService>();
+        }
+
+        public async Task LoadDashboardDataAsync(Guid userId)
+        {
+            try
+            {
+                IsLoading = true;
+                await LoadUserDataAsync(userId);
+                await LoadTeachingClassesAsync(userId);
+                await LoadStatisticsAsync(userId);
+                await LoadRecentActivitiesAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error loading teacher dashboard: {ex.Message}");
+                WelcomeMessage = "Welcome back!";
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        private async Task LoadUserDataAsync(Guid userId)
+        {
+            // Load current user
+            CurrentUser = await _dataService.GetUserByIdAsync(userId);
+            if (CurrentUser != null)
+            {
+                // Use full_name if available, otherwise use email prefix
+                string displayName = !string.IsNullOrEmpty(CurrentUser.FullName)
+                    ? CurrentUser.FullName
+                    : CurrentUser.Email.Split('@')[0];
+
+                WelcomeMessage = $"Welcome back, {displayName}!";
+                Console.WriteLine($"✅ Loaded teacher user: {displayName} (ID: {userId})");
+            }
+            else
+            {
+                Console.WriteLine($"⚠️ Teacher user not found with ID: {userId}");
+                WelcomeMessage = "Welcome back!";
+            }
+        }
+
+        private async Task LoadTeachingClassesAsync(Guid userId)
+        {
+            try
+            {
+                Console.WriteLine("🏫 Loading teaching classes...");
+                var classes = await _dataService.GetClassesByTeacherIdAsync(userId);
+
+                TeachingClasses.Clear();
+                foreach (var classEntity in classes)
+                {
+                    var studentCount = await _dataService.GetClassEnrollmentCountAsync(classEntity.Id);
+                    var tests = await _dataService.GetTestsByClassIdAsync(classEntity.Id);
+
+                    var cardViewModel = new TeacherClassroomCardViewModel
+                    {
+                        ClassId = classEntity.Id,
+                        ClassName = classEntity.ClassName,
+                        Description = classEntity.Description ?? "No description available",
+                        StudentCount = studentCount,
+                        TestCount = tests.Count,
+                        CreatedDate = classEntity.CreatedAt.ToString("MMM dd, yyyy"),
+                        SubjectColor = GetSubjectColor("general") // Use default color since no subject field
+                    };
+
+                    TeachingClasses.Add(cardViewModel);
+                }
+
+                Console.WriteLine($"✅ Loaded {TeachingClasses.Count} teaching classes");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error loading teaching classes: {ex.Message}");
+            }
+        }
+
+        private async Task LoadStatisticsAsync(Guid userId)
+        {
+            try
+            {
+                var classes = await _dataService.GetClassesByTeacherIdAsync(userId);
+                ActiveClassroomsCount = classes.Count.ToString();
+
+                int totalStudents = 0;
+                int totalTests = 0;
+
+                foreach (var classEntity in classes)
+                {
+                    var studentCount = await _dataService.GetClassEnrollmentCountAsync(classEntity.Id);
+                    var tests = await _dataService.GetTestsByClassIdAsync(classEntity.Id);
+
+                    totalStudents += studentCount;
+                    totalTests += tests.Count;
+                }
+
+                TotalStudentsCount = totalStudents.ToString();
+                ActiveTestsCount = totalTests.ToString();
+                AveragePerformance = "87%"; // Placeholder for now
+
+                Console.WriteLine($"✅ Statistics loaded: {ActiveClassroomsCount} classes, {TotalStudentsCount} students, {ActiveTestsCount} tests");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error loading statistics: {ex.Message}");
+                ActiveClassroomsCount = "0";
+                TotalStudentsCount = "0";
+                ActiveTestsCount = "0";
+                AveragePerformance = "0%";
+            }
+        }
+
+        private async Task LoadRecentActivitiesAsync(Guid userId)
+        {
+            try
+            {
+                // For now, add some sample activities
+                // In a real implementation, you'd load actual activities from the database
+                RecentActivities.Clear();
+
+                RecentActivities.Add(new RecentActivityViewModel
+                {
+                    ActivityTitle = "Student submitted test",
+                    ActivityDescription = "John Doe completed Algebra Quiz",
+                    TimeAgo = "5 minutes ago",
+                    ActivityColor = "#3B82F6"
+                });
+
+                RecentActivities.Add(new RecentActivityViewModel
+                {
+                    ActivityTitle = "New student enrolled",
+                    ActivityDescription = "Sarah Wilson joined Mathematics 101",
+                    TimeAgo = "1 hour ago",
+                    ActivityColor = "#10B981"
+                });
+
+                RecentActivities.Add(new RecentActivityViewModel
+                {
+                    ActivityTitle = "Test created",
+                    ActivityDescription = "Created new Calculus Midterm",
+                    TimeAgo = "2 hours ago",
+                    ActivityColor = "#F59E0B"
+                });
+
+                await Task.CompletedTask; // Remove this when implementing real data loading
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error loading recent activities: {ex.Message}");
+            }
+        }
+
+        private string GetSubjectColor(string? subject)
+        {
+            return subject?.ToLower() switch
+            {
+                "mathematics" or "math" => "#3B82F6",
+                "science" => "#10B981",
+                "english" => "#F59E0B",
+                "history" => "#8B5CF6",
+                "physics" => "#EF4444",
+                "chemistry" => "#06B6D4",
+                _ => "#6B7280"
+            };
+        }
+    }
+}

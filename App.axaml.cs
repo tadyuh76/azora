@@ -8,6 +8,8 @@ using Avalonia.Markup.Xaml;
 using AvaloniaAzora.ViewModels;
 using AvaloniaAzora.Views.Auth;
 using AvaloniaAzora.Views;
+using AvaloniaAzora.Views.Admin;
+using AvaloniaAzora.Views.Teacher;
 using AvaloniaAzora.Services;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -70,26 +72,14 @@ public partial class App : Application
         _desktop!.MainWindow = mainWindow;
     }
 
-    private void OnAuthenticationSuccessful(object? sender, System.EventArgs e)
-    {
-        // Show dashboard first
-        ShowStudentDashboard();
-
-        // Hide authentication window (don't close, so app stays alive)
-        if (sender is Window authWindow)
-            authWindow.Close();
-    }
-
-    private void ShowStudentDashboard()
+    private async void OnAuthenticationSuccessful(object? sender, System.EventArgs e)
     {
         try
         {
-            Console.WriteLine("🚀 Starting ShowStudentDashboard...");
+            Console.WriteLine("🚀 Authentication successful, determining user role...");
 
             // Get the authenticated user ID from Supabase
             var authService = ServiceProvider.GetService<IAuthenticationService>();
-            Console.WriteLine("✅ Got auth service");
-
             var currentUser = authService.GetCurrentUser();
             Console.WriteLine($"✅ Got current user: {currentUser?.Email}");
 
@@ -100,37 +90,37 @@ public partial class App : Application
                 {
                     Console.WriteLine($"🔑 Authenticated user ID: {userId}");
 
-                    Console.WriteLine("📱 Creating dashboard window...");
-                    var dashboard = new StudentDashboardWindow(userId);
+                    // Ensure user exists in our database first
+                    await EnsureUserExistsInDatabase(userId, currentUser);
 
-                    // Set this as the main window to prevent app from closing
-                    _desktop!.MainWindow = dashboard;
+                    // Get user from database to check role
+                    var dataService = ServiceProvider.GetService<IDataService>();
+                    var dbUser = await dataService.GetUserByIdAsync(userId);
 
-                    dashboard.Closed += (s, e) =>
+                    if (dbUser != null)
                     {
-                        Console.WriteLine("🚪 Dashboard closed, showing auth window...");
-                        // When dashboard closes, show auth window again
-                        ShowAuthenticationWindow();
-                    };
+                        Console.WriteLine($"👤 User role: {dbUser.Role}");
 
-                    Console.WriteLine("🎯 Showing dashboard...");
-                    dashboard.Show();
-                    Console.WriteLine("✅ Dashboard should now be visible");
-
-                    // Ensure user exists in our database (do this after showing dashboard)
-                    _ = Task.Run(async () =>
+                        // Route to appropriate dashboard based on role
+                        switch (dbUser.Role?.ToLower())
+                        {
+                            case "admin":
+                                ShowAdminDashboard(userId);
+                                break;
+                            case "teacher":
+                                ShowTeacherDashboard(userId);
+                                break;
+                            case "student":
+                            default:
+                                ShowStudentDashboard(userId);
+                                break;
+                        }
+                    }
+                    else
                     {
-                        try
-                        {
-                            Console.WriteLine("👤 Ensuring user exists in database (background)...");
-                            await EnsureUserExistsInDatabase(userId, currentUser);
-                            Console.WriteLine("✅ User check completed");
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"⚠️ Background user check failed: {ex.Message}");
-                        }
-                    });
+                        Console.WriteLine("⚠️ User not found in database, defaulting to student dashboard");
+                        ShowStudentDashboard(userId);
+                    }
                 }
                 else
                 {
@@ -146,8 +136,95 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"❌ Error in ShowStudentDashboard: {ex.Message}");
+            Console.WriteLine($"❌ Error in authentication success handler: {ex.Message}");
             Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            ShowAuthenticationWindow();
+        }
+        finally
+        {
+            // Hide authentication window
+            if (sender is Window authWindow)
+                authWindow.Close();
+        }
+    }
+
+    private void ShowStudentDashboard(Guid userId)
+    {
+        try
+        {
+            Console.WriteLine("📱 Creating student dashboard window...");
+            var dashboard = new StudentDashboardWindow(userId);
+
+            // Set this as the main window to prevent app from closing
+            _desktop!.MainWindow = dashboard;
+
+            dashboard.Closed += (s, e) =>
+            {
+                Console.WriteLine("🚪 Student dashboard closed, showing auth window...");
+                ShowAuthenticationWindow();
+            };
+
+            Console.WriteLine("🎯 Showing student dashboard...");
+            dashboard.Show();
+            Console.WriteLine("✅ Student dashboard should now be visible");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error showing student dashboard: {ex.Message}");
+            ShowAuthenticationWindow();
+        }
+    }
+
+    private void ShowTeacherDashboard(Guid userId)
+    {
+        try
+        {
+            Console.WriteLine("📱 Creating teacher dashboard window...");
+            var dashboard = new TeacherDashboardWindow(userId);
+
+            // Set this as the main window to prevent app from closing
+            _desktop!.MainWindow = dashboard;
+
+            dashboard.Closed += (s, e) =>
+            {
+                Console.WriteLine("🚪 Teacher dashboard closed, showing auth window...");
+                ShowAuthenticationWindow();
+            };
+
+            Console.WriteLine("🎯 Showing teacher dashboard...");
+            dashboard.Show();
+            Console.WriteLine("✅ Teacher dashboard should now be visible");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error showing teacher dashboard: {ex.Message}");
+            ShowAuthenticationWindow();
+        }
+    }
+
+    private void ShowAdminDashboard(Guid userId)
+    {
+        try
+        {
+            Console.WriteLine("📱 Creating admin dashboard window...");
+            var dashboard = new AdminDashboardWindow(userId);
+
+            // Set this as the main window to prevent app from closing
+            _desktop!.MainWindow = dashboard;
+
+            dashboard.Closed += (s, e) =>
+            {
+                Console.WriteLine("🚪 Admin dashboard closed, showing auth window...");
+                ShowAuthenticationWindow();
+            };
+
+            Console.WriteLine("🎯 Showing admin dashboard...");
+            dashboard.Show();
+            Console.WriteLine("✅ Admin dashboard should now be visible");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error showing admin dashboard: {ex.Message}");
             ShowAuthenticationWindow();
         }
     }
