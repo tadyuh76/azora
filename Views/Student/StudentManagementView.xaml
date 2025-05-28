@@ -1,0 +1,74 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaAzora.ViewModels.Admin"
+        x:Class="AvaloniaAzora.Views.Admin.StudentManagementWindow"
+        Title="Student Management"
+        Width="800" Height="600"
+        x:DataType="vm:StudentManagementViewModel">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Student Management" FontSize="24" FontWeight="Bold"/>
+            <TextBlock Text="View and manage student accounts" Foreground="#777777"/>
+        </StackPanel>
+
+        <!-- Search and Actions -->
+        <Grid Grid.Row="1" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBox Grid.Column="0" Text="{Binding SearchText}" Watermark="Search students by name or email..." Margin="0,0,10,0"/>
+            <Button Grid.Column="1" Content="Search" Command="{Binding SearchCommand}" Margin="0,0,10,0"/>
+            <Button Grid.Column="2" Content="Add New Student" Command="{Binding CreateStudentCommand}"/>
+        </Grid>
+
+        <!-- Student List -->
+        <DataGrid Grid.Row="2" 
+                  ItemsSource="{Binding Students}" 
+                  SelectedItem="{Binding SelectedStudent}"
+                  AutoGenerateColumns="False" 
+                  IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding FullName}" Width="*"/>
+                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
+                <DataGridTemplateColumn Header="Actions" Width="Auto">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Edit" 
+                                        Command="{Binding #dataGrid.DataContext.EditStudentCommand}"
+                                        CommandParameter="{Binding Id}"
+                                        Margin="0,0,5,0"/>
+                                <Button Content="Delete" 
+                                        Command="{Binding #dataGrid.DataContext.DeleteStudentCommand}"
+                                        CommandParameter="{Binding Id}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Status Messages -->
+        <StackPanel Grid.Row="3" Margin="0,20,0,0">
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+            <TextBlock Text="{Binding SuccessMessage}" Foreground="Green" IsVisible="{Binding SuccessMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+        </StackPanel>
+
+        <!-- Loading Overlay -->
+        <Grid Grid.RowSpan="4" Background="#80000000" IsVisible="{Binding IsLoading}">
+            <TextBlock Text="Loading..." Foreground="White" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+    </Grid>
+</Window>

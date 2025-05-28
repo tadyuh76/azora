@@ -1,22 +1,19 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:AvaloniaAzora.ViewModels"
-        x:Class="AvaloniaAzora.Views.Admin.AdminDashboardWindow"
+        x:Class="AvaloniaAzora.Views.AdminDashboardWindow"
         Title="Azora - Admin Dashboard"
         Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
         Background="#F8F9FA"
         x:DataType="vm:AdminDashboardViewModel">
-    <Design.DataContext>
-        <vm:AdminDashboardViewModel/>
-    </Design.DataContext>
-    
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
+
         <!-- Header -->
         <Border Grid.Row="0" Background="White" 
                 BorderBrush="#E5E7EB" BorderThickness="0,0,0,1"
@@ -27,389 +24,267 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                
-                <!-- Logo -->
+
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <TextBlock Text="Azora Admin" FontSize="24" FontWeight="Bold" 
-                               Foreground="#1F2937" VerticalAlignment="Center"/>
-                </StackPanel>
-                
-                <!-- User Info -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <StackPanel Margin="0,0,16,0">
-                        <TextBlock Text="{Binding CurrentUser.FullName, FallbackValue='Admin User'}" 
-                                   FontWeight="SemiBold" FontSize="14" 
-                                   Foreground="#1F2937" HorizontalAlignment="Right"/>
-                        <TextBlock Text="Administrator" FontSize="12" 
-                                   Foreground="#6B7280" HorizontalAlignment="Right"/>
+                    <TextBlock Text="🎓" FontSize="32" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                    <StackPanel>
+                        <TextBlock Text="Azora Admin" FontSize="20" FontWeight="Bold" Foreground="#1F2937"/>
+                        <TextBlock Text="Educational Platform Administration" FontSize="12" Foreground="#6B7280"/>
                     </StackPanel>
-                    <Button Content="Logout" FontSize="14" 
-                            Background="#EF4444" Foreground="White" 
-                            Padding="12,8" CornerRadius="6"/>
+                </StackPanel>
+
+                <TextBlock Grid.Column="1" Text="{Binding WelcomeMessage}" 
+                           FontSize="16" FontWeight="Medium" Foreground="#374151"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12">
+                    <Border Background="{Binding SystemStatusColor}" CornerRadius="4" Padding="8,4">
+                        <TextBlock Text="{Binding SystemStatus}" FontSize="12" FontWeight="SemiBold" Foreground="White"/>
+                    </Border>
+                    <Button Content="🔄 Refresh" Command="{Binding RefreshDataCommand}"
+                            Background="#6B7280" Foreground="White" Padding="12,6" CornerRadius="4"/>
                 </StackPanel>
             </Grid>
         </Border>
-        
+
         <!-- Main Content -->
         <ScrollViewer Grid.Row="1" Padding="24">
-            <StackPanel>
-                <!-- Welcome Section -->
-                <StackPanel Margin="0,0,0,32">
-                    <TextBlock Text="{Binding WelcomeMessage}" 
-                               FontSize="32" FontWeight="Bold" 
-                               Foreground="#1F2937" Margin="0,0,0,8"/>
-                    <TextBlock Text="Manage users, classrooms, and system settings." 
-                               FontSize="16" Foreground="#6B7280"/>
+            <StackPanel Spacing="24">
+
+                <!-- Statistics Overview -->
+                <StackPanel>
+                    <TextBlock Text="System Overview" FontSize="18" FontWeight="Bold" Foreground="#1F2937" Margin="0,0,0,16"/>
+                    <UniformGrid Columns="3" Spacing="16">
+                        <!-- Users Statistics -->
+                        <Border Background="White" CornerRadius="12" Padding="20">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <Grid Margin="0,0,0,12">
+                                    <TextBlock Text="👥 Users" FontSize="14" Foreground="#6B7280" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding TotalUsers}" FontSize="24" FontWeight="Bold" 
+                                               Foreground="#1F2937" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding StudentsCount}" FontSize="16" FontWeight="SemiBold" Foreground="#10B981"/>
+                                        <TextBlock Text="Students" FontSize="10" Foreground="#6B7280"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding TeachersCount}" FontSize="16" FontWeight="SemiBold" Foreground="#3B82F6"/>
+                                        <TextBlock Text="Teachers" FontSize="10" Foreground="#6B7280"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="{Binding AdminsCount}" FontSize="16" FontWeight="SemiBold" Foreground="#8B5CF6"/>
+                                        <TextBlock Text="Admins" FontSize="10" Foreground="#6B7280"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Classes Statistics -->
+                        <Border Background="White" CornerRadius="12" Padding="20">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <Grid Margin="0,0,0,12">
+                                    <TextBlock Text="🏫 Classes" FontSize="14" Foreground="#6B7280" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding TotalClasses}" FontSize="24" FontWeight="Bold" 
+                                               Foreground="#1F2937" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding ActiveClasses}" FontSize="16" FontWeight="SemiBold" Foreground="#10B981"/>
+                                        <TextBlock Text="Active" FontSize="10" Foreground="#6B7280"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding TotalClasses}" FontSize="16" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Text="Total" FontSize="10" Foreground="#6B7280"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Tests Statistics -->
+                        <Border Background="White" CornerRadius="12" Padding="20">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <Grid Margin="0,0,0,12">
+                                    <TextBlock Text="📝 Tests" FontSize="14" Foreground="#6B7280" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding TotalTests}" FontSize="24" FontWeight="Bold" 
+                                               Foreground="#1F2937" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding ActiveTests}" FontSize="16" FontWeight="SemiBold" Foreground="#F59E0B"/>
+                                        <TextBlock Text="Active" FontSize="10" Foreground="#6B7280"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding TotalTests}" FontSize="16" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Text="Total" FontSize="10" Foreground="#6B7280"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
                 </StackPanel>
-                
-                <!-- Statistics Cards -->
-                <UniformGrid Columns="4" Margin="0,0,0,32">
-                    <Border Background="White" CornerRadius="12" Margin="0,0,8,0" Padding="24">
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" 
-                                              Color="#000000" Opacity="0.05"/>
-                        </Border.Effect>
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <Border Background="#3B82F6" CornerRadius="8" Width="48" Height="48" 
-                                        Margin="0,0,16,0">
-                                    <TextBlock Text="USERS" FontSize="10" FontWeight="Bold" Foreground="White"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel>
-                                    <TextBlock Text="Total Users" FontSize="14" Foreground="#6B7280"/>
-                                    <TextBlock Text="1,234" FontSize="24" FontWeight="Bold" 
-                                               Foreground="#1F2937"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
 
-                    <Border Background="White" CornerRadius="12" Margin="8,0,8,0" Padding="24">
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" 
-                                              Color="#000000" Opacity="0.05"/>
-                        </Border.Effect>
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <Border Background="#10B981" CornerRadius="8" Width="48" Height="48" 
-                                        Margin="0,0,16,0">
-                                    <TextBlock Text="CLASS" FontSize="10" FontWeight="Bold" Foreground="White"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel>
-                                    <TextBlock Text="Active Classes" FontSize="14" Foreground="#6B7280"/>
-                                    <TextBlock Text="89" FontSize="24" FontWeight="Bold" 
-                                               Foreground="#1F2937"/>
-                                </StackPanel>
+                <!-- Management Actions -->
+                <StackPanel>
+                    <TextBlock Text="Management Tools" FontSize="18" FontWeight="Bold" Foreground="#1F2937" Margin="0,0,0,16"/>
+                    <UniformGrid Columns="2" Spacing="16">
+                        
+                        <!-- User Management Section -->
+                        <Border Background="White" CornerRadius="12" Padding="20">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="👥 User Management" FontSize="16" FontWeight="Bold" Foreground="#1F2937" Margin="0,0,0,8"/>
+                                <TextBlock Text="Manage students, teachers, and administrators" FontSize="12" Foreground="#6B7280" Margin="0,0,0,16"/>
+                                <UniformGrid Columns="1" Spacing="8">
+                                    <Button Content="👨‍🎓 Manage Students" Command="{Binding ManageStudentsCommand}"
+                                            Background="#10B981" Foreground="White" Padding="12,8" CornerRadius="6"/>
+                                    <Button Content="👨‍🏫 Manage Teachers" Command="{Binding ManageTeachersCommand}"
+                                            Background="#3B82F6" Foreground="White" Padding="12,8" CornerRadius="6"/>
+                                    <Button Content="👥 All Users" Command="{Binding ManageUsersCommand}"
+                                            Background="#6B7280" Foreground="White" Padding="12,8" CornerRadius="6"/>
+                                </UniformGrid>
                             </StackPanel>
-                        </StackPanel>
-                    </Border>
+                        </Border>
 
-                    <Border Background="White" CornerRadius="12" Margin="8,0,8,0" Padding="24">
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" 
-                                              Color="#000000" Opacity="0.05"/>
-                        </Border.Effect>
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <Border Background="#F59E0B" CornerRadius="8" Width="48" Height="48" 
-                                        Margin="0,0,16,0">
-                                    <TextBlock Text="TESTS" FontSize="10" FontWeight="Bold" Foreground="White"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel>
-                                    <TextBlock Text="Total Tests" FontSize="14" Foreground="#6B7280"/>
-                                    <TextBlock Text="456" FontSize="24" FontWeight="Bold" 
-                                               Foreground="#1F2937"/>
-                                </StackPanel>
+                        <!-- Academic Management Section -->
+                        <Border Background="White" CornerRadius="12" Padding="20">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="🏫 Academic Management" FontSize="16" FontWeight="Bold" Foreground="#1F2937" Margin="0,0,0,8"/>
+                                <TextBlock Text="Manage classrooms, tests, and content" FontSize="12" Foreground="#6B7280" Margin="0,0,0,16"/>
+                                <UniformGrid Columns="1" Spacing="8">
+                                    <Button Content="🏫 Manage Classrooms" Command="{Binding ManageClassesCommand}"
+                                            Background="#8B5CF6" Foreground="White" Padding="12,8" CornerRadius="6"/>
+                                    <Button Content="📝 Manage Tests" Command="{Binding ManageTestsCommand}"
+                                            Background="#F59E0B" Foreground="White" Padding="12,8" CornerRadius="6"/>
+                                    <Button Content="❓ Question Bank" Command="{Binding ManageQuestionsCommand}"
+                                            Background="#EF4444" Foreground="White" Padding="12,8" CornerRadius="6"/>
+                                </UniformGrid>
                             </StackPanel>
-                        </StackPanel>
-                    </Border>
+                        </Border>
 
-                    <Border Background="White" CornerRadius="12" Margin="8,0,0,0" Padding="24">
+                        <!-- System Management Section -->
+                        <Border Background="White" CornerRadius="12" Padding="20">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="⚙️ System Management" FontSize="16" FontWeight="Bold" Foreground="#1F2937" Margin="0,0,0,8"/>
+                                <TextBlock Text="Configure system settings and security" FontSize="12" Foreground="#6B7280" Margin="0,0,0,16"/>
+                                <UniformGrid Columns="1" Spacing="8">
+                                    <Button Content="⚙️ System Settings" Command="{Binding SystemSettingsCommand}"
+                                            Background="#374151" Foreground="White" Padding="12,8" CornerRadius="6"/>
+                                    <Button Content="📊 View Reports" Command="{Binding ViewReportsCommand}"
+                                            Background="#059669" Foreground="White" Padding="12,8" CornerRadius="6"/>
+                                    <Button Content="📋 Activity Logs" Command="{Binding ViewLogsCommand}"
+                                            Background="#7C3AED" Foreground="White" Padding="12,8" CornerRadius="6"/>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Assessment Management Section -->
+                        <Border Background="White" CornerRadius="12" Padding="20">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="📊 Assessment Management" FontSize="16" FontWeight="Bold" Foreground="#1F2937" Margin="0,0,0,8"/>
+                                <TextBlock Text="Monitor student performance and results" FontSize="12" Foreground="#6B7280" Margin="0,0,0,16"/>
+                                <UniformGrid Columns="1" Spacing="8">
+                                    <Button Content="📈 Student Results" Command="{Binding ManageAssessmentsCommand}"
+                                            Background="#DC2626" Foreground="White" Padding="12,8" CornerRadius="6"/>
+                                    <Button Content="📊 Performance Analytics" Command="{Binding ViewAnalyticsCommand}"
+                                            Background="#7C2D12" Foreground="White" Padding="12,8" CornerRadius="6"/>
+                                    <Button Content="📁 Bulk Operations" Command="{Binding BulkOperationsCommand}"
+                                            Background="#1F2937" Foreground="White" Padding="12,8" CornerRadius="6"/>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+                </StackPanel>
+
+                <!-- Recent Activities -->
+                <StackPanel>
+                    <TextBlock Text="Recent Activities" FontSize="18" FontWeight="Bold" Foreground="#1F2937" Margin="0,0,0,16"/>
+                    <Border Background="White" CornerRadius="12" Padding="20">
                         <Border.Effect>
-                            <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" 
-                                              Color="#000000" Opacity="0.05"/>
+                            <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
                         </Border.Effect>
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <Border Background="#8B5CF6" CornerRadius="8" Width="48" Height="48" 
-                                        Margin="0,0,16,0">
-                                    <TextBlock Text="SYS" FontSize="10" FontWeight="Bold" Foreground="White"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel>
-                                    <TextBlock Text="System Status" FontSize="14" Foreground="#6B7280"/>
-                                    <TextBlock Text="Healthy" FontSize="24" FontWeight="Bold" 
-                                               Foreground="#1F2937"/>
-                                </StackPanel>
-                            </StackPanel>
+                            <ItemsControl ItemsSource="{Binding RecentActivities}" MaxHeight="300">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="0,12">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Border Grid.Column="0" Background="{Binding ActivityColor}" 
+                                                        Width="8" Height="8" CornerRadius="4" Margin="0,4,12,0"/>
+
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{Binding ActivityTitle}" FontWeight="SemiBold" 
+                                                               FontSize="14" Foreground="#1F2937"/>
+                                                    <TextBlock Text="{Binding ActivityDescription}" FontSize="12" 
+                                                               Foreground="#6B7280"/>
+                                                </StackPanel>
+
+                                                <TextBlock Grid.Column="2" Text="{Binding TimeAgo}" FontSize="12" 
+                                                           Foreground="#9CA3AF" VerticalAlignment="Top"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Show message if no activities -->
+                            <TextBlock Text="No recent activities to display" FontSize="14" Foreground="#6B7280" 
+                                       HorizontalAlignment="Center" Margin="0,20,0,0"
+                                       IsVisible="{Binding !RecentActivities.Count}"/>
                         </StackPanel>
                     </Border>
-                </UniformGrid>
-                
-                <!-- Main Dashboard Content -->
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="24"/>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <!-- Management Actions -->
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="System Management" FontSize="24" FontWeight="Bold" 
-                                   Foreground="#1F2937" Margin="0,0,0,24"/>
-                        
-                        <UniformGrid Columns="2">
-                            <!-- User Management Card -->
-                            <Border Background="White" CornerRadius="12" Margin="0,0,8,16">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" 
-                                                      Color="#000000" Opacity="0.05"/>
-                                </Border.Effect>
-                                <Grid Margin="24">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    
-                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
-                                        <Border Background="#3B82F6" CornerRadius="8" Width="48" Height="48" 
-                                                Margin="0,0,16,0">
-                                            <TextBlock Text="USER" FontSize="10" FontWeight="Bold" Foreground="White"
-                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                        <StackPanel>
-                                            <TextBlock Text="User Management" FontSize="18" FontWeight="SemiBold" 
-                                                       Foreground="#1F2937"/>
-                                            <TextBlock Text="Manage students and teachers" FontSize="14" 
-                                                       Foreground="#6B7280"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                    
-                                    <StackPanel Grid.Row="1" Margin="0,0,0,16">
-                                        <TextBlock Text="• View all users" FontSize="14" Foreground="#6B7280"/>
-                                        <TextBlock Text="• Assign roles" FontSize="14" Foreground="#6B7280"/>
-                                        <TextBlock Text="• Manage permissions" FontSize="14" Foreground="#6B7280"/>
-                                    </StackPanel>
-                                    
-                                    <Button Grid.Row="2" Content="Manage Users" 
-                                            Background="#3B82F6" Foreground="White"
-                                            Padding="16,12" CornerRadius="8" HorizontalAlignment="Stretch"/>
-                                </Grid>
-                            </Border>
-                            
-                            <!-- Class Management Card -->
-                            <Border Background="White" CornerRadius="12" Margin="8,0,0,16">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" 
-                                                      Color="#000000" Opacity="0.05"/>
-                                </Border.Effect>
-                                <Grid Margin="24">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    
-                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
-                                        <Border Background="#10B981" CornerRadius="8" Width="48" Height="48" 
-                                                Margin="0,0,16,0">
-                                            <TextBlock Text="CLASS" FontSize="9" FontWeight="Bold" Foreground="White"
-                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                        <StackPanel>
-                                            <TextBlock Text="Class Management" FontSize="18" FontWeight="SemiBold" 
-                                                       Foreground="#1F2937"/>
-                                            <TextBlock Text="Oversee all classrooms" FontSize="14" 
-                                                       Foreground="#6B7280"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                    
-                                    <StackPanel Grid.Row="1" Margin="0,0,0,16">
-                                        <TextBlock Text="• Monitor all classes" FontSize="14" Foreground="#6B7280"/>
-                                        <TextBlock Text="• View enrollments" FontSize="14" Foreground="#6B7280"/>
-                                        <TextBlock Text="• Generate reports" FontSize="14" Foreground="#6B7280"/>
-                                    </StackPanel>
-                                    
-                                    <Button Grid.Row="2" Content="Manage Classes" 
-                                            Background="#10B981" Foreground="White"
-                                            Padding="16,12" CornerRadius="8" HorizontalAlignment="Stretch"/>
-                                </Grid>
-                            </Border>
-                            
-                            <!-- System Settings Card -->
-                            <Border Background="White" CornerRadius="12" Margin="0,0,8,16">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" 
-                                                      Color="#000000" Opacity="0.05"/>
-                                </Border.Effect>
-                                <Grid Margin="24">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    
-                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
-                                        <Border Background="#8B5CF6" CornerRadius="8" Width="48" Height="48" 
-                                                Margin="0,0,16,0">
-                                            <TextBlock Text="SET" FontSize="10" FontWeight="Bold" Foreground="White"
-                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                        <StackPanel>
-                                            <TextBlock Text="System Settings" FontSize="18" FontWeight="SemiBold" 
-                                                       Foreground="#1F2937"/>
-                                            <TextBlock Text="Configure system preferences" FontSize="14" 
-                                                       Foreground="#6B7280"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                    
-                                    <StackPanel Grid.Row="1" Margin="0,0,0,16">
-                                        <TextBlock Text="• General settings" FontSize="14" Foreground="#6B7280"/>
-                                        <TextBlock Text="• Security options" FontSize="14" Foreground="#6B7280"/>
-                                        <TextBlock Text="• Backup and recovery" FontSize="14" Foreground="#6B7280"/>
-                                    </StackPanel>
-                                    
-                                    <Button Grid.Row="2" Content="Open Settings" 
-                                            Background="#8B5CF6" Foreground="White"
-                                            Padding="16,12" CornerRadius="8" HorizontalAlignment="Stretch"/>
-                                </Grid>
-                            </Border>
-                            
-                            <!-- Reports Analytics Card -->
-                            <Border Background="White" CornerRadius="12" Margin="8,0,0,16">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" 
-                                                      Color="#000000" Opacity="0.05"/>
-                                </Border.Effect>
-                                <Grid Margin="24">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    
-                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
-                                        <Border Background="#F59E0B" CornerRadius="8" Width="48" Height="48" 
-                                                Margin="0,0,16,0">
-                                            <TextBlock Text="RPT" FontSize="10" FontWeight="Bold" Foreground="White"
-                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                        <StackPanel>
-                                            <TextBlock Text="Reports Analytics" FontSize="18" FontWeight="SemiBold" 
-                                                       Foreground="#1F2937"/>
-                                            <TextBlock Text="View system insights" FontSize="14" 
-                                                       Foreground="#6B7280"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                    
-                                    <StackPanel Grid.Row="1" Margin="0,0,0,16">
-                                        <TextBlock Text="• Usage statistics" FontSize="14" Foreground="#6B7280"/>
-                                        <TextBlock Text="• Performance metrics" FontSize="14" Foreground="#6B7280"/>
-                                        <TextBlock Text="• Export data" FontSize="14" Foreground="#6B7280"/>
-                                    </StackPanel>
-                                    
-                                    <Button Grid.Row="2" Content="View Reports" 
-                                            Background="#F59E0B" Foreground="White"
-                                            Padding="16,12" CornerRadius="8" HorizontalAlignment="Stretch"/>
-                                </Grid>
-                            </Border>
-                        </UniformGrid>
-                    </StackPanel>
-                    
-                    <!-- Recent Activity Section -->
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="Recent Activity" FontSize="24" FontWeight="Bold" 
-                                   Foreground="#1F2937" Margin="0,0,0,24"/>
-                        
-                        <!-- Activity Items -->
-                        <Border Background="White" CornerRadius="8" Margin="0,0,0,12" Padding="16">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="6" OffsetX="0" OffsetY="1" 
-                                                  Color="#000000" Opacity="0.1"/>
-                            </Border.Effect>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <Border Grid.Column="0" Background="#3B82F6" CornerRadius="2"/>
-                                
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="New teacher registered" 
-                                               FontSize="16" FontWeight="SemiBold" 
-                                               Foreground="#1F2937" Margin="0,0,0,4"/>
-                                    <TextBlock Text="Dr. Sarah Johnson joined the platform" 
-                                               FontSize="14" Foreground="#6B7280" 
-                                               Margin="0,0,0,8"/>
-                                    <TextBlock Text="2 minutes ago" 
-                                               FontSize="12" Foreground="#9CA3AF"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                        
-                        <Border Background="White" CornerRadius="8" Margin="0,0,0,12" Padding="16">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="6" OffsetX="0" OffsetY="1" 
-                                                  Color="#000000" Opacity="0.1"/>
-                            </Border.Effect>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <Border Grid.Column="0" Background="#10B981" CornerRadius="2"/>
-                                
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Class created" 
-                                               FontSize="16" FontWeight="SemiBold" 
-                                               Foreground="#1F2937" Margin="0,0,0,4"/>
-                                    <TextBlock Text="Advanced Calculus class was created" 
-                                               FontSize="14" Foreground="#6B7280" 
-                                               Margin="0,0,0,8"/>
-                                    <TextBlock Text="15 minutes ago" 
-                                               FontSize="12" Foreground="#9CA3AF"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                        
-                        <Border Background="White" CornerRadius="8" Margin="0,0,0,12" Padding="16">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="6" OffsetX="0" OffsetY="1" 
-                                                  Color="#000000" Opacity="0.1"/>
-                            </Border.Effect>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <Border Grid.Column="0" Background="#F59E0B" CornerRadius="2"/>
-                                
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Test submitted" 
-                                               FontSize="16" FontWeight="SemiBold" 
-                                               Foreground="#1F2937" Margin="0,0,0,4"/>
-                                    <TextBlock Text="50 students completed Algebra Quiz" 
-                                               FontSize="14" Foreground="#6B7280" 
-                                               Margin="0,0,0,8"/>
-                                    <TextBlock Text="1 hour ago" 
-                                               FontSize="12" Foreground="#9CA3AF"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </StackPanel>
-                </Grid>
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Grid Grid.RowSpan="2" Background="#80000000" IsVisible="{Binding IsLoading}">
+            <Border Background="White" CornerRadius="8" Padding="32" 
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="16">
+                    <TextBlock Text="⟳" FontSize="24" Foreground="#3B82F6"/>
+                    <TextBlock Text="Loading dashboard data..." FontSize="16" Foreground="#1F2937" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
-</Window> 
+</Window>

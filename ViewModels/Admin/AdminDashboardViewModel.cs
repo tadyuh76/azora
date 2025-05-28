@@ -13,7 +13,6 @@ namespace AvaloniaAzora.ViewModels
 {
     public partial class AdminDashboardViewModel : ViewModelBase
     {
-        // Fix ServiceProvider reference by using full namespace
         private readonly IDataService _dataService;
 
         [ObservableProperty]
@@ -63,68 +62,52 @@ namespace AvaloniaAzora.ViewModels
 
         // Commands
         public ICommand ManageUsersCommand { get; }
+        public ICommand ManageStudentsCommand { get; }
+        public ICommand ManageTeachersCommand { get; }
         public ICommand ManageClassesCommand { get; }
+        public ICommand ManageTestsCommand { get; }
+        public ICommand ManageQuestionsCommand { get; }
+        public ICommand ManageAssessmentsCommand { get; }
         public ICommand SystemSettingsCommand { get; }
         public ICommand ViewReportsCommand { get; }
+        public ICommand ViewLogsCommand { get; }
+        public ICommand ViewAnalyticsCommand { get; }
+        public ICommand BulkOperationsCommand { get; }
         public ICommand RefreshDataCommand { get; }
 
         // Events
         public event EventHandler? ManageUsersRequested;
+        public event EventHandler? ManageStudentsRequested;
+        public event EventHandler? ManageTeachersRequested;
         public event EventHandler? ManageClassesRequested;
+        public event EventHandler? ManageTestsRequested;
+        public event EventHandler? ManageQuestionsRequested;
+        public event EventHandler? ManageAssessmentsRequested;
         public event EventHandler? SystemSettingsRequested;
         public event EventHandler? ViewReportsRequested;
+        public event EventHandler? ViewLogsRequested;
+        public event EventHandler? ViewAnalyticsRequested;
+        public event EventHandler? BulkOperationsRequested;
 
         public AdminDashboardViewModel()
         {
-            // Fix ServiceProvider reference with full namespace
             _dataService = AvaloniaAzora.Services.ServiceProvider.Instance.GetRequiredService<IDataService>();
             
             ManageUsersCommand = new RelayCommand(() => ManageUsersRequested?.Invoke(this, EventArgs.Empty));
+            ManageStudentsCommand = new RelayCommand(() => ManageStudentsRequested?.Invoke(this, EventArgs.Empty));
+            ManageTeachersCommand = new RelayCommand(() => ManageTeachersRequested?.Invoke(this, EventArgs.Empty));
             ManageClassesCommand = new RelayCommand(() => ManageClassesRequested?.Invoke(this, EventArgs.Empty));
+            ManageTestsCommand = new RelayCommand(() => ManageTestsRequested?.Invoke(this, EventArgs.Empty));
+            ManageQuestionsCommand = new RelayCommand(() => ManageQuestionsRequested?.Invoke(this, EventArgs.Empty));
+            ManageAssessmentsCommand = new RelayCommand(() => ManageAssessmentsRequested?.Invoke(this, EventArgs.Empty));
             SystemSettingsCommand = new RelayCommand(() => SystemSettingsRequested?.Invoke(this, EventArgs.Empty));
             ViewReportsCommand = new RelayCommand(() => ViewReportsRequested?.Invoke(this, EventArgs.Empty));
+            ViewLogsCommand = new RelayCommand(() => ViewLogsRequested?.Invoke(this, EventArgs.Empty));
+            ViewAnalyticsCommand = new RelayCommand(() => ViewAnalyticsRequested?.Invoke(this, EventArgs.Empty));
+            BulkOperationsCommand = new RelayCommand(() => BulkOperationsRequested?.Invoke(this, EventArgs.Empty));
             RefreshDataCommand = new AsyncRelayCommand(() => LoadDashboardDataAsync(CurrentUser?.Id ?? Guid.Empty));
         }
 
-        // Rest of the methods remain the same, but fix the Log property access
-        private async Task LoadRecentActivitiesAsync()
-        {
-            try
-            {
-                RecentActivities.Clear();
-                var logs = await _dataService.GetRecentActivityLogsAsync(10);
-                
-                foreach (var log in logs)
-                {
-                    var activityViewModel = new RecentActivityViewModel
-                    {
-                        // Fix: Don't use 'Action' property since it might not exist
-                        ActivityTitle = "System Activity",
-                        ActivityDescription = "Recent system activity logged",
-                        TimeAgo = GetTimeAgo(log.Timestamp),
-                        ActivityColor = "#10B981"
-                    };
-                    RecentActivities.Add(activityViewModel);
-                }
-
-                Console.WriteLine($"✅ Loaded {RecentActivities.Count} recent activities");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"INFO: Could not load recent activities: {ex.Message}");
-                // Add default activity
-                RecentActivities.Clear();
-                RecentActivities.Add(new RecentActivityViewModel
-                {
-                    ActivityTitle = "System Started",
-                    ActivityDescription = "Admin dashboard loaded successfully",
-                    TimeAgo = "Just now",
-                    ActivityColor = "#10B981"
-                });
-            }
-        }
-
-        // Keep all other existing methods unchanged
         public async Task LoadDashboardDataAsync(Guid userId)
         {
             try
@@ -207,6 +190,41 @@ namespace AvaloniaAzora.ViewModels
             }
         }
 
+        private async Task LoadRecentActivitiesAsync()
+        {
+            try
+            {
+                RecentActivities.Clear();
+                var logs = await _dataService.GetRecentActivityLogsAsync(10);
+                
+                foreach (var log in logs)
+                {
+                    var activityViewModel = new RecentActivityViewModel
+                    {
+                        _activityTitle = log.EventType ?? "System Activity",
+                        ActivityDescription = log.Description ?? "Recent system activity logged",
+                        TimeAgo = GetTimeAgo(log.Timestamp),
+                        ActivityColor = GetActivityColor(log.EventType ?? "system")
+                    };
+                    RecentActivities.Add(activityViewModel);
+                }
+
+                Console.WriteLine($"✅ Loaded {RecentActivities.Count} recent activities");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"INFO: Could not load recent activities: {ex.Message}");
+                RecentActivities.Clear();
+                RecentActivities.Add(new RecentActivityViewModel
+                {
+                    ActivityTitle = "System Started",
+                    ActivityDescription = "Admin dashboard loaded successfully",
+                    TimeAgo = "Just now",
+                    ActivityColor = "#10B981"
+                });
+            }
+        }
+
         private void UpdateSystemStatus()
         {
             if (TotalUsers > 0 && TotalClasses > 0)
@@ -241,10 +259,35 @@ namespace AvaloniaAzora.ViewModels
             
             return timestamp.ToString("MMM dd, yyyy");
         }
+
+        private string GetActivityColor(string eventType)
+        {
+            return eventType.ToLower() switch
+            {
+                "user created" => "#10B981",
+                "user updated" => "#3B82F6",
+                "user deleted" or "user deactivated" => "#EF4444",
+                "role changed" => "#8B5CF6",
+                "class created" => "#10B981",
+                "test created" => "#F59E0B",
+                "system" => "#6B7280",
+                _ => "#6B7280"
+            };
+        }
     }
 
     public partial class RecentActivityViewModel : ViewModelBase
     {
-        // Removed duplicate definition of TimeAgo
+        [ObservableProperty]
+        private string _activityTitle = string.Empty;
+        
+        [ObservableProperty]
+        private string _activityDescription = string.Empty;
+        
+        [ObservableProperty]
+        private string _timeAgo = string.Empty;
+        
+        [ObservableProperty]
+        private string _activityColor = string.Empty;
     }
 }

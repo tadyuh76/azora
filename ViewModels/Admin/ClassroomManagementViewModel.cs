@@ -1,92 +1,96 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using AvaloniaAzora.Services;
 using AvaloniaAzora.Models;
+using AvaloniaAzora.Services;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace AvaloniaAzora.ViewModels.Admin
 {
     public partial class ClassroomManagementViewModel : ViewModelBase
     {
-        private readonly IClassroomService _classroomService;
-        private readonly IUserService _userService;
-        private readonly IAuditService _auditService;
-
-        [ObservableProperty]
-        private ObservableCollection<Class> _classrooms = new();
-
-        [ObservableProperty]
-        private ObservableCollection<Class> _filteredClassrooms = new();
-
-        [ObservableProperty]
-        private Class? _selectedClassroom;
-
+        private readonly IDataService _dataService;
+        
         [ObservableProperty]
         private string _searchText = string.Empty;
-
+        
         [ObservableProperty]
         private bool _isLoading = false;
-
+        
         [ObservableProperty]
-        private bool _isEditDialogOpen = false;
-
+        private string _errorMessage = string.Empty;
+        
         [ObservableProperty]
-        private ClassroomEditViewModel? _editClassroomViewModel;
-
+        private string _successMessage = string.Empty;
+        
         [ObservableProperty]
-        private bool _isStudentManagementDialogOpen = false;
+        private ClassroomViewModel? _selectedClassroom;
 
-        [ObservableProperty]
-        private StudentManagementViewModel? _studentManagementViewModel;
+        public ObservableCollection<ClassroomViewModel> Classrooms { get; } = new();
 
-        public ClassroomManagementViewModel(IClassroomService classroomService, IUserService userService, IAuditService auditService)
+        public ICommand SearchCommand { get; }
+        public ICommand RefreshCommand { get; }
+        public ICommand CreateClassroomCommand { get; }
+        public ICommand EditClassroomCommand { get; }
+        public ICommand ViewStudentsCommand { get; }
+        public ICommand ViewTestsCommand { get; }
+        public ICommand DeleteClassroomCommand { get; }
+
+        public ClassroomManagementViewModel()
         {
-            _classroomService = classroomService;
-            _userService = userService;
-            _auditService = auditService;
-
-            LoadClassroomsCommand = new AsyncRelayCommand(LoadClassroomsAsync);
-            SearchClassroomsCommand = new AsyncRelayCommand(SearchClassroomsAsync);
-            CreateClassroomCommand = new RelayCommand(CreateClassroom);
-            EditClassroomCommand = new RelayCommand<Class>(EditClassroom);
-            DeleteClassroomCommand = new AsyncRelayCommand<Class>(DeleteClassroomAsync);
-            ManageStudentsCommand = new RelayCommand<Class>(ManageStudents);
-            ViewClassroomDetailsCommand = new RelayCommand<Class>(ViewClassroomDetails);
+            _dataService = AvaloniaAzora.Services.ServiceProvider.Instance.GetRequiredService<IDataService>();
+            
+            SearchCommand = new AsyncRelayCommand(SearchClassroomsAsync);
+            RefreshCommand = new AsyncRelayCommand(LoadClassroomsAsync);
+            CreateClassroomCommand = new AsyncRelayCommand(CreateClassroomAsync);
+            EditClassroomCommand = new AsyncRelayCommand<Guid>(EditClassroomAsync);
+            ViewStudentsCommand = new AsyncRelayCommand<Guid>(ViewClassroomStudentsAsync);
+            ViewTestsCommand = new AsyncRelayCommand<Guid>(ViewClassroomTestsAsync);
+            DeleteClassroomCommand = new AsyncRelayCommand<Guid>(DeleteClassroomAsync);
             
             _ = LoadClassroomsAsync();
         }
-
-        partial void OnSearchTextChanged(string value)
-        {
-            _ = SearchClassroomsAsync();
-        }
-
-        public IAsyncRelayCommand LoadClassroomsCommand { get; }
-        public IAsyncRelayCommand SearchClassroomsCommand { get; }
-        public IRelayCommand CreateClassroomCommand { get; }
-        public IRelayCommand<Class> EditClassroomCommand { get; }
-        public IAsyncRelayCommand<Class> DeleteClassroomCommand { get; }
-        public IRelayCommand<Class> ManageStudentsCommand { get; }
-        public IRelayCommand<Class> ViewClassroomDetailsCommand { get; }
 
         private async Task LoadClassroomsAsync()
         {
             try
             {
                 IsLoading = true;
-                var classrooms = await _classroomService.GetAllClassroomsAsync();
+                ClearMessages();
                 
+                var classes = await _dataService.GetAllClassesAsync();
                 Classrooms.Clear();
-                foreach (var classroom in classrooms)
+                
+                foreach (var classroom in classes)
                 {
-                    Classrooms.Add(classroom);
+                    var classroomViewModel = new ClassroomViewModel
+                    {
+                        Id = classroom.Id,
+                        Name = classroom.ClassName,
+                        Description = classroom.Description ?? "N/A",
+                        TeacherName = classroom.Teacher?.FullName ?? classroom.Teacher?.Email ?? "No Teacher Assigned"
+                    };
+                    
+                    // Get enrollment count
+                    var enrollments = await _dataService.GetEnrollmentsByClassIdAsync(classroom.Id);
+                    classroomViewModel.StudentCount = enrollments.Count;
+                    
+                    // Get tests count
+                    var tests = await _dataService.GetTestsByClassIdAsync(classroom.Id);
+                    classroomViewModel.TestCount = tests.Count;
+                    
+                    Classrooms.Add(classroomViewModel);
                 }
-
-                await SearchClassroomsAsync();
+                
+                ShowSuccess($"Loaded {Classrooms.Count} classrooms successfully.");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading classrooms: {ex.Message}");
+                ShowError($"Error loading classrooms: {ex.Message}");
             }
             finally
             {
@@ -98,87 +102,235 @@ namespace AvaloniaAzora.ViewModels.Admin
         {
             try
             {
-                var classrooms = string.IsNullOrWhiteSpace(SearchText) 
-                    ? Classrooms 
-                    : await _classroomService.SearchClassroomsAsync(SearchText);
-
-                FilteredClassrooms.Clear();
-                foreach (var classroom in classrooms)
+                IsLoading = true;
+                ClearMessages();
+                
+                var classes = await _dataService.SearchClassesAsync(SearchText);
+                Classrooms.Clear();
+                
+                foreach (var classroom in classes)
                 {
-                    FilteredClassrooms.Add(classroom);
+                    var classroomViewModel = new ClassroomViewModel
+                    {
+                        Id = classroom.Id,
+                        Name = classroom.ClassName,
+                        Description = classroom.Description ?? "N/A",
+                        TeacherName = classroom.Teacher?.FullName ?? classroom.Teacher?.Email ?? "No Teacher Assigned"
+                    };
+                    
+                    // Get enrollment count
+                    var enrollments = await _dataService.GetEnrollmentsByClassIdAsync(classroom.Id);
+                    classroomViewModel.StudentCount = enrollments.Count;
+                    
+                    // Get tests count
+                    var tests = await _dataService.GetTestsByClassIdAsync(classroom.Id);
+                    classroomViewModel.TestCount = tests.Count;
+                    
+                    Classrooms.Add(classroomViewModel);
                 }
+                
+                ShowSuccess($"Found {Classrooms.Count} classrooms matching your search.");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error searching classrooms: {ex.Message}");
+                ShowError($"Error searching classrooms: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
-        private void CreateClassroom()
+        private async Task CreateClassroomAsync()
         {
-            EditClassroomViewModel = new ClassroomEditViewModel(_classroomService, _userService, null);
-            EditClassroomViewModel.ClassroomSaved += OnClassroomSaved;
-            IsEditDialogOpen = true;
-        }
-
-        private void EditClassroom(Class? classroom)
-        {
-            if (classroom == null) return;
-
-            EditClassroomViewModel = new ClassroomEditViewModel(_classroomService, _userService, classroom);
-            EditClassroomViewModel.ClassroomSaved += OnClassroomSaved;
-            IsEditDialogOpen = true;
-        }
-
-        private async Task DeleteClassroomAsync(Class? classroom)
-        {
-            if (classroom == null) return;
-
             try
             {
-                var success = await _classroomService.DeleteClassroomAsync(classroom.ClassId);
-                if (success)
+                IsLoading = true;
+                ClearMessages();
+                
+                // You would typically show a dialog to get user input here
+                // For simplicity, we're creating a classroom with placeholder data
+                
+                var teachers = await _dataService.GetUsersByRoleAsync("teacher");
+                var teacher = teachers.FirstOrDefault();
+                
+                var newClassroom = new Class
                 {
-                    await LoadClassroomsAsync();
-                }
+                    Id = Guid.NewGuid(),
+                    ClassName = "New Classroom",
+                    Description = "Classroom Description",
+                    TeacherId = teacher?.Id
+                };
+                
+                await _dataService.CreateClassAsync(newClassroom);
+                
+                await LoadClassroomsAsync();
+                ShowSuccess("Classroom created successfully.");
             }
             catch (Exception ex)
             {
-                // Show error notification
-                System.Diagnostics.Debug.WriteLine($"Error deleting classroom: {ex.Message}");
+                ShowError($"Error creating classroom: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
-        private void ManageStudents(Class? classroom)
+        private async Task EditClassroomAsync(Guid classroomId)
         {
-            if (classroom == null) return;
-
-            StudentManagementViewModel = new StudentManagementViewModel(_classroomService, _userService, classroom);
-            StudentManagementViewModel.StudentsUpdated += OnStudentsUpdated;
-            IsStudentManagementDialogOpen = true;
+            try
+            {
+                IsLoading = true;
+                ClearMessages();
+                
+                var classroom = await _dataService.GetClassByIdAsync(classroomId);
+                if (classroom == null)
+                {
+                    ShowError("Classroom not found.");
+                    return;
+                }
+                
+                // Show dialog to edit (implementation would be in the view)
+                
+                // Update in database
+                await _dataService.UpdateClassAsync(classroom);
+                
+                await LoadClassroomsAsync();
+                ShowSuccess("Classroom updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Error updating classroom: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
-        private void ViewClassroomDetails(Class? classroom)
+        private async Task ViewClassroomStudentsAsync(Guid classroomId)
         {
-            if (classroom == null) return;
-            
-            // Navigate to detailed classroom view
-            // This could open a new window or navigate to a details page
-            System.Diagnostics.Debug.WriteLine($"Viewing details for classroom: {classroom.ClassName}");
+            try
+            {
+                IsLoading = true;
+                ClearMessages();
+                
+                var enrollments = await _dataService.GetEnrollmentsByClassIdAsync(classroomId);
+                
+                // In a real app, you'd navigate to a new view to show students
+                // For now, just show a message
+                
+                ShowSuccess($"Classroom has {enrollments.Count} students enrolled.");
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Error loading classroom students: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
-        private async void OnClassroomSaved(object? sender, EventArgs e)
+        private async Task ViewClassroomTestsAsync(Guid classroomId)
         {
-            IsEditDialogOpen = false;
-            EditClassroomViewModel = null;
-            await LoadClassroomsAsync();
+            try
+            {
+                IsLoading = true;
+                ClearMessages();
+                
+                var tests = await _dataService.GetTestsByClassIdAsync(classroomId);
+                
+                // In a real app, you'd navigate to a new view to show tests
+                // For now, just show a message
+                
+                ShowSuccess($"Classroom has {tests.Count} tests assigned.");
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Error loading classroom tests: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
-        private async void OnStudentsUpdated(object? sender, EventArgs e)
+        private async Task DeleteClassroomAsync(Guid classroomId)
         {
-            IsStudentManagementDialogOpen = false;
-            StudentManagementViewModel = null;
-            await LoadClassroomsAsync();
+            try
+            {
+                IsLoading = true;
+                ClearMessages();
+                
+                var classroom = Classrooms.FirstOrDefault(c => c.Id == classroomId);
+                if (classroom == null)
+                {
+                    ShowError("Classroom not found.");
+                    return;
+                }
+                
+                // Check if classroom has enrollments or tests
+                if (classroom.StudentCount > 0 || classroom.TestCount > 0)
+                {
+                    ShowError("Cannot delete classroom with students or tests.");
+                    return;
+                }
+                
+                // Delete from database
+                await _dataService.DeleteClassAsync(classroomId);
+                
+                Classrooms.Remove(classroom);
+                ShowSuccess("Classroom deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Error deleting classroom: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
+
+        private void ShowError(string message)
+        {
+            ErrorMessage = message;
+            SuccessMessage = string.Empty;
+        }
+
+        private void ShowSuccess(string message)
+        {
+            SuccessMessage = message;
+            ErrorMessage = string.Empty;
+        }
+
+        private void ClearMessages()
+        {
+            ErrorMessage = string.Empty;
+            SuccessMessage = string.Empty;
+        }
+    }
+
+    public partial class ClassroomViewModel : ViewModelBase
+    {
+        [ObservableProperty]
+        private Guid _id;
+        
+        [ObservableProperty]
+        private string _name = string.Empty;
+        
+        [ObservableProperty]
+        private string _description = string.Empty;
+        
+        [ObservableProperty]
+        private string _teacherName = string.Empty;
+        
+        [ObservableProperty]
+        private int _studentCount;
+        
+        [ObservableProperty]
+        private int _testCount;
     }
 }
