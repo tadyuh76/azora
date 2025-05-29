@@ -5,6 +5,7 @@
         Title="Azora - Student Dashboard"
         Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="#F8F9FA"
         x:DataType="vm:StudentDashboardViewModel">
     <Design.DataContext>

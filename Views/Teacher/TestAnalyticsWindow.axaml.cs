@@ -89,11 +89,9 @@ namespace AvaloniaAzora.Views.Teacher
                     SubmissionsChart.Plot.Add.Text("No student attempts available", 0, 0);
                     SubmissionsChart.Refresh();
                     return;
-                }
-
-                // Get questions for this test
+                }                // Get questions for this test
                 var questions = await _dataService.GetQuestionsByTestIdAsync(_classTest.Test?.Id ?? Guid.Empty);
-                if (questions?.Count == 0)
+                if (questions?.Count == 0 || questions == null)
                 {
                     SubmissionsChart.Plot.Add.Text("No questions found", 0, 0);
                     SubmissionsChart.Refresh();
@@ -118,11 +116,10 @@ namespace AvaloniaAzora.Views.Teacher
                                 correctCount++;
                             }
                         }
-
                         double accuracy = (double)correctCount / allAnswers.Count * 100;
-                        var questionText = question.Text.Length > 40
+                        var questionText = !string.IsNullOrEmpty(question.Text) && question.Text.Length > 40
                             ? question.Text.Substring(0, 37) + "..."
-                            : question.Text;
+                            : question.Text ?? "Question text not available";
 
                         questionAccuracy.Add((questionText, accuracy, i + 1));
                     }
@@ -237,11 +234,9 @@ namespace AvaloniaAzora.Views.Teacher
                     GradeDistributionChart.Plot.Add.Text("No test data available", 0, 0);
                     GradeDistributionChart.Refresh();
                     return;
-                }
-
-                // Get all attempts for this test
+                }                // Get all attempts for this test
                 var attempts = await _dataService.GetAttemptsByClassTestIdAsync(_classTest.Id);
-                if (attempts?.Count == 0)
+                if (attempts?.Count == 0 || attempts == null)
                 {
                     GradeDistributionChart.Plot.Add.Text("No student attempts available", 0, 0);
                     GradeDistributionChart.Refresh();

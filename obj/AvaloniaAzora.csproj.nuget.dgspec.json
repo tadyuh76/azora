@@ -1,26 +1,32 @@
 {
   "format": 1,
   "restore": {
-    "/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/AvaloniaAzora.csproj": {}
+    "D:\\Anh Quân\\A new journey UEH\\HK4 - HKĐ2025\\Phát triển ứng dụng Desktop\\đồ án\\azora\\AvaloniaAzora.csproj": {}
   },
   "projects": {
-    "/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/AvaloniaAzora.csproj": {
+    "D:\\Anh Quân\\A new journey UEH\\HK4 - HKĐ2025\\Phát triển ứng dụng Desktop\\đồ án\\azora\\AvaloniaAzora.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/AvaloniaAzora.csproj",
+        "projectUniqueName": "D:\\Anh Quân\\A new journey UEH\\HK4 - HKĐ2025\\Phát triển ứng dụng Desktop\\đồ án\\azora\\AvaloniaAzora.csproj",
         "projectName": "AvaloniaAzora",
-        "projectPath": "/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/AvaloniaAzora.csproj",
-        "packagesPath": "/Users/tadyuh/.nuget/packages/",
-        "outputPath": "/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/obj/",
+        "projectPath": "D:\\Anh Quân\\A new journey UEH\\HK4 - HKĐ2025\\Phát triển ứng dụng Desktop\\đồ án\\azora\\AvaloniaAzora.csproj",
+        "packagesPath": "C:\\Users\\Anh Quan\\.nuget\\packages\\",
+        "outputPath": "D:\\Anh Quân\\A new journey UEH\\HK4 - HKĐ2025\\Phát triển ứng dụng Desktop\\đồ án\\azora\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/Users/tadyuh/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Anh Quan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "/usr/local/share/dotnet/library-packs": {},
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -38,7 +44,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -121,7 +128,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.407/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

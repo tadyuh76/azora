@@ -5,6 +5,7 @@
         Title="Azora - Teacher Dashboard"
         Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="#F8F9FA"
         x:DataType="vm:TeacherDashboardViewModel">
     <Design.DataContext>
@@ -287,8 +288,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
-                    
-                    <!-- Quick Actions Section (Removed Recent Activity) -->
+                      <!-- Quick Actions Section -->
                     <StackPanel Grid.Column="2">
                         <!-- Quick Actions -->
                         <StackPanel Margin="0,0,0,32">
@@ -307,16 +307,6 @@
                                 <Button Content="📝 Create New Test" 
                                         Classes="primary" HorizontalAlignment="Stretch"
                                         Padding="12,8" CornerRadius="6" Click="OnCreateTestClicked"/>
-                            </Border>
-                            
-                            <Border Background="White" CornerRadius="8" Padding="16" Margin="0,0,0,8">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="6" OffsetX="0" OffsetY="1" 
-                                                      Color="#000000" Opacity="0.1"/>
-                                </Border.Effect>
-                                <Button Content="🏫 Create Classroom" 
-                                        Classes="secondary" HorizontalAlignment="Stretch"
-                                        Padding="12,8" CornerRadius="6" Click="OnCreateClassroomClicked"/>
                             </Border>
                             
                             <Border Background="White" CornerRadius="8" Padding="16">

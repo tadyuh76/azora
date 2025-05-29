@@ -15,75 +15,77 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = AvaloniaAzora
-build_property.ProjectDir = /Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/
+build_property.ProjectDir = D:\Anh Quân\A new journey UEH\HK4 - HKĐ2025\Phát triển ứng dụng Desktop\đồ án\azora\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/App.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/App.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Styles/AppStyles.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Styles/AppStyles.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Admin/AdminDashboardWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Admin/AdminDashboardWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/AuthenticationWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Auth/AuthenticationWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/EmailVerificationView.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Auth/EmailVerificationView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/ForgotPasswordView.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Auth/ForgotPasswordView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/SignInView.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Auth/SignInView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Auth/SignUpView.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Auth/SignUpView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/MainWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/MainWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Student/ClassroomDetailWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Student/ClassroomDetailWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Student/StudentDashboardWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Student/StudentDashboardWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Student/TestDetailWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Student/TestDetailWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Student/TestResultWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Student/TestResultWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Student/TestReviewWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Student/TestReviewWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Student/TestTakingWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Student/TestTakingWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/AddStudentToClassWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Teacher/AddStudentToClassWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/AssignTestToClassWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Teacher/AssignTestToClassWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/CreateClassroomWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Teacher/CreateClassroomWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/CreateTestWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Teacher/CreateTestWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/EditTestWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Teacher/EditTestWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/TeacherClassroomDetailWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Teacher/TeacherClassroomDetailWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/TeacherDashboardWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Teacher/TeacherDashboardWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/Views/Teacher/TestAnalyticsWindow.axaml]
+[D:/Anh Quân/A new journey UEH/HK4 - HKĐ2025/Phát triển ứng dụng Desktop/đồ án/azora/Views/Teacher/TestAnalyticsWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
