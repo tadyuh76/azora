@@ -174,7 +174,7 @@ AvaloniaAzora/
 
 - **MVVM Pattern**: Clean separation of concerns
 - **Dependency Injection**: Configured in `ServiceProvider.cs`
-- **Entity Framework**: Code-first approach with migrations
+- **Entity Framework**: Database-first approach 
 - **Async/Await**: Throughout for responsive UI
 
 ## 🆘 Troubleshooting
@@ -204,7 +204,11 @@ AvaloniaAzora/
 The application provides informative error messages and graceful fallbacks. Check the console output for detailed debugging information.
 
 ## 🎨 Screenshots
+<img width="1552" alt="image" src="https://github.com/user-attachments/assets/ee675f9e-94ef-467d-9c68-f30a5b1d17cb" />
+<img width="1440" alt="image" src="https://github.com/user-attachments/assets/85a395a5-2bd2-4e62-a989-f438c7f8d03a" />
+<img width="1440" alt="image" src="https://github.com/user-attachments/assets/54318b1b-759c-4030-8c60-83ae08087cd6" />
 
 ---
 
 **Azora** - Empowering education through technology 🎓
+Made with ❤️ by tadyuh76, ArthurHoang15, and thuanquang - DH49SE0001 - UEH
