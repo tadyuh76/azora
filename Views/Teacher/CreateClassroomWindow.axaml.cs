@@ -13,6 +13,12 @@ namespace AvaloniaAzora.Views.Teacher
         private readonly IDataService _dataService;
         private readonly CreateClassroomViewModel _viewModel;
 
+        // Event to signal when a classroom is successfully created
+        public event EventHandler<ClassroomCreatedEventArgs>? ClassroomCreated;
+
+        // Property to track if a classroom was created
+        public bool WasClassroomCreated { get; private set; } = false;
+
         // This constructor is for design-time only
         public CreateClassroomWindow()
         {
@@ -55,8 +61,27 @@ namespace AvaloniaAzora.Views.Teacher
                 // Ensure creation date is in UTC
                 CreatedAt = DateTimeOffset.UtcNow
             };
-            await _dataService.CreateClassAsync(newClass);
-            Close();
+
+            try
+            {
+                var createdClass = await _dataService.CreateClassAsync(newClass);
+                WasClassroomCreated = true;
+
+                // Raise the ClassroomCreated event
+                ClassroomCreated?.Invoke(this, new ClassroomCreatedEventArgs { ClassroomId = createdClass.Id });
+
+                Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error creating classroom: {ex.Message}");
+                // TODO: Show error message to user
+            }
         }
+    }
+
+    public class ClassroomCreatedEventArgs : EventArgs
+    {
+        public Guid ClassroomId { get; set; }
     }
 }

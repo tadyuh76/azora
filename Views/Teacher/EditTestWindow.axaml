@@ -104,7 +104,8 @@
                         Content="← Back"
                         FontSize="16" FontWeight="Medium"
                         VerticalAlignment="Center"
-                        Margin="0,0,24,0"/>
+                        Margin="0,0,24,0"
+                        Click="OnBackClicked"/>
                 
                 <!-- Title -->
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -115,11 +116,6 @@
                                FontSize="14" Foreground="#6B7280" 
                                Margin="0,4,0,0"/>
                 </StackPanel>
-                
-                <!-- Update Button -->
-                <Button Grid.Column="2" Content="Update Test" 
-                        Classes="action" Click="OnUpdateTestClicked" 
-                        VerticalAlignment="Center"/>
             </Grid>
         </Border>
         
@@ -148,7 +144,7 @@
                                 
                                 <TextBlock Text="Time Limit (minutes)" Classes="label"/>
                                 <NumericUpDown Name="TimeLimitNumericUpDown"
-                                               Minimum="1" Maximum="300"/>
+                                               Minimum="1" Maximum="480"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>

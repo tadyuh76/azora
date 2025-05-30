@@ -29,10 +29,10 @@ namespace AvaloniaAzora.ViewModels
         private Test? _selectedTest;
 
         [ObservableProperty]
-        private DateTimeOffset _startDate = DateTimeOffset.UtcNow;
+        private DateTimeOffset _startDate = DateTimeOffset.Now;
 
         [ObservableProperty]
-        private DateTimeOffset _dueDate = DateTimeOffset.UtcNow.AddDays(7);
+        private DateTimeOffset _dueDate = DateTimeOffset.Now.AddDays(7);
 
         [ObservableProperty]
         private int _limitAttempts = 1;

@@ -41,9 +41,10 @@ namespace AvaloniaAzora.Views.Teacher
             LimitAttemptsNumericUpDown.Value = 1;
             PassingScoreNumericUpDown.Value = 70;
 
-            // Initialize date pickers with default values (today and one week from now)
-            StartDatePicker.SelectedDate = DateTimeOffset.UtcNow.Date;
-            DueDatePicker.SelectedDate = DateTimeOffset.UtcNow.Date.AddDays(7);
+            // Initialize date pickers with default values using local timezone
+            var today = DateTimeOffset.Now.Date;
+            StartDatePicker.SelectedDate = today;
+            DueDatePicker.SelectedDate = today.AddDays(7);
 
             // Load data when window opens
             this.Opened += async (s, e) => await LoadData();
@@ -333,10 +334,17 @@ namespace AvaloniaAzora.Views.Teacher
                 return;
             }
 
-            // Update viewmodel with UI values
+            // Update viewmodel with UI values, ensuring proper timezone handling
             _viewModel.SelectedTest = _selectedTest;
-            _viewModel.StartDate = StartDatePicker.SelectedDate?.Date ?? DateTimeOffset.UtcNow.Date;
-            _viewModel.DueDate = DueDatePicker.SelectedDate?.Date ?? DateTimeOffset.UtcNow.Date.AddDays(7);
+
+            // Convert local date to proper DateTimeOffset with local timezone
+            var startDate = StartDatePicker.SelectedDate?.Date ?? DateTimeOffset.Now.Date;
+            var dueDate = DueDatePicker.SelectedDate?.Date ?? DateTimeOffset.Now.Date.AddDays(7);
+
+            // Create DateTimeOffset with local timezone for the selected dates
+            _viewModel.StartDate = new DateTimeOffset(startDate.Date, DateTimeOffset.Now.Offset);
+            _viewModel.DueDate = new DateTimeOffset(dueDate.Date, DateTimeOffset.Now.Offset);
+
             _viewModel.LimitAttempts = (int)(LimitAttemptsNumericUpDown.Value ?? 1);
             _viewModel.PassingScore = (double)(PassingScoreNumericUpDown.Value ?? 70);
 

@@ -15,7 +15,7 @@
         <TextBlock Text="Description" FontWeight="SemiBold"/>
         <TextBox Text="{Binding Description, Mode=TwoWay}" AcceptsReturn="True" Height="80" Watermark="Enter description"/>
         <TextBlock Text="Time Limit (minutes)" FontWeight="SemiBold"/>
-        <NumericUpDown Minimum="0" Value="{Binding TimeLimit, Mode=TwoWay}"/>
+        <NumericUpDown Minimum="1" Maximum="480" Value="{Binding TimeLimit, Mode=TwoWay}"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
             <Button Content="Cancel" Click="OnCancelClicked"/>
             <Button Content="Create" Click="OnCreateClicked"/>

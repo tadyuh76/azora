@@ -347,5 +347,10 @@ namespace AvaloniaAzora.Views.Teacher
         {
             Close();
         }
+
+        private void OnBackClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            Close();
+        }
     }
 }
