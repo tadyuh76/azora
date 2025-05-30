@@ -60,6 +60,10 @@ namespace AvaloniaAzora.Views.Teacher
                 await CreateSubmissionsChart();
                 await CreateGradeDistributionChart();
 
+                // Disable mouse wheel interactions on both charts
+                SubmissionsChart.UserInputProcessor.Disable();
+                GradeDistributionChart.UserInputProcessor.Disable();
+
                 Console.WriteLine("✅ Test analytics loaded successfully");
             }
             catch (Exception ex)

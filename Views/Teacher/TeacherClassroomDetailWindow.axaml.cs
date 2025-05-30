@@ -56,8 +56,8 @@ namespace AvaloniaAzora.Views.Teacher
             TestCountText.Text = _viewModel.Tests.Count.ToString();
 
             // Update tab counts
-            StudentsTabCountText.Text = $"Students ({_viewModel.Students.Count})";
-            TestsTabCountText.Text = $"Tests ({_viewModel.Tests.Count})";
+            StudentsTabCountText.Text = $"({_viewModel.Students.Count})";
+            TestsTabCountText.Text = $"({_viewModel.Tests.Count})";
 
             // Create student and test cards
             CreateStudentCards();
