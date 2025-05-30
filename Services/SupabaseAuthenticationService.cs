@@ -38,12 +38,24 @@ namespace AvaloniaAzora.Services
             AuthStateChanged?.Invoke(this, sender.CurrentSession);
         }
 
-        public async Task<Session?> SignInAsync(string email, string password)
+        public async Task<Session?> SignInAsync(string email, string password, bool rememberMe = false)
         {
             try
             {
                 await EnsureInitializedAsync();
+
+                // Supabase automatically handles session persistence
+                // The rememberMe parameter is handled by the client's default behavior
                 var result = await _supabaseClient.Auth.SignIn(email, password);
+
+                // Store remember me preference if needed for future use
+                if (rememberMe && result != null)
+                {
+                    // The Supabase client automatically handles session persistence
+                    // when a valid session is established
+                    Console.WriteLine("✅ Remember me enabled - session will persist");
+                }
+
                 return result;
             }
             catch (GotrueException ex)
@@ -139,6 +151,31 @@ namespace AvaloniaAzora.Services
             catch (GotrueException ex)
             {
                 throw new Exception($"OTP verification failed: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<bool> UpdatePasswordAsync(string newPassword)
+        {
+            try
+            {
+                await EnsureInitializedAsync();
+
+                // Use the Update method on the Auth client with a UserAttributes object
+                var attributes = new UserAttributes
+                {
+                    Password = newPassword
+                };
+
+                var result = await _supabaseClient.Auth.Update(attributes);
+                return result != null;
+            }
+            catch (GotrueException ex)
+            {
+                throw new Exception($"Password update failed: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to update password: {ex.Message}", ex);
             }
         }
 

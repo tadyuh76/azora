@@ -9,7 +9,8 @@
         Title="{Binding TestTitle, StringFormat='Test: {0}'}"
         Width="1200" Height="800"
         Background="#F8FAFC"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Icon="/Assets/logo.png">
 
     <Grid>
         <Grid.RowDefinitions>

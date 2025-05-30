@@ -25,6 +25,9 @@ namespace AvaloniaAzora.Views.Teacher
             _viewModel = new TeacherDashboardViewModel();
             DataContext = _viewModel;
 
+            // Subscribe to the SignOutRequested event
+            _viewModel.SignOutRequested += OnSignOutRequested;
+
             // Load dashboard data
             _ = _viewModel.LoadDashboardDataAsync(_userId);
         }
@@ -55,6 +58,20 @@ namespace AvaloniaAzora.Views.Teacher
             {
                 var window = new TeacherClassroomDetailWindow(classId, _userId);
                 window.Show();
+            }
+        }
+
+        private void OnSignOutRequested(object? sender, EventArgs e)
+        {
+            try
+            {
+                Console.WriteLine("🚪 Sign out requested from teacher dashboard");
+                // Close this window which will trigger the Closed event and show auth window
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error handling sign out: {ex.Message}");
             }
         }
     }

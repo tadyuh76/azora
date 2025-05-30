@@ -7,7 +7,8 @@
         Title="Classroom Management"
         Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
-        Background="#F8F9FA">
+        Background="#F8F9FA"
+        Icon="/Assets/logo.png">
 
     <Window.Styles>
         <Style Selector="Button.action">

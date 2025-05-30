@@ -5,6 +5,7 @@
         Title="Create Classroom"
         Width="400" Height="300"
         WindowStartupLocation="CenterOwner"
+        Icon="/Assets/logo.png"
         x:DataType="vm:CreateClassroomViewModel">
     <Design.DataContext>
         <vm:CreateClassroomViewModel/>

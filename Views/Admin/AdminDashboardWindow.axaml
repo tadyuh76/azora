@@ -6,6 +6,7 @@
         Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
         Background="#F8F9FA"
+        Icon="/Assets/logo.png"
         x:DataType="vm:AdminDashboardViewModel">
     <Design.DataContext>
         <vm:AdminDashboardViewModel/>
@@ -45,7 +46,9 @@
                     </StackPanel>
                     <Button Content="Logout" FontSize="14" 
                             Background="#EF4444" Foreground="White" 
-                            Padding="12,8" CornerRadius="6"/>
+                            Padding="12,8" CornerRadius="6"
+                            Command="{Binding SignOutCommand}"
+                            ToolTip.Tip="Sign out"/>
                 </StackPanel>
             </Grid>
         </Border>

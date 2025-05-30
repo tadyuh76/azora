@@ -29,6 +29,9 @@ namespace AvaloniaAzora.Views
                 // Subscribe to the ViewClassRequested event
                 viewModel.ViewClassRequested += OnViewClassRequested;
 
+                // Subscribe to the SignOutRequested event
+                viewModel.SignOutRequested += OnSignOutRequested;
+
                 Console.WriteLine("✅ ViewModel created and DataContext set");
 
                 // Load data when window is opened
@@ -73,6 +76,20 @@ namespace AvaloniaAzora.Views
             {
                 Console.WriteLine($"❌ Error opening classroom detail window: {ex.Message}");
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
+        }
+
+        private void OnSignOutRequested(object? sender, EventArgs e)
+        {
+            try
+            {
+                Console.WriteLine("🚪 Sign out requested from student dashboard");
+                // Close this window which will trigger the Closed event and show auth window
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error handling sign out: {ex.Message}");
             }
         }
     }

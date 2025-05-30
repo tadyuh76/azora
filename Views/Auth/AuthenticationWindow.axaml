@@ -12,7 +12,7 @@
         MaxWidth="1600" MaxHeight="1200"
         WindowStartupLocation="CenterScreen"
         CanResize="True"
-        Icon="/Assets/logo.ico">
+        Icon="/Assets/logo.png">
 
     <!-- Responsive Grid that adapts to window size -->
     <Grid Background="#F5F7FA">
@@ -23,8 +23,8 @@
         <!-- Center container that maintains aspect ratio -->
         <Border HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                MaxWidth="500"
-                MinWidth="400">
+                MaxWidth="600"
+                MinWidth="600">
             
             <Grid>
                 <!-- Default view: Sign In -->
@@ -36,6 +36,8 @@
                 <views:ForgotPasswordView Name="ForgotPasswordView" IsVisible="False"/>
 
                 <views:EmailVerificationView Name="EmailVerificationView" IsVisible="False"/>
+
+                <views:ChangePasswordView Name="ChangePasswordView" IsVisible="False"/>
             </Grid>
             
         </Border>

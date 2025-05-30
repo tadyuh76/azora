@@ -4808,11 +4808,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/AvaloniaAzora.csproj",
+      "projectUniqueName": "/Users/tadyuh/Desktop/Nhom_05/azora/AvaloniaAzora.csproj",
       "projectName": "AvaloniaAzora",
-      "projectPath": "/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/AvaloniaAzora.csproj",
+      "projectPath": "/Users/tadyuh/Desktop/Nhom_05/azora/AvaloniaAzora.csproj",
       "packagesPath": "/Users/tadyuh/.nuget/packages/",
-      "outputPath": "/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/obj/",
+      "outputPath": "/Users/tadyuh/Desktop/Nhom_05/azora/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/tadyuh/.nuget/NuGet/NuGet.Config"

@@ -14,15 +14,20 @@ namespace AvaloniaAzora.ViewModels
         [ObservableProperty]
         private bool _rememberMe = false;
 
+        [ObservableProperty]
+        private bool _isPasswordVisible = false;
+
         public ICommand SignInCommand { get; }
         public ICommand ForgotPasswordCommand { get; set; } = null!;
         public ICommand SignUpCommand { get; set; } = null!;
+        public ICommand TogglePasswordVisibilityCommand { get; }
 
         public event EventHandler? SignInSuccessful;
 
         public SignInViewModel() : base()
         {
             SignInCommand = new AsyncRelayCommand(SignInAsync);
+            TogglePasswordVisibilityCommand = new RelayCommand(TogglePasswordVisibility);
         }
 
         private async Task SignInAsync()
@@ -38,7 +43,7 @@ namespace AvaloniaAzora.ViewModels
 
             try
             {
-                var session = await _authService.SignInAsync(Email, Password);
+                var session = await _authService.SignInAsync(Email, Password, RememberMe);
 
                 if (session != null)
                 {
@@ -58,6 +63,11 @@ namespace AvaloniaAzora.ViewModels
             {
                 IsLoading = false;
             }
+        }
+
+        private void TogglePasswordVisibility()
+        {
+            IsPasswordVisible = !IsPasswordVisible;
         }
     }
 }

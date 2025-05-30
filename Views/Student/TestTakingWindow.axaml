@@ -10,7 +10,8 @@
         Width="1200" Height="800"
         Background="#F8FAFC"
         WindowStartupLocation="CenterScreen"
-        CanResize="True">
+        CanResize="True"
+        Icon="/Assets/logo.png">
 
     <Grid>
         <Grid.ColumnDefinitions>
