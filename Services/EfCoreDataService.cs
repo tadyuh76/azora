@@ -132,7 +132,6 @@ namespace AvaloniaAzora.Services
                 .Where(ce => ce.ClassId == classId)
                 .ToListAsync();
         }
-
         public async Task<ClassEnrollment> EnrollStudentAsync(Guid classId, Guid studentId)
         {
             using var context = _contextFactory.CreateDbContext();
@@ -144,17 +143,26 @@ namespace AvaloniaAzora.Services
             };
             context.ClassEnrollments.Add(enrollment);
             await context.SaveChangesAsync();
+
+            // Notify that enrollment has changed
+            var newEnrollmentCount = await GetClassEnrollmentCountAsync(classId);
+            EnrollmentNotificationService.Instance.NotifyEnrollmentChanged(classId, newEnrollmentCount);
+
             return enrollment;
         }
-
         public async Task RemoveEnrollmentAsync(Guid enrollmentId)
         {
             using var context = _contextFactory.CreateDbContext();
             var enrollment = await context.ClassEnrollments.FindAsync(enrollmentId);
-            if (enrollment != null)
+            if (enrollment != null && enrollment.ClassId.HasValue)
             {
+                var classId = enrollment.ClassId.Value;
                 context.ClassEnrollments.Remove(enrollment);
                 await context.SaveChangesAsync();
+
+                // Notify that enrollment has changed
+                var newEnrollmentCount = await GetClassEnrollmentCountAsync(classId);
+                EnrollmentNotificationService.Instance.NotifyEnrollmentChanged(classId, newEnrollmentCount);
             }
         }
 
@@ -349,7 +357,6 @@ namespace AvaloniaAzora.Services
                 .Where(a => a.ClassTestId == classTestId)
                 .ToListAsync();
         }
-
         public async Task<List<Attempt>> GetAttemptsByStudentAndClassTestAsync(Guid studentId, Guid classTestId)
         {
             using var context = _contextFactory.CreateDbContext();
@@ -357,7 +364,7 @@ namespace AvaloniaAzora.Services
                 .Include(a => a.ClassTest)
                     .ThenInclude(ct => ct!.Test)
                 .Where(a => a.StudentId == studentId && a.ClassTestId == classTestId)
-                .OrderByDescending(a => a.StartTime)
+                .OrderBy(a => a.StartTime)
                 .ToListAsync();
         }
 

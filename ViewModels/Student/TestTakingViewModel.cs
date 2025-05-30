@@ -5,6 +5,7 @@ using AvaloniaAzora.Models;
 using AvaloniaAzora.Views.Student;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,6 +19,7 @@ namespace AvaloniaAzora.ViewModels.Student
     public partial class TestTakingViewModel : ViewModelBase, IDisposable
     {
         private readonly IDataService _dataService;
+        internal new readonly IValidationService _validationService;
         private readonly Timer _timer;
         private DateTime _testStartTime;
         private TimeSpan _timeLimit;
@@ -65,17 +67,15 @@ namespace AvaloniaAzora.ViewModels.Student
         // Events
         public event EventHandler<TestCompletedEventArgs>? TestCompleted;
         public event EventHandler? TestAborted;
-        public event EventHandler<ReviewTestEventArgs>? ReviewTestRequested;
-
-        public TestTakingViewModel()
+        public event EventHandler<ReviewTestEventArgs>? ReviewTestRequested; public TestTakingViewModel()
         {
             _dataService = (IDataService)AvaloniaAzora.Services.ServiceProvider.Instance.GetService(typeof(IDataService))!;
+            _validationService = _validationService ?? AvaloniaAzora.Services.ServiceProvider.Instance.GetRequiredService<IValidationService>();
 
             // Initialize timer
             _timer = new Timer(1000); // Update every second
             _timer.Elapsed += OnTimerElapsed;
         }
-
         public async Task LoadTestAsync(Guid classTestId, Guid userId)
         {
             _classTestId = classTestId;
@@ -98,93 +98,21 @@ namespace AvaloniaAzora.ViewModels.Student
                 var test = classTest.Test;
                 TestTitle = test.Title;
                 _timeLimit = TimeSpan.FromMinutes(test.TimeLimit ?? 45);
-                _testStartTime = DateTime.Now;
 
-                // Create attempt record with UTC time
-                try
+                // Check for existing incomplete attempts
+                var existingAttempts = await _dataService.GetAttemptsByStudentAndClassTestAsync(userId, classTestId);
+                var incompleteAttempt = existingAttempts.FirstOrDefault(a => !a.EndTime.HasValue);
+
+                if (incompleteAttempt != null)
                 {
-                    if (!IsPreviewMode) // Only create attempt if not in preview mode
-                    {
-                        var attempt = new Attempt
-                        {
-                            Id = Guid.NewGuid(),
-                            StudentId = userId,
-                            ClassTestId = classTestId,
-                            StartTime = DateTimeOffset.UtcNow // Use UTC time
-                        };
-
-                        Console.WriteLine($"🔍 Creating attempt with UTC time: {attempt.StartTime}");
-
-                        var createdAttempt = await _dataService.CreateAttemptAsync(attempt);
-                        _attemptId = createdAttempt.Id;
-                        Console.WriteLine($"✅ Created attempt: {_attemptId}");
-
-                        // Verify the attempt was created by trying to retrieve it
-                        var verifyAttempt = await _dataService.GetAttemptByIdAsync(_attemptId);
-                        if (verifyAttempt == null)
-                        {
-                            Console.WriteLine($"⚠️ Could not verify attempt creation, using demo mode");
-                            _attemptId = Guid.NewGuid();
-                        }
-                        else
-                        {
-                            Console.WriteLine($"✅ Verified attempt exists in database: {_attemptId}");
-                        }
-                    }
-                    else
-                    {
-                        // Preview mode: Use a temporary GUID without database creation
-                        _attemptId = Guid.NewGuid();
-                        Console.WriteLine($"📋 Preview mode: Using temporary attempt ID: {_attemptId}");
-                    }
+                    // Resume existing attempt
+                    await ResumeExistingAttempt(incompleteAttempt, test);
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine($"⚠️ Could not create attempt in database: {ex.Message}");
-                    if (ex.InnerException != null)
-                    {
-                        Console.WriteLine($"⚠️ Inner exception: {ex.InnerException.Message}");
-                    }
-                    // Use a temporary GUID for demo purposes
-                    _attemptId = Guid.NewGuid();
-                    Console.WriteLine($"ℹ️ Using demo attempt ID: {_attemptId}");
+                    // Start new attempt
+                    await StartNewAttempt(userId, classTestId, test);
                 }
-
-                // Get questions for the test
-                var questions = await _dataService.GetQuestionsByTestIdAsync(test.Id);
-
-                if (questions.Count == 0)
-                {
-                    Console.WriteLine("⚠️ No questions found in database - loading demo questions");
-                    LoadDemoTest();
-                    return;
-                }
-
-                // Get any existing answers for this attempt
-                var existingAnswers = new List<UserAnswer>();
-                try
-                {
-                    if (!IsPreviewMode) // Only load existing answers if not in preview mode
-                    {
-                        existingAnswers = await _dataService.GetAnswersByAttemptIdAsync(_attemptId);
-                    }
-                    else
-                    {
-                        Console.WriteLine("📋 Preview mode: Skipping existing answers load");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"⚠️ Could not load existing answers: {ex.Message}");
-                }
-
-                // Load questions
-                LoadQuestions(questions.ToList(), existingAnswers);
-
-                // Start the timer
-                StartTimer();
-
-                Console.WriteLine($"✅ Test loaded successfully with {Questions.Count} questions");
             }
             catch (Exception ex)
             {
@@ -194,47 +122,213 @@ namespace AvaloniaAzora.ViewModels.Student
             }
         }
 
+        private async Task ResumeExistingAttempt(Attempt incompleteAttempt, Test test)
+        {
+            Console.WriteLine($"🔄 Resuming incomplete attempt: {incompleteAttempt.Id}");
+
+            _attemptId = incompleteAttempt.Id;
+
+            // Calculate elapsed time and remaining time
+            var elapsed = DateTimeOffset.UtcNow - incompleteAttempt.StartTime;
+            var remaining = _timeLimit - elapsed;
+
+            if (remaining <= TimeSpan.Zero)
+            {
+                Console.WriteLine("⏰ Time limit exceeded for incomplete attempt - auto-submitting");
+                // Time has expired, auto-submit the attempt
+                await SubmitTestCommand.ExecuteAsync(null);
+                return;
+            }
+
+            // Adjust test start time to account for time already spent
+            _testStartTime = DateTime.Now - elapsed;
+
+            Console.WriteLine($"🔄 Resuming with {remaining.TotalMinutes:F1} minutes remaining");
+
+            // Get questions for the test
+            var questions = await _dataService.GetQuestionsByTestIdAsync(test.Id);
+
+            if (questions.Count == 0)
+            {
+                Console.WriteLine("⚠️ No questions found in database - loading demo questions");
+                LoadDemoTest();
+                return;
+            }
+
+            // Get existing answers for this attempt
+            var existingAnswers = new List<UserAnswer>();
+            try
+            {
+                existingAnswers = await _dataService.GetAnswersByAttemptIdAsync(_attemptId);
+                Console.WriteLine($"📝 Loaded {existingAnswers.Count} existing answers");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Could not load existing answers: {ex.Message}");
+            }
+
+            // Load questions with existing answers
+            LoadQuestions(questions.ToList(), existingAnswers);
+
+            // Start the timer
+            StartTimer();
+
+            Console.WriteLine($"✅ Test resumed successfully with {Questions.Count} questions");
+        }
+
+        private async Task StartNewAttempt(Guid userId, Guid classTestId, Test test)
+        {
+            Console.WriteLine("🆕 Starting new attempt");
+
+            _testStartTime = DateTime.Now;
+
+            // Create attempt record with UTC time
+            try
+            {
+                if (!IsPreviewMode) // Only create attempt if not in preview mode
+                {
+                    var attempt = new Attempt
+                    {
+                        Id = Guid.NewGuid(),
+                        StudentId = userId,
+                        ClassTestId = classTestId,
+                        StartTime = DateTimeOffset.UtcNow // Use UTC time
+                    };
+
+                    Console.WriteLine($"🔍 Creating attempt with UTC time: {attempt.StartTime}");
+
+                    var createdAttempt = await _dataService.CreateAttemptAsync(attempt);
+                    _attemptId = createdAttempt.Id;
+                    Console.WriteLine($"✅ Created attempt: {_attemptId}");
+
+                    // Verify the attempt was created by trying to retrieve it
+                    var verifyAttempt = await _dataService.GetAttemptByIdAsync(_attemptId);
+                    if (verifyAttempt == null)
+                    {
+                        Console.WriteLine($"⚠️ Could not verify attempt creation, using demo mode");
+                        _attemptId = Guid.NewGuid();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"✅ Verified attempt exists in database: {_attemptId}");
+                    }
+                }
+                else
+                {
+                    // Preview mode: Use a temporary GUID without database creation
+                    _attemptId = Guid.NewGuid();
+                    Console.WriteLine($"📋 Preview mode: Using temporary attempt ID: {_attemptId}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Could not create attempt in database: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"⚠️ Inner exception: {ex.InnerException.Message}");
+                }
+                // Use a temporary GUID for demo purposes
+                _attemptId = Guid.NewGuid();
+                Console.WriteLine($"ℹ️ Using demo attempt ID: {_attemptId}");
+            }
+
+            // Get questions for the test
+            var questions = await _dataService.GetQuestionsByTestIdAsync(test.Id);
+
+            if (questions.Count == 0)
+            {
+                Console.WriteLine("⚠️ No questions found in database - loading demo questions");
+                LoadDemoTest();
+                return;
+            }
+
+            // Get any existing answers for this attempt
+            var existingAnswers = new List<UserAnswer>();
+            try
+            {
+                if (!IsPreviewMode) // Only load existing answers if not in preview mode
+                {
+                    existingAnswers = await _dataService.GetAnswersByAttemptIdAsync(_attemptId);
+                }
+                else
+                {
+                    Console.WriteLine("📋 Preview mode: Skipping existing answers load");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Could not load existing answers: {ex.Message}");
+            }
+
+            // Load questions
+            LoadQuestions(questions.ToList(), existingAnswers);
+
+            // Start the timer
+            StartTimer();
+
+            Console.WriteLine($"✅ Test loaded successfully with {Questions.Count} questions");
+        }
         private void LoadQuestions(List<Question> questions, List<UserAnswer> existingAnswers)
         {
             Questions.Clear();
+            int lastAnsweredIndex = -1;
 
             for (int i = 0; i < questions.Count; i++)
             {
                 var question = questions[i];
-                var existingAnswer = existingAnswers.FirstOrDefault(a => a.QuestionId == question.Id);
-
-                var questionViewModel = new QuestionViewModel
+                var existingAnswer = existingAnswers.FirstOrDefault(a => a.QuestionId == question.Id); var questionViewModel = new QuestionViewModel
                 {
                     Id = question.Id,
                     QuestionNumber = i + 1,
                     Text = question.Text,
                     Type = question.Type?.ToLower() ?? "multiple_choice",
                     Points = question.Points ?? 5,
-                    IsCurrentQuestion = i == 0 // Set first question as current
+                    IsCurrentQuestion = false // Will be set later based on resume logic
                 };
+
+                // Set parent view model reference for validation
+                questionViewModel.SetParentViewModel(this);
 
                 // Set up question type specific properties
                 SetupQuestionType(questionViewModel, question, existingAnswer);
+
+                // Track the last answered question for resume functionality
+                if (existingAnswer != null)
+                {
+                    lastAnsweredIndex = i;
+                }
 
                 Questions.Add(questionViewModel);
             }
 
             TotalQuestions = Questions.Count;
 
-            // Ensure first question is properly selected
-            CurrentQuestionIndex = 0;
+            // Determine which question to start with
+            int startingQuestionIndex = 0;
+            if (existingAnswers.Count > 0)
+            {
+                // Resume from the next unanswered question, or stay on the last one if all are answered
+                startingQuestionIndex = Math.Min(lastAnsweredIndex + 1, Questions.Count - 1);
+                Console.WriteLine($"🔄 Resuming from question {startingQuestionIndex + 1} (last answered: {lastAnsweredIndex + 1})");
+            }
+
+            // Set the current question
+            CurrentQuestionIndex = startingQuestionIndex;
             if (Questions.Count > 0)
             {
-                Questions[0].IsCurrentQuestion = true;
+                Questions[startingQuestionIndex].IsCurrentQuestion = true;
                 // Explicitly notify that CurrentQuestion changed
                 OnPropertyChanged(nameof(CurrentQuestion));
                 OnPropertyChanged(nameof(CurrentQuestionNumber));
+            }            // Update question status colors for all questions
+            foreach (var question in Questions)
+            {
+                UpdateQuestionStatus(question);
             }
 
             UpdateProgress();
             UpdateNavigationState();
         }
-
         private void SetupQuestionType(QuestionViewModel questionViewModel, Question question, UserAnswer? existingAnswer)
         {
             switch (questionViewModel.Type)
@@ -312,6 +406,12 @@ namespace AvaloniaAzora.ViewModels.Student
                     questionViewModel.TypeColor = "#3B82F6";
                     questionViewModel.Difficulty = CapitalizeFirstLetter(question.Difficulty ?? "medium");
                     break;
+            }
+
+            // Mark question as answered if it has an existing answer
+            if (existingAnswer != null)
+            {
+                questionViewModel.IsAnswered = true;
             }
 
             UpdateQuestionStatus(questionViewModel);
@@ -432,11 +532,11 @@ namespace AvaloniaAzora.ViewModels.Student
             };
             q5.AnswerOptions.Add(new AnswerOptionViewModel { Text = "True", Index = 1 });
             q5.AnswerOptions.Add(new AnswerOptionViewModel { Text = "False", Index = 2 });
-            demoQuestions.Add(q5);
-
-            // Add all questions to the collection
+            demoQuestions.Add(q5);            // Add all questions to the collection
             foreach (var question in demoQuestions)
             {
+                // Set parent view model reference for validation
+                question.SetParentViewModel(this);
                 UpdateQuestionStatus(question);
                 Questions.Add(question);
             }
@@ -564,7 +664,6 @@ namespace AvaloniaAzora.ViewModels.Student
             _timer.Stop();
             TestAborted?.Invoke(this, EventArgs.Empty);
         }
-
         [RelayCommand]
         private void ReviewTest()
         {
@@ -575,7 +674,16 @@ namespace AvaloniaAzora.ViewModels.Student
                 TestTitle = TestTitle
             });
         }
-
+        [RelayCommand]
+        private void ToggleFlag()
+        {
+            if (CurrentQuestion != null)
+            {
+                CurrentQuestion.ToggleFlag();
+                UpdateQuestionStatus(CurrentQuestion); // Update the question box color
+                Console.WriteLine($"🏳️ Question {CurrentQuestion.QuestionNumber} flag toggled: {CurrentQuestion.IsFlagged}");
+            }
+        }
         [RelayCommand]
         private async Task SubmitTest()
         {
@@ -583,6 +691,61 @@ namespace AvaloniaAzora.ViewModels.Student
             {
                 _timer.Stop();
                 Console.WriteLine("⏱️ Timer stopped for test submission");
+
+                // Validate all answers before submission
+                await ValidateAllAnswers();
+
+                // Check for validation errors
+                if (HasValidationErrors())
+                {
+                    var errors = GetValidationErrors();
+                    Console.WriteLine("⚠️ Validation errors found:");
+                    foreach (var error in errors)
+                    {
+                        Console.WriteLine($"   - {error}");
+                    }
+
+                    // Note: In a production app, you might want to show a dialog asking if user wants to continue
+                    // For now, we'll allow submission but log the issues
+                    Console.WriteLine("📝 Continuing with submission despite validation issues (answers will be saved as-is)");
+                }
+
+                // Validate all answers before submission
+                await ValidateAllAnswers();
+
+                // Check for validation errors
+                if (HasValidationErrors())
+                {
+                    var errors = GetValidationErrors();
+                    Console.WriteLine("⚠️ Validation errors found:");
+                    foreach (var error in errors)
+                    {
+                        Console.WriteLine($"   - {error}");
+                    }
+
+                    // Note: In a production app, you might want to show a dialog asking if user wants to continue
+                    // For now, we'll allow submission but log the issues
+                    Console.WriteLine("📝 Continuing with submission despite validation issues (answers will be saved as-is)");
+                }
+
+                if (IsPreviewMode)
+                {
+                    // Preview mode: Don't submit to database, just show completion message
+                    Console.WriteLine("📋 Preview mode: Test completed without database submission");
+
+                    // Calculate a demo score for preview
+                    var demoScore = await CalculateDemoScore();
+
+                    // Raise completion event with preview data
+                    TestCompleted?.Invoke(this, new TestCompletedEventArgs
+                    {
+                        AttemptId = _attemptId,
+                        UserId = _userId,
+                        Score = demoScore,
+                        IsPreview = true
+                    });
+                    return;
+                }
 
                 if (IsPreviewMode)
                 {
@@ -696,11 +859,70 @@ namespace AvaloniaAzora.ViewModels.Student
             OnPropertyChanged(nameof(CurrentQuestion));
             OnPropertyChanged(nameof(CurrentQuestionNumber));
         }
-
         private void UpdateNavigationState()
         {
             CanGoPrevious = CurrentQuestionIndex > 0;
             NextButtonText = CurrentQuestionIndex < TotalQuestions - 1 ? "Next →" : "Submit Test";
+        }
+
+        /// <summary>
+        /// Validates the current question's answer
+        /// </summary>
+        [RelayCommand]
+        private void ValidateCurrentAnswer()
+        {
+            if (CurrentQuestion?.IsShortAnswer == true)
+            {
+                CurrentQuestion.ValidateShortAnswer();
+            }
+        }
+
+        /// <summary>
+        /// Validates all questions in the test
+        /// </summary>
+        [RelayCommand]
+        private async Task ValidateAllAnswers()
+        {
+            foreach (var question in Questions)
+            {
+                if (question.IsShortAnswer)
+                {
+                    question.ValidateShortAnswer();
+                }
+            }
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Checks if there are any validation errors in short answer questions
+        /// </summary>
+        public bool HasValidationErrors()
+        {
+            return Questions.Any(q => q.IsShortAnswer && q.HasShortAnswerError);
+        }
+
+        /// <summary>
+        /// Gets all validation errors from short answer questions
+        /// </summary>
+        public List<string> GetValidationErrors()
+        {
+            var errors = new List<string>();
+            foreach (var question in Questions.Where(q => q.IsShortAnswer && q.HasShortAnswerError))
+            {
+                errors.Add($"Question {question.QuestionNumber}: {question.ShortAnswerError}");
+            }
+            return errors;
+        }
+
+        /// <summary>
+        /// Clears all validation errors
+        /// </summary>
+        public void ClearAllValidationErrors()
+        {
+            foreach (var question in Questions.Where(q => q.IsShortAnswer))
+            {
+                question.ClearShortAnswerError();
+            }
         }
 
         private void UpdateProgress()
@@ -708,7 +930,6 @@ namespace AvaloniaAzora.ViewModels.Student
             var answeredCount = Questions.Count(q => q.IsAnswered);
             ProgressPercentage = TotalQuestions > 0 ? (double)answeredCount / TotalQuestions * 100 : 0;
         }
-
         private void UpdateQuestionStatus(QuestionViewModel question)
         {
             bool isAnswered = false;
@@ -727,8 +948,24 @@ namespace AvaloniaAzora.ViewModels.Student
             }
 
             question.IsAnswered = isAnswered;
-            question.StatusColor = isAnswered ? "#10B981" : "#E5E7EB"; // Green if answered, gray if not
-            question.StatusTextColor = isAnswered ? "White" : "#6B7280";
+
+            // Update StatusColor based on flag and answered status
+            // Priority: Flagged > Answered > Unanswered
+            if (question.IsFlagged)
+            {
+                question.StatusColor = "#F59E0B"; // Orange for flagged questions
+                question.StatusTextColor = "White";
+            }
+            else if (isAnswered)
+            {
+                question.StatusColor = "#10B981"; // Green for answered questions
+                question.StatusTextColor = "White";
+            }
+            else
+            {
+                question.StatusColor = "#E5E7EB"; // Gray for unanswered questions
+                question.StatusTextColor = "#6B7280";
+            }
         }
 
         private async Task AutoSaveCurrentAnswer()
@@ -753,6 +990,8 @@ namespace AvaloniaAzora.ViewModels.Student
                         break;
                     case "short_answer":
                         answerText = CurrentQuestion.ShortAnswerText?.Trim();
+                        // Validate short answer before saving
+                        CurrentQuestion.ValidateShortAnswer();
                         break;
                 }
 
@@ -968,7 +1207,6 @@ namespace AvaloniaAzora.ViewModels.Student
             }
         }
     }
-
     public partial class QuestionViewModel : ObservableObject
     {
         [ObservableProperty]
@@ -1028,6 +1266,107 @@ namespace AvaloniaAzora.ViewModels.Student
 
         [ObservableProperty]
         private string _difficulty = "medium";
+
+        [ObservableProperty]
+        private bool _isFlagged;
+
+        [ObservableProperty]
+        private string _flagColor = "#6B7280";
+
+        // Validation properties
+        [ObservableProperty]
+        private string _shortAnswerError = "";
+
+        [ObservableProperty]
+        private bool _hasShortAnswerError = false;
+
+        // Parent TestTakingViewModel reference for validation
+        private TestTakingViewModel? _parentViewModel;
+
+        public void SetParentViewModel(TestTakingViewModel parentViewModel)
+        {
+            _parentViewModel = parentViewModel;
+        }
+
+        // Validation method for short answer text
+        public void ValidateShortAnswer()
+        {
+            if (!IsShortAnswer || _parentViewModel == null)
+            {
+                ClearShortAnswerError();
+                return;
+            }
+
+            var validation = _parentViewModel._validationService.ValidateString(
+                ShortAnswerText,
+                minLength: 1,
+                maxLength: 2000,
+                required: false,
+                propertyName: "Answer"
+            );
+
+            if (!validation.IsValid)
+            {
+                ShortAnswerError = validation.FirstError;
+                HasShortAnswerError = true;
+            }
+            else
+            {
+                ClearShortAnswerError();
+            }
+
+            // Additional custom validation for short answers
+            if (!string.IsNullOrWhiteSpace(ShortAnswerText))
+            {
+                var trimmedText = ShortAnswerText.Trim();
+
+                // Check for minimum meaningful content
+                if (trimmedText.Length > 0 && trimmedText.Length < 2)
+                {
+                    ShortAnswerError = "Answer must be at least 2 characters long";
+                    HasShortAnswerError = true;
+                    return;
+                }
+
+                // Check for excessive whitespace
+                if (trimmedText.Length != ShortAnswerText.Length &&
+                    ShortAnswerText.Length - trimmedText.Length > 10)
+                {
+                    ShortAnswerError = "Answer contains too much whitespace";
+                    HasShortAnswerError = true;
+                    return;
+                }
+
+                // Check for repetitive characters (basic spam detection)
+                if (trimmedText.Length >= 10)
+                {
+                    var uniqueChars = trimmedText.ToCharArray().Distinct().Count();
+                    if (uniqueChars < 3)
+                    {
+                        ShortAnswerError = "Answer appears to contain repetitive characters";
+                        HasShortAnswerError = true;
+                        return;
+                    }
+                }
+            }
+        }
+
+        public void ClearShortAnswerError()
+        {
+            ShortAnswerError = "";
+            HasShortAnswerError = false;
+        }
+
+        partial void OnShortAnswerTextChanged(string value)
+        {
+            ValidateShortAnswer();
+        }
+
+        public void ToggleFlag()
+        {
+            IsFlagged = !IsFlagged;
+            FlagColor = IsFlagged ? "#F59E0B" : "#6B7280"; // Orange when flagged, gray when not
+        }
     }
 
     public partial class AnswerOptionViewModel : ObservableObject

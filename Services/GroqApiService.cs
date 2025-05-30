@@ -120,7 +120,6 @@ namespace AvaloniaAzora.Services
                 return GetDefaultInsights(testSummary);
             }
         }
-
         private string BuildExplanationPrompt(string questionText, string[] answerOptions, string correctAnswer, string userAnswer)
         {
             var optionsText = string.Join("\n", answerOptions);
@@ -138,7 +137,11 @@ Please provide a concise, critical explanation that:
 2. Briefly explains why the other options are wrong
 3. Provides any key concepts the student should understand
 
-Keep it under 200 words and be direct and educational. Use plain text only - no markdown formatting, no bold text, no special characters.";
+IMPORTANT: Use plain text only. For mathematical expressions, write them clearly without LaTeX markup. 
+For example, write 'x squared minus 5x plus 6' instead of '\(x^2-5x+6\)' or use simple notation like 'x^2 - 5x + 6'.
+Do not use any markdown formatting, LaTeX notation, or special mathematical symbols.
+
+Keep it under 200 words and be direct and educational.";
         }
 
         private string BuildInsightsPrompt(TestResultSummary summary)
@@ -282,13 +285,58 @@ Keep each section concise and specific to the performance data. Use category inf
 
             return response;
         }
-
         private string CleanAIResponse(string rawResponse)
         {
             if (string.IsNullOrWhiteSpace(rawResponse))
                 return rawResponse;
 
             var cleaned = rawResponse;
+
+            // First, preserve LaTeX expressions by temporarily replacing them
+            var latexExpressions = new List<(string original, string readable)>();
+            var latexPlaceholder = "LATEX_PLACEHOLDER_";
+
+            // Find and preserve inline LaTeX expressions \(...\) - more specific pattern
+            var inlineLatexPattern = @"\\?\(([^)]*(?:[x^2\-+*/=0-9a-zA-Z\s\\]+)[^)]*)\)";
+            cleaned = Regex.Replace(cleaned, inlineLatexPattern, match =>
+            {
+                var expression = match.Groups[1].Value.Trim();
+                if (!string.IsNullOrEmpty(expression) && IsLikelyMathExpression(expression))
+                {
+                    var readable = ConvertLatexToReadable(expression);
+                    latexExpressions.Add((match.Value, readable));
+                    return $"{latexPlaceholder}{latexExpressions.Count - 1}";
+                }
+                return match.Value; // Return original if not a math expression
+            });
+
+            // Find and preserve display LaTeX expressions \[...\] - more specific pattern
+            var displayLatexPattern = @"\\?\[([^\]]*(?:[x^2\-+*/=0-9a-zA-Z\s\\]+)[^\]]*)\]";
+            cleaned = Regex.Replace(cleaned, displayLatexPattern, match =>
+            {
+                var expression = match.Groups[1].Value.Trim();
+                if (!string.IsNullOrEmpty(expression) && IsLikelyMathExpression(expression))
+                {
+                    var readable = ConvertLatexToReadable(expression);
+                    latexExpressions.Add((match.Value, readable));
+                    return $"{latexPlaceholder}{latexExpressions.Count - 1}";
+                }
+                return match.Value; // Return original if not a math expression
+            });
+
+            // Find and preserve dollar sign LaTeX expressions $...$ - more specific pattern
+            var dollarLatexPattern = @"\$([^$]*(?:[x^2\-+*/=0-9a-zA-Z\s\\]+)[^$]*)\$";
+            cleaned = Regex.Replace(cleaned, dollarLatexPattern, match =>
+            {
+                var expression = match.Groups[1].Value.Trim();
+                if (!string.IsNullOrEmpty(expression) && IsLikelyMathExpression(expression))
+                {
+                    var readable = ConvertLatexToReadable(expression);
+                    latexExpressions.Add((match.Value, readable));
+                    return $"{latexPlaceholder}{latexExpressions.Count - 1}";
+                }
+                return match.Value; // Return original if not a math expression
+            });
 
             // Remove markdown bold formatting (**text** or __text__)
             cleaned = Regex.Replace(cleaned, @"\*\*(.*?)\*\*", "$1", RegexOptions.Singleline);
@@ -314,20 +362,100 @@ Keep each section concise and specific to the performance data. Use category inf
             // Remove numbered lists (1. item, 2. item, etc.)
             cleaned = Regex.Replace(cleaned, @"^[\s]*\d+\.\s*", "", RegexOptions.Multiline);
 
-            // Remove escape characters
+            // Remove escape characters (but preserve LaTeX backslashes in placeholders)
             cleaned = cleaned.Replace("\\n", "\n");
             cleaned = cleaned.Replace("\\t", "\t");
             cleaned = cleaned.Replace("\\r", "\r");
             cleaned = cleaned.Replace("\\\"", "\"");
             cleaned = cleaned.Replace("\\'", "'");
-            cleaned = cleaned.Replace("\\\\", "\\");
 
             // Remove extra whitespace and normalize line breaks
             cleaned = Regex.Replace(cleaned, @"\s+", " ", RegexOptions.Singleline);
             cleaned = Regex.Replace(cleaned, @"\n\s*\n", "\n\n", RegexOptions.Multiline);
 
+            // Restore LaTeX expressions in human-readable format
+            for (int i = 0; i < latexExpressions.Count; i++)
+            {
+                cleaned = cleaned.Replace($"{latexPlaceholder}{i}", latexExpressions[i].readable);
+            }
+
             // Trim and return
             return cleaned.Trim();
+        }
+
+        private bool IsLikelyMathExpression(string expression)
+        {
+            if (string.IsNullOrWhiteSpace(expression))
+                return false;
+
+            // Check if the expression contains mathematical symbols or patterns
+            var mathPatterns = new[]
+            {
+                @"[x-z]\^?\d*", // variables like x, y, z with optional exponents
+                @"\d+[x-z]", // coefficients with variables
+                @"[+\-*/=]", // mathematical operators
+                @"\\[a-zA-Z]+", // LaTeX commands like \sqrt, \frac
+                @"\^[\d\{]", // exponents
+                @"[\(\)\[\]{}].*[\(\)\[\]{}]" // expressions with brackets
+            };
+
+            return mathPatterns.Any(pattern => Regex.IsMatch(expression, pattern));
+        }
+
+        private string ConvertLatexToReadable(string latexExpression)
+        {
+            if (string.IsNullOrWhiteSpace(latexExpression))
+                return latexExpression;
+
+            var readable = latexExpression;
+
+            // Convert common LaTeX commands to readable text
+            readable = Regex.Replace(readable, @"\\sqrt\{([^}]+)\}", "sqrt($1)", RegexOptions.IgnoreCase);
+            readable = Regex.Replace(readable, @"\\frac\{([^}]+)\}\{([^}]+)\}", "($1)/($2)", RegexOptions.IgnoreCase);
+            readable = Regex.Replace(readable, @"\\cdot", "*", RegexOptions.IgnoreCase);
+            readable = Regex.Replace(readable, @"\\times", "*", RegexOptions.IgnoreCase);
+            readable = Regex.Replace(readable, @"\\div", "/", RegexOptions.IgnoreCase);
+            readable = Regex.Replace(readable, @"\\pm", "±", RegexOptions.IgnoreCase);
+            readable = Regex.Replace(readable, @"\\infty", "∞", RegexOptions.IgnoreCase);
+            readable = Regex.Replace(readable, @"\\pi", "π", RegexOptions.IgnoreCase);
+            readable = Regex.Replace(readable, @"\\alpha", "α", RegexOptions.IgnoreCase);
+            readable = Regex.Replace(readable, @"\\beta", "β", RegexOptions.IgnoreCase);
+            readable = Regex.Replace(readable, @"\\gamma", "γ", RegexOptions.IgnoreCase);
+            readable = Regex.Replace(readable, @"\\delta", "δ", RegexOptions.IgnoreCase);
+            readable = Regex.Replace(readable, @"\\theta", "θ", RegexOptions.IgnoreCase);
+            readable = Regex.Replace(readable, @"\\lambda", "λ", RegexOptions.IgnoreCase);
+            readable = Regex.Replace(readable, @"\\mu", "μ", RegexOptions.IgnoreCase);
+            readable = Regex.Replace(readable, @"\\sigma", "σ", RegexOptions.IgnoreCase);
+
+            // Handle exponents - convert x^2 or x^{2} to x²
+            readable = Regex.Replace(readable, @"([a-zA-Z0-9])\^\{?([0-9])\}?", match =>
+            {
+                var baseVar = match.Groups[1].Value;
+                var exponent = match.Groups[2].Value;
+                return exponent switch
+                {
+                    "1" => baseVar + "¹",
+                    "2" => baseVar + "²",
+                    "3" => baseVar + "³",
+                    "4" => baseVar + "⁴",
+                    "5" => baseVar + "⁵",
+                    "6" => baseVar + "⁶",
+                    "7" => baseVar + "⁷",
+                    "8" => baseVar + "⁸",
+                    "9" => baseVar + "⁹",
+                    "0" => baseVar + "⁰",
+                    _ => baseVar + "^" + exponent
+                };
+            });
+
+            // Remove remaining LaTeX backslashes and braces for simple expressions
+            readable = Regex.Replace(readable, @"\\([a-zA-Z]+)", "$1");
+            readable = readable.Replace("{", "").Replace("}", "");
+
+            // Clean up extra spaces
+            readable = Regex.Replace(readable, @"\s+", " ").Trim();
+
+            return readable;
         }
 
         public void Dispose()

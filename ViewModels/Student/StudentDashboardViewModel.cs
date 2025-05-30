@@ -63,10 +63,10 @@ namespace AvaloniaAzora.ViewModels
                 Console.WriteLine($"❌ Error loading dashboard data: {ex.Message}");
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
 
-                // Clear data on error - show empty state instead of demo data
+                // Clear data on error and show informative message
                 EnrolledClasses.Clear();
                 UpcomingAssessments.Clear();
-                WelcomeMessage = "Unable to load dashboard data. Please try again.";
+                WelcomeMessage = "Welcome back! Unable to load some data.";
             }
             finally
             {
@@ -187,18 +187,16 @@ namespace AvaloniaAzora.ViewModels
                             }
                         }
                     }
-                }
-
-                // Sort by due date
+                }                // Sort by due date (ascending - nearest first, not reverse)
                 if (UpcomingAssessments.Count > 0)
                 {
-                    var sorted = UpcomingAssessments.OrderBy(a => a.DueDate).ToList();
+                    var sorted = UpcomingAssessments.OrderBy(a => a.DueDate).Take(3).ToList();
                     UpcomingAssessments.Clear();
                     foreach (var assessment in sorted)
                     {
                         UpcomingAssessments.Add(assessment);
                     }
-                    Console.WriteLine($"   📋 Sorted {sorted.Count} upcoming assessments by due date");
+                    Console.WriteLine($"   📋 Sorted and limited to {sorted.Count} upcoming assessments by due date");
                 }
             }
             catch (Exception ex)
@@ -207,22 +205,38 @@ namespace AvaloniaAzora.ViewModels
                 throw; // Re-throw to let the caller handle it
             }
         }
-
         private string GetSubjectColor(string className)
         {
-            // Return hex colors based on subject
-            if (className.Contains("Math", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(className))
+                return "#757575";
+
+            // Return hex colors based on subject - using contains for better matching
+            var lowerClassName = className.ToLower();
+
+            if (lowerClassName.Contains("math"))
                 return "#4285F4"; // Blue
-            if (className.Contains("History", StringComparison.OrdinalIgnoreCase))
+            if (lowerClassName.Contains("history"))
                 return "#34A853"; // Green
-            if (className.Contains("Chemistry", StringComparison.OrdinalIgnoreCase))
+            if (lowerClassName.Contains("chemistry"))
                 return "#9C27B0"; // Purple
-            if (className.Contains("Physics", StringComparison.OrdinalIgnoreCase))
+            if (lowerClassName.Contains("physics"))
                 return "#FF9800"; // Orange
-            if (className.Contains("Science", StringComparison.OrdinalIgnoreCase))
+            if (lowerClassName.Contains("science"))
                 return "#F44336"; // Red
-            if (className.Contains("English", StringComparison.OrdinalIgnoreCase))
+            if (lowerClassName.Contains("english"))
                 return "#607D8B"; // Blue Grey
+            if (lowerClassName.Contains("biology"))
+                return "#4CAF50"; // Green
+            if (lowerClassName.Contains("geography"))
+                return "#FF5722"; // Deep Orange
+            if (lowerClassName.Contains("literature"))
+                return "#E91E63"; // Pink
+            if (lowerClassName.Contains("computer"))
+                return "#2196F3"; // Light Blue
+            if (lowerClassName.Contains("art"))
+                return "#9C27B0"; // Purple
+            if (lowerClassName.Contains("music"))
+                return "#009688"; // Teal
 
             return "#757575"; // Default grey
         }

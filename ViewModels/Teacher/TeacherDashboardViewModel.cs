@@ -67,7 +67,6 @@ namespace AvaloniaAzora.ViewModels
 
             SignOutCommand = new AsyncRelayCommand(SignOutAsync);
         }
-
         public async Task LoadDashboardDataAsync(Guid userId)
         {
             try
@@ -75,7 +74,7 @@ namespace AvaloniaAzora.ViewModels
                 IsLoading = true;
                 await LoadUserDataAsync(userId);
                 await LoadTeachingClassesAsync(userId);
-                await LoadStatisticsAsync(userId);
+                await CalculateStatisticsAsync(userId);
                 await LoadRecentActivitiesAsync(userId);
             }
             catch (Exception ex)
@@ -122,9 +121,7 @@ namespace AvaloniaAzora.ViewModels
                 foreach (var classEntity in classes)
                 {
                     var studentCount = await _dataService.GetClassEnrollmentCountAsync(classEntity.Id);
-                    var tests = await _dataService.GetTestsByClassIdAsync(classEntity.Id);
-
-                    var cardViewModel = new TeacherClassroomCardViewModel
+                    var tests = await _dataService.GetTestsByClassIdAsync(classEntity.Id); var cardViewModel = new TeacherClassroomCardViewModel
                     {
                         ClassId = classEntity.Id,
                         ClassName = classEntity.ClassName,
@@ -132,7 +129,7 @@ namespace AvaloniaAzora.ViewModels
                         StudentCount = studentCount,
                         TestCount = tests.Count,
                         CreatedDate = classEntity.CreatedAt.ToString("MMM dd, yyyy"),
-                        SubjectColor = GetSubjectColor("general") // Use default color since no subject field
+                        SubjectColor = GetSubjectColor(classEntity.ClassName) // Use className for color determination
                     };
 
                     TeachingClasses.Add(cardViewModel);
@@ -221,18 +218,26 @@ namespace AvaloniaAzora.ViewModels
                 Console.WriteLine($"⚠️ Error loading recent activities: {ex.Message}");
             }
         }
-
         private string GetSubjectColor(string? subject)
         {
-            return subject?.ToLower() switch
+            if (string.IsNullOrEmpty(subject))
+                return "#6B7280";
+
+            return subject.ToLower() switch
             {
-                "mathematics" or "math" => "#3B82F6",
-                "science" => "#10B981",
-                "english" => "#F59E0B",
-                "history" => "#8B5CF6",
-                "physics" => "#EF4444",
-                "chemistry" => "#06B6D4",
-                _ => "#6B7280"
+                var s when s.Contains("math") => "#3B82F6",      // Blue
+                var s when s.Contains("science") => "#10B981",   // Green  
+                var s when s.Contains("english") => "#F59E0B",   // Yellow
+                var s when s.Contains("history") => "#8B5CF6",   // Purple
+                var s when s.Contains("physics") => "#EF4444",   // Red
+                var s when s.Contains("chemistry") => "#06B6D4", // Cyan
+                var s when s.Contains("biology") => "#84CC16",   // Lime
+                var s when s.Contains("geography") => "#F97316", // Orange
+                var s when s.Contains("literature") => "#EC4899", // Pink
+                var s when s.Contains("computer") => "#6366F1",  // Indigo
+                var s when s.Contains("art") => "#A855F7",       // Violet
+                var s when s.Contains("music") => "#14B8A6",     // Teal
+                _ => "#6B7280"  // Default gray
             };
         }
 

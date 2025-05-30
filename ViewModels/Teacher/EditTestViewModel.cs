@@ -9,8 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace AvaloniaAzora.ViewModels
-{
-    public partial class EditTestViewModel : ObservableObject
+{    public partial class EditTestViewModel : ViewModelBase
     {
         private readonly IDataService _dataService;
 
@@ -39,9 +38,7 @@ namespace AvaloniaAzora.ViewModels
         private ObservableCollection<string> _possibleAnswers = new();
 
         [ObservableProperty]
-        private string _correctAnswer = string.Empty;
-
-        [ObservableProperty]
+        private string _correctAnswer = string.Empty;        [ObservableProperty]
         private int _questionPoints = 10;
 
         // Design-time constructor
@@ -65,6 +62,119 @@ namespace AvaloniaAzora.ViewModels
             PossibleAnswers.Add("");
             PossibleAnswers.Add("");
             PossibleAnswers.Add("");
+        }
+
+        partial void OnTitleChanged(string value)
+        {
+            ValidateProperty(value);
+        }
+
+        partial void OnDescriptionChanged(string value)
+        {
+            ValidateProperty(value);
+        }
+
+        partial void OnTimeLimitChanged(int value)
+        {
+            ValidateProperty(value);
+        }
+
+        partial void OnNewQuestionTextChanged(string value)
+        {
+            ValidateProperty(value);
+        }
+
+        partial void OnCorrectAnswerChanged(string value)
+        {
+            ValidateProperty(value);
+        }
+
+        partial void OnQuestionPointsChanged(int value)
+        {
+            ValidateProperty(value);
+        }
+
+        protected new void ValidateProperty<T>(T value, [System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null)
+        {
+            if (propertyName == null) return;
+
+            ClearPropertyErrors(propertyName);
+
+            switch (propertyName)
+            {
+                case nameof(Title):                    var titleValidation = _validationService?.ValidateString(value?.ToString(), 3, 100, true);
+                    if (titleValidation != null && !titleValidation.IsValid)
+                    {
+                        foreach (var error in titleValidation.Errors)
+                        {
+                            AddPropertyError(propertyName, error);
+                        }
+                    }
+                    break;
+
+                case nameof(Description):
+                    if (!string.IsNullOrEmpty(value?.ToString()))
+                    {                        var descriptionValidation = _validationService?.ValidateString(value.ToString(), 0, 1000, false);
+                        if (descriptionValidation != null && !descriptionValidation.IsValid)
+                        {
+                            foreach (var error in descriptionValidation.Errors)
+                            {
+                                AddPropertyError(propertyName, error);
+                            }
+                        }
+                    }
+                    break;                case nameof(TimeLimit):
+                    if (double.TryParse(value?.ToString(), out double timeLimit))
+                    {
+                        var timeLimitValidation = _validationService?.ValidateNumber(timeLimit, 1, 480);
+                        if (timeLimitValidation != null && !timeLimitValidation.IsValid)
+                        {
+                            foreach (var error in timeLimitValidation.Errors)
+                            {
+                                AddPropertyError(propertyName, error);
+                            }
+                        }
+                    }
+                    break;
+
+                case nameof(NewQuestionText):
+                    if (!string.IsNullOrEmpty(value?.ToString()))
+                    {                        var questionValidation = _validationService?.ValidateString(value.ToString(), 10, 500, false);
+                        if (questionValidation != null && !questionValidation.IsValid)
+                        {
+                            foreach (var error in questionValidation.Errors)
+                            {
+                                AddPropertyError(propertyName, error);
+                            }
+                        }
+                    }
+                    break;
+
+                case nameof(CorrectAnswer):
+                    if (!string.IsNullOrEmpty(value?.ToString()) && NewQuestionType == "short_answer")
+                    {                        var answerValidation = _validationService?.ValidateString(value.ToString(), 1, 200, false);
+                        if (answerValidation != null && !answerValidation.IsValid)
+                        {
+                            foreach (var error in answerValidation.Errors)
+                            {
+                                AddPropertyError(propertyName, error);
+                            }
+                        }
+                    }
+                    break;                case nameof(QuestionPoints):
+                    if (double.TryParse(value?.ToString(), out double points))
+                    {
+                        var pointsValidation = _validationService?.ValidateNumber(points, 1, 100);
+                        if (pointsValidation != null && !pointsValidation.IsValid)
+                        {
+                            foreach (var error in pointsValidation.Errors)
+                            {
+                                AddPropertyError(propertyName, error);
+                            }
+                        }
+                    }
+                    break;
+            }
         }
 
         public async Task LoadTestDataAsync(Guid testId)
@@ -96,6 +206,9 @@ namespace AvaloniaAzora.ViewModels
         [RelayCommand]
         private async Task UpdateTest()
         {
+            // Validate form first            await ValidateTestForm();
+            if (HasAnyErrors) return;
+
             var test = new Test
             {
                 Id = TestId,
@@ -109,7 +222,10 @@ namespace AvaloniaAzora.ViewModels
 
         [RelayCommand]
         private async Task AddQuestion()
-        {
+        {            // Validate question first
+            await ValidateQuestionForm();
+            if (HasAnyErrors) return;
+
             if (string.IsNullOrWhiteSpace(NewQuestionText))
                 return;
 
@@ -150,6 +266,102 @@ namespace AvaloniaAzora.ViewModels
         {
             // TODO: Implement question deletion
             await Task.CompletedTask;
+        }
+
+        [RelayCommand]
+        private async Task ValidateTestForm()
+        {
+            // Clear test-related errors
+            ClearPropertyErrors(nameof(Title));
+            ClearPropertyErrors(nameof(Description));
+            ClearPropertyErrors(nameof(TimeLimit));
+
+            // Validate test properties
+            ValidateProperty(Title, nameof(Title));
+            ValidateProperty(Description, nameof(Description));
+            ValidateProperty(TimeLimit, nameof(TimeLimit));
+
+            // Additional business logic validation
+            if (string.IsNullOrWhiteSpace(Title))
+            {
+                AddPropertyError(nameof(Title), "Test title is required");
+            }
+
+            if (TimeLimit < 1)
+            {
+                AddPropertyError(nameof(TimeLimit), "Time limit must be at least 1 minute");
+            }
+
+            await Task.CompletedTask;
+        }
+
+        [RelayCommand]
+        private async Task ValidateQuestionForm()
+        {
+            // Clear question-related errors
+            ClearPropertyErrors(nameof(NewQuestionText));
+            ClearPropertyErrors(nameof(CorrectAnswer));
+            ClearPropertyErrors(nameof(QuestionPoints));
+
+            // Validate question properties
+            ValidateProperty(NewQuestionText, nameof(NewQuestionText));
+            ValidateProperty(CorrectAnswer, nameof(CorrectAnswer));
+            ValidateProperty(QuestionPoints, nameof(QuestionPoints));
+
+            // Additional business logic validation
+            if (string.IsNullOrWhiteSpace(NewQuestionText))
+            {
+                AddPropertyError(nameof(NewQuestionText), "Question text is required");
+            }
+            else if (NewQuestionText.Trim().Length < 10)
+            {
+                AddPropertyError(nameof(NewQuestionText), "Question text must be at least 10 characters long");
+            }
+
+            if (NewQuestionType == "multiple_choice")
+            {
+                var validAnswers = PossibleAnswers.Where(a => !string.IsNullOrWhiteSpace(a)).Count();
+                if (validAnswers < 2)
+                {
+                    AddPropertyError(nameof(PossibleAnswers), "Please provide at least 2 answer options for multiple choice questions");
+                }
+
+                if (string.IsNullOrWhiteSpace(CorrectAnswer))
+                {
+                    AddPropertyError(nameof(CorrectAnswer), "Please select the correct answer for the multiple choice question");
+                }
+            }
+            else if (NewQuestionType == "short_answer")
+            {
+                if (string.IsNullOrWhiteSpace(CorrectAnswer))
+                {
+                    AddPropertyError(nameof(CorrectAnswer), "Please provide the correct answer for the short answer question");
+                }
+            }
+
+            if (QuestionPoints < 1)
+            {
+                AddPropertyError(nameof(QuestionPoints), "Question points must be at least 1");
+            }
+
+            await Task.CompletedTask;
+        }
+
+        public bool IsTestFormValid()
+        {
+            ValidateTestForm().Wait();
+            return !GetErrors(nameof(Title)).Any() && 
+                   !GetErrors(nameof(Description)).Any() && 
+                   !GetErrors(nameof(TimeLimit)).Any();
+        }
+
+        public bool IsQuestionFormValid()
+        {
+            ValidateQuestionForm().Wait();
+            return !GetErrors(nameof(NewQuestionText)).Any() && 
+                   !GetErrors(nameof(CorrectAnswer)).Any() && 
+                   !GetErrors(nameof(QuestionPoints)).Any() &&
+                   !GetErrors(nameof(PossibleAnswers)).Any();
         }
     }
 }

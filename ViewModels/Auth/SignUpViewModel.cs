@@ -71,55 +71,61 @@ namespace AvaloniaAzora.ViewModels
             {
                 IsLoading = false;
             }
-        }
-
-        private bool ValidateInput()
+        }        private bool ValidateInput()
         {
-            if (string.IsNullOrWhiteSpace(FullName))
+            ClearAllErrors();
+            bool isValid = true;
+
+            // Validate Full Name
+            var fullNameResult = _validationService?.ValidateString(FullName, minLength: 2, maxLength: 100, required: true, propertyName: "Full Name");
+            if (fullNameResult != null && !fullNameResult.IsValid)
             {
-                ShowError("Please enter your full name.");
-                return false;
+                ShowError(fullNameResult.FirstError);
+                isValid = false;
             }
 
+            // Validate Email
             if (string.IsNullOrWhiteSpace(Email))
             {
                 ShowError("Please enter your email address.");
-                return false;
+                isValid = false;
             }
-
-            if (!IsValidEmail(Email))
+            else if (_validationService?.IsValidEmail(Email) == false)
             {
                 ShowError("Please enter a valid email address.");
-                return false;
+                isValid = false;
             }
 
+            // Validate Password
             if (string.IsNullOrWhiteSpace(Password))
             {
                 ShowError("Please enter a password.");
-                return false;
+                isValid = false;
             }
-
-            if (Password.Length < 6)
+            else if (_validationService?.IsValidPassword(Password) == false)
             {
-                ShowError("Password must be at least 6 characters long.");
-                return false;
+                ShowError("Password must be between 6 and 128 characters long.");
+                isValid = false;
             }
 
+            // Validate Password Confirmation
             if (Password != ConfirmPassword)
             {
                 ShowError("Passwords do not match.");
-                return false;
+                isValid = false;
             }
 
+            // Validate Terms Agreement
             if (!AgreeToTerms)
             {
                 ShowError("Please agree to the Terms & Conditions and Privacy Policy.");
-                return false;
+                isValid = false;
             }
 
-            return true;
+            return isValid;
         }
 
+        // Keep legacy method for backward compatibility, but use validation service internally
         private static bool IsValidEmail(string email)
         {
             var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");

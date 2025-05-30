@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using AvaloniaAzora.Services;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -30,19 +32,42 @@ namespace AvaloniaAzora.ViewModels
             ResendCodeCommand = new AsyncRelayCommand(ResendCodeAsync);
         }
 
-        private async Task VerifyAsync()
+        partial void OnVerificationCodeChanged(string value)
         {
-            if (string.IsNullOrWhiteSpace(VerificationCode))
-            {
-                ShowError("Please enter the verification code.");
-                return;
-            }
+            ValidateProperty(value);
+        }
 
-            if (VerificationCode.Length != 6)
+        protected new void ValidateProperty<T>(T value, [System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null)
+        {
+            if (propertyName == null) return;
+
+            // Clear existing errors for this property
+            ClearPropertyErrors(propertyName);
+
+            switch (propertyName)
             {
-                ShowError("Verification code must be 6 digits.");
-                return;
+                case nameof(VerificationCode):
+                    if (value is string code)
+                    {
+                        if (string.IsNullOrWhiteSpace(code))
+                        {
+                            AddPropertyError(propertyName, "Verification code is required");
+                        }
+                        else if (code.Length != 6)
+                        {
+                            AddPropertyError(propertyName, "Verification code must be exactly 6 digits");
+                        }
+                        else if (!System.Text.RegularExpressions.Regex.IsMatch(code, @"^\d{6}$"))
+                        {
+                            AddPropertyError(propertyName, "Verification code must contain only numbers");
+                        }
+                    }
+                    break;
             }
+        }        private async Task VerifyAsync()
+        {            // Validate the verification code first
+            ValidateProperty(VerificationCode, nameof(VerificationCode));
+            if (HasAnyErrors) return;
 
             IsLoading = true;
             ClearError();

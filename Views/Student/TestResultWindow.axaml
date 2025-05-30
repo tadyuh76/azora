@@ -199,18 +199,33 @@
                                         <Run Text="{Binding TotalStudents}"/>
                                         <Run Text="students"/>
                                     </TextBlock>
-                                </StackPanel>
-                            </Grid>
+                                </StackPanel>                            </Grid>
                             
-                            <!-- Performance Badge -->
-                            <Border Background="{Binding PerformanceBadgeColor}" 
-                                    CornerRadius="8" Padding="16,8" 
-                                    HorizontalAlignment="Right"
-                                    Margin="0,16,0,0">
-                                <TextBlock Text="{Binding PerformanceBadgeText}" 
-                                           FontSize="14" FontWeight="SemiBold" 
-                                           Foreground="White"/>
-                            </Border>
+                            <!-- Badges Row -->
+                            <Grid Margin="0,16,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <!-- Pass/Fail Badge -->
+                                <Border Grid.Column="1" Background="{Binding PassFailBadgeColor}" 
+                                        CornerRadius="8" Padding="16,8">
+                                    <TextBlock Text="{Binding PassFailText}" 
+                                               FontSize="14" FontWeight="SemiBold" 
+                                               Foreground="White"/>
+                                </Border>
+                                
+                                <!-- Performance Badge -->
+                                <Border Grid.Column="3" Background="{Binding PerformanceBadgeColor}" 
+                                        CornerRadius="8" Padding="16,8">
+                                    <TextBlock Text="{Binding PerformanceBadgeText}" 
+                                               FontSize="14" FontWeight="SemiBold" 
+                                               Foreground="White"/>
+                                </Border>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
@@ -432,13 +447,41 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="Difference" 
-                                           FontSize="14" Foreground="#6B7280"/>
-                                <TextBlock Grid.Column="1" FontSize="14" FontWeight="SemiBold" 
+                                           FontSize="14" Foreground="#6B7280"/>                                <TextBlock Grid.Column="1" FontSize="14" FontWeight="SemiBold" 
                                            Foreground="#10B981">
                                     <Run Text="+"/>
                                     <Run Text="{Binding ScoreDifference, StringFormat='{}{0:F0}'}"/>
                                     <Run Text="%"/>
                                 </TextBlock>
+                            </Grid>
+                            
+                            <!-- Passing Score -->
+                            <Grid Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Required to Pass" 
+                                           FontSize="14" Foreground="#6B7280"/>
+                                <TextBlock Grid.Column="1" Text="{Binding PassingScore, StringFormat='{}{0:F0}%'}" 
+                                           FontSize="14" FontWeight="SemiBold" 
+                                           Foreground="#6B7280"/>
+                            </Grid>
+                            
+                            <!-- Pass/Fail Status -->
+                            <Grid Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Test Result" 
+                                           FontSize="14" Foreground="#6B7280"/>
+                                <Border Grid.Column="1" Background="{Binding PassFailBadgeColor}" 
+                                        CornerRadius="4" Padding="8,4">
+                                    <TextBlock Text="{Binding PassFailText}" 
+                                               FontSize="12" FontWeight="SemiBold" 
+                                               Foreground="White"/>
+                                </Border>
                             </Grid>
                             
                             <!-- Progress Bar -->
