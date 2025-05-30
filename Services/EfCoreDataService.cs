@@ -349,7 +349,6 @@ namespace AvaloniaAzora.Services
                 .Where(a => a.ClassTestId == classTestId)
                 .ToListAsync();
         }
-
         public async Task<List<Attempt>> GetAttemptsByStudentAndClassTestAsync(Guid studentId, Guid classTestId)
         {
             using var context = _contextFactory.CreateDbContext();
@@ -357,7 +356,7 @@ namespace AvaloniaAzora.Services
                 .Include(a => a.ClassTest)
                     .ThenInclude(ct => ct!.Test)
                 .Where(a => a.StudentId == studentId && a.ClassTestId == classTestId)
-                .OrderByDescending(a => a.StartTime)
+                .OrderBy(a => a.StartTime)
                 .ToListAsync();
         }
 
