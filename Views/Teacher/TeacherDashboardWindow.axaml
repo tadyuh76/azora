@@ -5,7 +5,9 @@
         Title="Azora - Teacher Dashboard"
         Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="#F8F9FA"
+        Icon="/Assets/logo.png"
         x:DataType="vm:TeacherDashboardViewModel">
     <Design.DataContext>
         <vm:TeacherDashboardViewModel/>
@@ -45,17 +47,19 @@
                         <TextBlock Text="Teacher" FontSize="12" 
                                    Foreground="#6B7280" HorizontalAlignment="Right"/>
                     </StackPanel>
-                    <Button Content="📤" FontSize="16" 
-                            Background="Transparent" BorderThickness="0"
-                            Padding="8" CornerRadius="6"
-                            ToolTip.Tip="Logout"/>
+                    <Button Content="Logout" FontSize="14" 
+                            Background="#EF4444" Foreground="White" 
+                            Padding="12,8" CornerRadius="6"
+                            Command="{Binding SignOutCommand}"
+                            ToolTip.Tip="Sign out"/>
                 </StackPanel>
             </Grid>
         </Border>
         
         <!-- Main Content -->
-        <ScrollViewer Grid.Row="1" Padding="24">
-            <StackPanel>
+        <ScrollViewer Grid.Row="1" Padding="24" HorizontalScrollBarVisibility="Disabled" 
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Name="ClassroomsPanel" Spacing="16" Margin="0,0,0,80">
                 <!-- Welcome Section -->
                 <StackPanel Margin="0,0,0,32">
                     <TextBlock Text="{Binding WelcomeMessage}" 
@@ -161,14 +165,8 @@
                 
                 <!-- Dashboard Content -->
                 <Grid IsVisible="{Binding !IsLoading}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="24"/>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
-                    
                     <!-- My Classrooms Section -->
-                    <StackPanel Grid.Column="0">
+                    <StackPanel>
                         <Grid Margin="0,0,0,24">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -183,7 +181,7 @@
                         <ItemsControl ItemsSource="{Binding TeachingClasses}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid Columns="2" 
+                                    <UniformGrid Columns="3" 
                                                  HorizontalAlignment="Stretch"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
@@ -258,8 +256,6 @@
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="8"/>
-                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 
                                                 <StackPanel Grid.Column="0">
@@ -270,12 +266,7 @@
                                                                Foreground="#374151"/>
                                                 </StackPanel>
                                                 
-                                                <Button Grid.Column="1" Content="Manage" 
-                                                        Classes="secondary"
-                                                        Padding="12,6" CornerRadius="4" FontSize="12"
-                                                        Command="{Binding ManageClassCommand}"/>
-                                                
-                                                <Button Grid.Column="3" Content="View" 
+                                                <Button Grid.Column="1" Content="View" 
                                                         Classes="primary"
                                                         Padding="12,6" CornerRadius="4" FontSize="12"
                                                         Click="OnViewClassClicked"
@@ -286,49 +277,6 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </StackPanel>
-                    
-                    <!-- Quick Actions Section (Removed Recent Activity) -->
-                    <StackPanel Grid.Column="2">
-                        <!-- Quick Actions -->
-                        <StackPanel Margin="0,0,0,32">
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                                <TextBlock Text="⚡" FontSize="20" Margin="0,0,8,0" 
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Text="Quick Actions" FontSize="20" FontWeight="Bold" 
-                                           Foreground="#1F2937" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            
-                            <Border Background="White" CornerRadius="8" Padding="16" Margin="0,0,0,8">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="6" OffsetX="0" OffsetY="1" 
-                                                      Color="#000000" Opacity="0.1"/>
-                                </Border.Effect>
-                                <Button Content="📝 Create New Test" 
-                                        Classes="primary" HorizontalAlignment="Stretch"
-                                        Padding="12,8" CornerRadius="6" Click="OnCreateTestClicked"/>
-                            </Border>
-                            
-                            <Border Background="White" CornerRadius="8" Padding="16" Margin="0,0,0,8">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="6" OffsetX="0" OffsetY="1" 
-                                                      Color="#000000" Opacity="0.1"/>
-                                </Border.Effect>
-                                <Button Content="🏫 Create Classroom" 
-                                        Classes="secondary" HorizontalAlignment="Stretch"
-                                        Padding="12,8" CornerRadius="6" Click="OnCreateClassroomClicked"/>
-                            </Border>
-                            
-                            <Border Background="White" CornerRadius="8" Padding="16">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="6" OffsetX="0" OffsetY="1" 
-                                                      Color="#000000" Opacity="0.1"/>
-                                </Border.Effect>
-                                <Button Content="📊 View Reports" 
-                                        Classes="secondary" HorizontalAlignment="Stretch"
-                                        Padding="12,8" CornerRadius="6"/>
-                            </Border>
-                        </StackPanel>
                     </StackPanel>
                 </Grid>
             </StackPanel>

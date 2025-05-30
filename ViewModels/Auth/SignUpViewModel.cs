@@ -21,14 +21,24 @@ namespace AvaloniaAzora.ViewModels
         [ObservableProperty]
         private bool _agreeToTerms = false;
 
+        [ObservableProperty]
+        private bool _isPasswordVisible = false;
+
+        [ObservableProperty]
+        private bool _isConfirmPasswordVisible = false;
+
         public ICommand CreateAccountCommand { get; }
         public ICommand SignInCommand { get; set; } = null!;
+        public ICommand TogglePasswordVisibilityCommand { get; }
+        public ICommand ToggleConfirmPasswordVisibilityCommand { get; }
 
         public event EventHandler? SignUpSuccessful;
 
         public SignUpViewModel() : base()
         {
             CreateAccountCommand = new AsyncRelayCommand(CreateAccountAsync);
+            TogglePasswordVisibilityCommand = new RelayCommand(TogglePasswordVisibility);
+            ToggleConfirmPasswordVisibilityCommand = new RelayCommand(ToggleConfirmPasswordVisibility);
         }
 
         private async Task CreateAccountAsync()
@@ -114,6 +124,16 @@ namespace AvaloniaAzora.ViewModels
         {
             var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
             return emailRegex.IsMatch(email);
+        }
+
+        private void TogglePasswordVisibility()
+        {
+            IsPasswordVisible = !IsPasswordVisible;
+        }
+
+        private void ToggleConfirmPasswordVisibility()
+        {
+            IsConfirmPasswordVisible = !IsConfirmPasswordVisible;
         }
     }
 }

@@ -16,8 +16,8 @@
                 CornerRadius="12"
                 BoxShadow="0 4 25 0 #00000015"
                 Padding="40"
-                Width="400"
-                MaxWidth="400"
+                Width="600"
+                MaxWidth="600"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center">
             
@@ -113,17 +113,44 @@
                            Foreground="#1F2937"
                            Margin="0,0,0,8"/>
                 
-                <TextBox Text="{Binding Password}"
-                         Watermark="Enter your password"
-                         PasswordChar="●"
-                         Height="48"
-                         Padding="16,12"
-                         FontSize="14"
-                         BorderBrush="#E5E7EB"
-                         BorderThickness="1"
-                         CornerRadius="8"
-                         Background="White"
-                         Margin="0,0,0,16"/>
+                <Grid Margin="0,0,0,16">
+                    <!-- Regular TextBox for visible password -->
+                    <TextBox Text="{Binding Password}"
+                             Watermark="Enter your password"
+                             Height="48"
+                             Padding="16,12,48,12"
+                             FontSize="14"
+                             BorderBrush="#E5E7EB"
+                             BorderThickness="1"
+                             CornerRadius="8"
+                             Background="White"
+                             IsVisible="{Binding IsPasswordVisible}"/>
+                    
+                    <!-- TextBox with password character for hidden password -->
+                    <TextBox Text="{Binding Password}"
+                             Watermark="Enter your password"
+                             PasswordChar="●"
+                             Height="48"
+                             Padding="16,12,48,12"
+                             FontSize="14"
+                             BorderBrush="#E5E7EB"
+                             BorderThickness="1"
+                             CornerRadius="8"
+                             Background="White"
+                             IsVisible="{Binding IsPasswordVisible, Converter={x:Static BoolConverters.Not}}"/>
+                    
+                    <Button Command="{Binding TogglePasswordVisibilityCommand}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Width="32"
+                            Height="32"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Margin="0,0,8,0"
+                            ToolTip.Tip="Toggle password visibility">
+                        <TextBlock Text="👁️" FontSize="16" Foreground="#6B7280"/>
+                    </Button>
+                </Grid>
 
                 <!-- Confirm Password Field -->
                 <TextBlock Text="Confirm Password" 
@@ -132,17 +159,44 @@
                            Foreground="#1F2937"
                            Margin="0,0,0,8"/>
                 
-                <TextBox Text="{Binding ConfirmPassword}"
-                         Watermark="Confirm your password"
-                         PasswordChar="●"
-                         Height="48"
-                         Padding="16,12"
-                         FontSize="14"
-                         BorderBrush="#E5E7EB"
-                         BorderThickness="1"
-                         CornerRadius="8"
-                         Background="White"
-                         Margin="0,0,0,16"/>
+                <Grid Margin="0,0,0,16">
+                    <!-- Regular TextBox for visible confirm password -->
+                    <TextBox Text="{Binding ConfirmPassword}"
+                             Watermark="Confirm your password"
+                             Height="48"
+                             Padding="16,12,48,12"
+                             FontSize="14"
+                             BorderBrush="#E5E7EB"
+                             BorderThickness="1"
+                             CornerRadius="8"
+                             Background="White"
+                             IsVisible="{Binding IsConfirmPasswordVisible}"/>
+                    
+                    <!-- TextBox with password character for hidden confirm password -->
+                    <TextBox Text="{Binding ConfirmPassword}"
+                             Watermark="Confirm your password"
+                             PasswordChar="●"
+                             Height="48"
+                             Padding="16,12,48,12"
+                             FontSize="14"
+                             BorderBrush="#E5E7EB"
+                             BorderThickness="1"
+                             CornerRadius="8"
+                             Background="White"
+                             IsVisible="{Binding IsConfirmPasswordVisible, Converter={x:Static BoolConverters.Not}}"/>
+                    
+                    <Button Command="{Binding ToggleConfirmPasswordVisibilityCommand}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Width="32"
+                            Height="32"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Margin="0,0,8,0"
+                            ToolTip.Tip="Toggle password visibility">
+                        <TextBlock Text="👁️" FontSize="16" Foreground="#6B7280"/>
+                    </Button>
+                </Grid>
 
                 <!-- Terms Agreement -->
                 <CheckBox IsChecked="{Binding AgreeToTerms}"
@@ -150,16 +204,12 @@
                           Foreground="#1F2937"
                           Margin="0,0,0,16">
                     <CheckBox.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="I agree to the " Foreground="#1F2937"/>
-                            <Button Content="Terms &amp; Conditions"
-                                    Classes="link"
-                                    FontSize="14"/>
-                            <TextBlock Text=" and " Foreground="#1F2937"/>
-                            <Button Content="Privacy Policy"
-                                    Classes="link"
-                                    FontSize="14"/>
-                        </StackPanel>
+                        <TextBlock TextWrapping="Wrap" LineHeight="20">
+                            <Run Text="I agree to the " Foreground="#1F2937"/>
+                            <Run Text="Terms &amp; Conditions" Foreground="#3188CA" FontWeight="Medium" TextDecorations="Underline"/>
+                            <Run Text=" and " Foreground="#1F2937"/>
+                            <Run Text="Privacy Policy" Foreground="#3188CA" FontWeight="Medium" TextDecorations="Underline"/>
+                        </TextBlock>
                     </CheckBox.Content>
                 </CheckBox>
 

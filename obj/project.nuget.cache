@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Ov384/4H79I=",
+  "dgSpecHash": "WaeoBVXu2IM=",
   "success": true,
-  "projectFilePath": "/Users/tadyuh/Documents/Coding Projects/ueh/desktop/AvaloniaAzora/AvaloniaAzora.csproj",
+  "projectFilePath": "/Users/tadyuh/Desktop/Nhom_05/azora/AvaloniaAzora.csproj",
   "expectedPackageFiles": [
     "/Users/tadyuh/.nuget/packages/avalonia/11.3.0/avalonia.11.3.0.nupkg.sha512",
     "/Users/tadyuh/.nuget/packages/avalonia.angle.windows.natives/2.1.22045.20230930/avalonia.angle.windows.natives.2.1.22045.20230930.nupkg.sha512",

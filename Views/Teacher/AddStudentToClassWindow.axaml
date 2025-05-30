@@ -7,8 +7,9 @@
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
         x:Class="AvaloniaAzora.Views.Teacher.AddStudentToClassWindow"
         Title="Add Students to Class"
-        Width="1200" Height="800"
+        Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="#F8F9FA">
 
     <Design.DataContext>
@@ -142,7 +143,7 @@
                     
                     <!-- Students List -->
                     <ScrollViewer>
-                        <StackPanel Name="AvailableStudentsPanel">
+                        <StackPanel Name="AvailableStudentsPanel" Margin="0,0,0,60">
                             <!-- Students will be added programmatically -->
                         </StackPanel>
                     </ScrollViewer>
@@ -174,7 +175,7 @@
                     
                     <!-- Selected Students List -->
                     <ScrollViewer Name="SelectedStudentsScrollViewer">
-                        <StackPanel Name="SelectedStudentsPanel">
+                        <StackPanel Name="SelectedStudentsPanel" Margin="0,0,0,60">
                             <!-- Selected students will be added programmatically -->
                         </StackPanel>
                     </ScrollViewer>

@@ -5,7 +5,9 @@
         Title="Azora - Classroom Details"
         Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="#F8F9FA"
+        Icon="/Assets/logo.png"
         x:DataType="vm:ClassroomDetailViewModel">
     <Design.DataContext>
         <vm:ClassroomDetailViewModel/>
@@ -125,7 +127,7 @@
                             
                             <ScrollViewer Padding="24" HorizontalScrollBarVisibility="Disabled" 
                                           VerticalScrollBarVisibility="Auto">
-                                <ItemsControl ItemsSource="{Binding UpcomingTests}">
+                                <ItemsControl ItemsSource="{Binding UpcomingTests}" Margin="0,0,0,80">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type vm:TestCardViewModel}">
                                             <Border Background="White" CornerRadius="12" 
@@ -232,7 +234,7 @@
                             
                             <ScrollViewer Padding="24" HorizontalScrollBarVisibility="Disabled" 
                                           VerticalScrollBarVisibility="Auto">
-                                <ItemsControl ItemsSource="{Binding CompletedTests}">
+                                <ItemsControl ItemsSource="{Binding CompletedTests}" Margin="0,0,0,80">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type vm:TestCardViewModel}">
                                             <Border Background="White" CornerRadius="12" 

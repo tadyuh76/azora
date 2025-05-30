@@ -28,6 +28,35 @@ namespace AvaloniaAzora.Views.Student
             _ = viewModel.LoadTestAsync(classTestId, userId);
         }
 
+        // Constructor for preview mode (teachers)
+        public TestTakingWindow(Guid classTestId, Guid userId, bool isPreviewMode) : this()
+        {
+            var viewModel = new TestTakingViewModel();
+            viewModel.IsPreviewMode = isPreviewMode;
+            DataContext = viewModel;
+
+            // Subscribe to events
+            viewModel.TestCompleted += OnTestCompleted;
+            viewModel.TestAborted += OnTestAborted;
+            viewModel.ReviewTestRequested += OnReviewTestRequested;
+
+            // Load test data
+            _ = viewModel.LoadTestAsync(classTestId, userId);
+
+            if (isPreviewMode)
+            {
+                // Update window title to indicate preview mode
+                Title = Title + " - PREVIEW MODE";
+
+                // Add preview mode indicator to the window
+                if (DataContext is TestTakingViewModel vm)
+                {
+                    // Access the viewmodel to show preview status in UI
+                    Console.WriteLine("📋 Test taking window opened in preview mode");
+                }
+            }
+        }
+
         private void OnTestCompleted(object? sender, TestCompletedEventArgs e)
         {
             try
@@ -37,14 +66,24 @@ namespace AvaloniaAzora.Views.Student
                 // Clean up review window if it exists
                 CleanupReviewWindow();
 
-                var resultWindow = new TestResultWindow(e.AttemptId, e.UserId);
-                Console.WriteLine("📊 Created test result window");
+                if (e.IsPreview)
+                {
+                    // Preview mode: Show a simple message and close
+                    Console.WriteLine($"📋 Test preview completed! Calculated Score: {e.Score:F1}% (Preview mode - no data saved)");
+                    Close();
+                }
+                else
+                {
+                    // Normal mode: Show results window
+                    var resultWindow = new TestResultWindow(e.AttemptId, e.UserId);
+                    Console.WriteLine("📊 Created test result window");
 
-                resultWindow.Show();
-                Console.WriteLine("📊 Showing test result window");
+                    resultWindow.Show();
+                    Console.WriteLine("📊 Showing test result window");
 
-                Close();
-                Console.WriteLine("🚪 Closed test taking window");
+                    Close();
+                    Console.WriteLine("🚪 Closed test taking window");
+                }
             }
             catch (Exception ex)
             {

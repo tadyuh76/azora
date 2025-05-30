@@ -19,8 +19,25 @@ namespace AvaloniaAzora.Views.Admin
             var viewModel = new AdminDashboardViewModel();
             DataContext = viewModel;
 
+            // Subscribe to the SignOutRequested event
+            viewModel.SignOutRequested += OnSignOutRequested;
+
             // Load dashboard data
             _ = viewModel.LoadDashboardDataAsync(userId);
+        }
+
+        private void OnSignOutRequested(object? sender, EventArgs e)
+        {
+            try
+            {
+                Console.WriteLine("🚪 Sign out requested from admin dashboard");
+                // Close this window which will trigger the Closed event and show auth window
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error handling sign out: {ex.Message}");
+            }
         }
     }
 }

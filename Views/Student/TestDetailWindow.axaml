@@ -6,10 +6,12 @@
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
         x:Class="AvaloniaAzora.Views.Student.TestDetailWindow"
         x:DataType="vm:TestDetailViewModel"
-        Title="{Binding TestTitle, StringFormat='Test: {0}'}"
-        Width="1200" Height="800"
-        Background="#F8FAFC"
-        WindowStartupLocation="CenterOwner">
+        Title="Test Details"
+        Width="1400" Height="900"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="#F8F9FA"
+        Icon="/Assets/logo.png">
 
     <Grid>
         <Grid.RowDefinitions>
