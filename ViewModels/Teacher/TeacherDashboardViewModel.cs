@@ -57,7 +57,6 @@ namespace AvaloniaAzora.ViewModels
         {
             _dataService = AvaloniaAzora.Services.ServiceProvider.Instance.GetRequiredService<IDataService>();
         }
-
         public async Task LoadDashboardDataAsync(Guid userId)
         {
             try
@@ -65,7 +64,7 @@ namespace AvaloniaAzora.ViewModels
                 IsLoading = true;
                 await LoadUserDataAsync(userId);
                 await LoadTeachingClassesAsync(userId);
-                await LoadStatisticsAsync(userId);
+                await CalculateStatisticsAsync(userId);
                 await LoadRecentActivitiesAsync(userId);
             }
             catch (Exception ex)
