@@ -12,10 +12,11 @@ using System.Threading.Tasks;
 
 namespace AvaloniaAzora.ViewModels.Student
 {
-    public partial class TestResultViewModel : ViewModelBase
+    public partial class TestResultViewModel : ViewModelBase, IDisposable
     {
         private readonly IDataService _dataService;
         private readonly GroqApiService _groqApiService;
+        private IDisposable? _enrollmentSubscription;
 
         [ObservableProperty]
         private string _testTitle = string.Empty;
@@ -199,12 +200,13 @@ namespace AvaloniaAzora.ViewModels.Student
                 }
 
                 // Calculate scores and create question results
-                CalculateScores(questions, userAnswers);
-
-                // Calculate class ranking
+                CalculateScores(questions, userAnswers);                // Calculate class ranking
                 if (attempt.ClassTestId.HasValue)
                 {
                     await CalculateClassRankingAsync(attempt.ClassTestId.Value, attemptId, ScorePercentage);
+
+                    // Subscribe to enrollment changes for this class
+                    SubscribeToEnrollmentChanges(attempt.ClassTestId.Value);
                 }
 
                 // Load AI insights in background
@@ -596,11 +598,26 @@ namespace AvaloniaAzora.ViewModels.Student
 
             return char.ToUpper(text[0]) + text.Substring(1).ToLower();
         }
-
         private async Task CalculateClassRankingAsync(Guid classTestId, Guid currentAttemptId, double currentScore)
         {
             try
             {
+                // Get class test to find the associated class
+                var classTest = await _dataService.GetClassTestByIdAsync(classTestId);
+                if (classTest?.ClassId == null)
+                {
+                    Console.WriteLine("⚠️ Could not find class for test ranking calculation");
+                    ClassRank = "#1";
+                    TotalStudents = "1";
+                    ClassAverageScore = currentScore;
+                    ScoreDifference = 0;
+                    return;
+                }
+
+                // Get total enrolled students in the class
+                var enrollments = await _dataService.GetEnrollmentsByClassIdAsync(classTest.ClassId.Value);
+                var totalEnrolledStudents = enrollments.Count;
+
                 // Get all attempts for this class test
                 var allAttempts = await _dataService.GetAttemptsByClassTestIdAsync(classTestId);
 
@@ -638,17 +655,17 @@ namespace AvaloniaAzora.ViewModels.Student
                         }
 
                         ClassRank = $"#{rank}";
-                        TotalStudents = validAttempts.Count.ToString();
+                        TotalStudents = totalEnrolledStudents.ToString(); // Use total enrolled students, not just those who took the test
                         ScoreDifference = currentScore - ClassAverageScore;
 
-                        Console.WriteLine($"📊 Ranking: {rank}/{validAttempts.Count}, Class avg: {ClassAverageScore:F1}%");
+                        Console.WriteLine($"📊 Ranking: {rank}/{totalEnrolledStudents} enrolled ({validAttempts.Count} attempted), Class avg: {ClassAverageScore:F1}%");
                         return;
                     }
                 }
 
-                // Fallback values
+                // Fallback values - use total enrolled students even if no attempts
                 ClassRank = "#1";
-                TotalStudents = "1";
+                TotalStudents = totalEnrolledStudents > 0 ? totalEnrolledStudents.ToString() : "1";
                 ClassAverageScore = currentScore;
                 ScoreDifference = 0;
             }
@@ -816,11 +833,70 @@ namespace AvaloniaAzora.ViewModels.Student
                 Console.WriteLine($"❌ Error loading class performance data: {ex.Message}");
             }
         }
-
         private void UpdateNavigationStates()
         {
             CanGoPrevious = CurrentAttemptNumber > 1;
             CanGoNext = CurrentAttemptNumber < TotalAttempts;
+        }
+
+        private void SubscribeToEnrollmentChanges(Guid classTestId)
+        {
+            try
+            {
+                // Dispose existing subscription if any
+                _enrollmentSubscription?.Dispose();
+
+                // Get the class ID from the class test
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var classTest = await _dataService.GetClassTestByIdAsync(classTestId);
+                        if (classTest?.ClassId != null)
+                        {
+                            // Subscribe to enrollment changes for this class
+                            _enrollmentSubscription = EnrollmentNotificationService.Instance.SubscribeToClassChanges(
+                                classTest.ClassId.Value,
+                                async (args) => await OnEnrollmentChanged(args)
+                            );
+                            Console.WriteLine($"📝 Subscribed to enrollment changes for class: {classTest.ClassId.Value}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"⚠️ Error subscribing to enrollment changes: {ex.Message}");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error setting up enrollment subscription: {ex.Message}");
+            }
+        }
+
+        private async Task OnEnrollmentChanged(ClassEnrollmentChangedEventArgs args)
+        {
+            try
+            {
+                Console.WriteLine($"🔔 Enrollment changed for class {args.ClassId}: {args.NewEnrollmentCount} students enrolled");
+
+                // Refresh the ranking calculation for the current attempt
+                if (CurrentClassTestId != Guid.Empty && CurrentAttemptId != Guid.Empty)
+                {
+                    await CalculateClassRankingAsync(CurrentClassTestId, CurrentAttemptId, ScorePercentage);
+                    Console.WriteLine($"✅ Rankings refreshed after enrollment change");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error refreshing rankings after enrollment change: {ex.Message}");
+            }
+        }
+
+        public void Dispose()
+        {
+            _enrollmentSubscription?.Dispose();
+            _enrollmentSubscription = null;
         }
     }
 

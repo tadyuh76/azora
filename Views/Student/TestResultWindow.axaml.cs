@@ -28,12 +28,12 @@ namespace AvaloniaAzora.Views.Student
         {
             Close();
         }
-
         protected override void OnClosed(EventArgs e)
         {
             if (DataContext is TestResultViewModel viewModel)
             {
                 viewModel.GoBackRequested -= OnGoBackRequested;
+                viewModel.Dispose(); // Clean up enrollment subscriptions
             }
             base.OnClosed(e);
         }

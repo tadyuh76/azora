@@ -77,30 +77,32 @@ namespace AvaloniaAzora.ViewModels.Teacher
 
             // Get all attempts for this test
             var attempts = await _dataService.GetAttemptsByClassTestIdAsync(classTestId);
-            TotalAttempts = attempts.Count;
-
-            // Only count completed attempts
+            TotalAttempts = attempts.Count;            // Only count completed attempts
             var completedAttemptsList = attempts.Where(a => a.EndTime.HasValue).ToList();
             CompletedAttempts = completedAttemptsList.Count;
 
-            // Calculate completion rate
+            // Get best attempt per student for calculations
+            var studentBestAttempts = completedAttemptsList
+                .GroupBy(a => a.StudentId)
+                .Select(g => g.OrderByDescending(a => a.Score).First())
+                .ToList();            // Calculate completion rate based on unique students who completed
             CompletionRate = TotalStudents > 0
-                ? Math.Round((double)CompletedAttempts / TotalStudents * 100, 1)
+                ? Math.Round((double)studentBestAttempts.Count / TotalStudents * 100, 1)
                 : 0;
 
-            // Calculate average score
-            AverageScore = completedAttemptsList.Count > 0
-                ? Math.Round(completedAttemptsList.Average(a => (double)(a.Score ?? 0)), 1)
+            // Calculate average score based on best attempt per student
+            AverageScore = studentBestAttempts.Count > 0
+                ? Math.Round(studentBestAttempts.Average(a => (double)(a.Score ?? 0)), 1)
                 : 0;
 
-            // Calculate average time spent (in minutes)
-            AverageTimeMinutes = completedAttemptsList.Count > 0
-                ? Math.Round(completedAttemptsList
+            // Calculate average time spent (in minutes) based on best attempts
+            AverageTimeMinutes = studentBestAttempts.Count > 0
+                ? Math.Round(studentBestAttempts
                     .Where(a => a.StartTime != default && a.EndTime.HasValue)
                     .Average(a => (a.EndTime!.Value - a.StartTime).TotalMinutes), 1)
                 : 0;
 
-            // Calculate score distribution for pie chart
+            // Calculate score distribution for pie chart (best attempt per student)
             var scoreRanges = new Dictionary<string, int>
             {
                 { "0-30%", 0 },
@@ -108,9 +110,8 @@ namespace AvaloniaAzora.ViewModels.Teacher
                 { "51-70%", 0 },
                 { "71-90%", 0 },
                 { "91-100%", 0 }
-            };
-
-            foreach (var attempt in completedAttemptsList)
+            };            // Use the already calculated studentBestAttempts for score distribution
+            foreach (var attempt in studentBestAttempts)
             {
                 var score = attempt.Score ?? 0;
                 if (score <= 30) scoreRanges["0-30%"]++;
@@ -122,9 +123,9 @@ namespace AvaloniaAzora.ViewModels.Teacher
 
             ScoreDistribution = scoreRanges;
 
-            // Get top performers
+            // Get top performers (best attempt per student)
             TopPerformers.Clear();
-            var topAttempts = completedAttemptsList
+            var topAttempts = studentBestAttempts
                 .OrderByDescending(a => a.Score ?? 0)
                 .ThenBy(a => a.EndTime!.Value - a.StartTime)
                 .Take(3);
