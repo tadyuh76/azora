@@ -67,7 +67,6 @@ namespace AvaloniaAzora.ViewModels.Student
             _timer = new Timer(1000); // Update every second
             _timer.Elapsed += OnTimerElapsed;
         }
-
         public async Task LoadTestAsync(Guid classTestId, Guid userId)
         {
             _classTestId = classTestId;
@@ -90,77 +89,21 @@ namespace AvaloniaAzora.ViewModels.Student
                 var test = classTest.Test;
                 TestTitle = test.Title;
                 _timeLimit = TimeSpan.FromMinutes(test.TimeLimit ?? 45);
-                _testStartTime = DateTime.Now;
 
-                // Create attempt record with UTC time
-                try
+                // Check for existing incomplete attempts
+                var existingAttempts = await _dataService.GetAttemptsByStudentAndClassTestAsync(userId, classTestId);
+                var incompleteAttempt = existingAttempts.FirstOrDefault(a => !a.EndTime.HasValue);
+
+                if (incompleteAttempt != null)
                 {
-                    var attempt = new Attempt
-                    {
-                        Id = Guid.NewGuid(),
-                        StudentId = userId,
-                        ClassTestId = classTestId,
-                        StartTime = DateTimeOffset.UtcNow // Use UTC time
-                    };
-
-                    Console.WriteLine($"🔍 Creating attempt with UTC time: {attempt.StartTime}");
-
-                    var createdAttempt = await _dataService.CreateAttemptAsync(attempt);
-                    _attemptId = createdAttempt.Id;
-                    Console.WriteLine($"✅ Created attempt: {_attemptId}");
-
-                    // Verify the attempt was created by trying to retrieve it
-                    var verifyAttempt = await _dataService.GetAttemptByIdAsync(_attemptId);
-                    if (verifyAttempt == null)
-                    {
-                        Console.WriteLine($"⚠️ Could not verify attempt creation, using demo mode");
-                        _attemptId = Guid.NewGuid();
-                    }
-                    else
-                    {
-                        Console.WriteLine($"✅ Verified attempt exists in database: {_attemptId}");
-                    }
+                    // Resume existing attempt
+                    await ResumeExistingAttempt(incompleteAttempt, test);
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine($"⚠️ Could not create attempt in database: {ex.Message}");
-                    if (ex.InnerException != null)
-                    {
-                        Console.WriteLine($"⚠️ Inner exception: {ex.InnerException.Message}");
-                    }
-                    // Use a temporary GUID for demo purposes
-                    _attemptId = Guid.NewGuid();
-                    Console.WriteLine($"ℹ️ Using demo attempt ID: {_attemptId}");
+                    // Start new attempt
+                    await StartNewAttempt(userId, classTestId, test);
                 }
-
-                // Get questions for the test
-                var questions = await _dataService.GetQuestionsByTestIdAsync(test.Id);
-
-                if (questions.Count == 0)
-                {
-                    Console.WriteLine("⚠️ No questions found in database - loading demo questions");
-                    LoadDemoTest();
-                    return;
-                }
-
-                // Get any existing answers for this attempt
-                var existingAnswers = new List<UserAnswer>();
-                try
-                {
-                    existingAnswers = await _dataService.GetAnswersByAttemptIdAsync(_attemptId);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"⚠️ Could not load existing answers: {ex.Message}");
-                }
-
-                // Load questions
-                LoadQuestions(questions.ToList(), existingAnswers);
-
-                // Start the timer
-                StartTimer();
-
-                Console.WriteLine($"✅ Test loaded successfully with {Questions.Count} questions");
             }
             catch (Exception ex)
             {
@@ -170,9 +113,132 @@ namespace AvaloniaAzora.ViewModels.Student
             }
         }
 
+        private async Task ResumeExistingAttempt(Attempt incompleteAttempt, Test test)
+        {
+            Console.WriteLine($"🔄 Resuming incomplete attempt: {incompleteAttempt.Id}");
+
+            _attemptId = incompleteAttempt.Id;
+
+            // Calculate elapsed time and remaining time
+            var elapsed = DateTimeOffset.UtcNow - incompleteAttempt.StartTime;
+            var remaining = _timeLimit - elapsed;
+
+            if (remaining <= TimeSpan.Zero)
+            {
+                Console.WriteLine("⏰ Time limit exceeded for incomplete attempt - auto-submitting");
+                // Time has expired, auto-submit the attempt
+                await SubmitTestCommand.ExecuteAsync(null);
+                return;
+            }
+
+            // Adjust test start time to account for time already spent
+            _testStartTime = DateTime.Now - elapsed;
+
+            Console.WriteLine($"🔄 Resuming with {remaining.TotalMinutes:F1} minutes remaining");
+
+            // Get questions for the test
+            var questions = await _dataService.GetQuestionsByTestIdAsync(test.Id);
+
+            if (questions.Count == 0)
+            {
+                Console.WriteLine("⚠️ No questions found in database - loading demo questions");
+                LoadDemoTest();
+                return;
+            }
+
+            // Get existing answers for this attempt
+            var existingAnswers = new List<UserAnswer>();
+            try
+            {
+                existingAnswers = await _dataService.GetAnswersByAttemptIdAsync(_attemptId);
+                Console.WriteLine($"📝 Loaded {existingAnswers.Count} existing answers");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Could not load existing answers: {ex.Message}");
+            }
+
+            // Load questions with existing answers
+            LoadQuestions(questions.ToList(), existingAnswers);
+
+            // Start the timer
+            StartTimer();
+
+            Console.WriteLine($"✅ Test resumed successfully with {Questions.Count} questions");
+        }
+
+        private async Task StartNewAttempt(Guid userId, Guid classTestId, Test test)
+        {
+            Console.WriteLine("🆕 Starting new attempt");
+
+            _testStartTime = DateTime.Now;
+
+            // Create attempt record with UTC time
+            try
+            {
+                var attempt = new Attempt
+                {
+                    Id = Guid.NewGuid(),
+                    StudentId = userId,
+                    ClassTestId = classTestId,
+                    StartTime = DateTimeOffset.UtcNow // Use UTC time
+                };
+
+                Console.WriteLine($"🔍 Creating attempt with UTC time: {attempt.StartTime}");
+
+                var createdAttempt = await _dataService.CreateAttemptAsync(attempt);
+                _attemptId = createdAttempt.Id;
+                Console.WriteLine($"✅ Created attempt: {_attemptId}");
+
+                // Verify the attempt was created by trying to retrieve it
+                var verifyAttempt = await _dataService.GetAttemptByIdAsync(_attemptId);
+                if (verifyAttempt == null)
+                {
+                    Console.WriteLine($"⚠️ Could not verify attempt creation, using demo mode");
+                    _attemptId = Guid.NewGuid();
+                }
+                else
+                {
+                    Console.WriteLine($"✅ Verified attempt exists in database: {_attemptId}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Could not create attempt in database: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"⚠️ Inner exception: {ex.InnerException.Message}");
+                }
+                // Use a temporary GUID for demo purposes
+                _attemptId = Guid.NewGuid();
+                Console.WriteLine($"ℹ️ Using demo attempt ID: {_attemptId}");
+            }
+
+            // Get questions for the test
+            var questions = await _dataService.GetQuestionsByTestIdAsync(test.Id);
+
+            if (questions.Count == 0)
+            {
+                Console.WriteLine("⚠️ No questions found in database - loading demo questions");
+                LoadDemoTest();
+                return;
+            }
+
+            // No existing answers for new attempt
+            var existingAnswers = new List<UserAnswer>();
+
+            // Load questions
+            LoadQuestions(questions.ToList(), existingAnswers);
+
+            // Start the timer
+            StartTimer();
+
+            Console.WriteLine($"✅ Test loaded successfully with {Questions.Count} questions");
+        }
         private void LoadQuestions(List<Question> questions, List<UserAnswer> existingAnswers)
         {
             Questions.Clear();
+            int lastAnsweredIndex = -1;
 
             for (int i = 0; i < questions.Count; i++)
             {
@@ -186,31 +252,49 @@ namespace AvaloniaAzora.ViewModels.Student
                     Text = question.Text,
                     Type = question.Type?.ToLower() ?? "multiple_choice",
                     Points = question.Points ?? 5,
-                    IsCurrentQuestion = i == 0 // Set first question as current
+                    IsCurrentQuestion = false // Will be set later based on resume logic
                 };
 
                 // Set up question type specific properties
                 SetupQuestionType(questionViewModel, question, existingAnswer);
+
+                // Track the last answered question for resume functionality
+                if (existingAnswer != null)
+                {
+                    lastAnsweredIndex = i;
+                }
 
                 Questions.Add(questionViewModel);
             }
 
             TotalQuestions = Questions.Count;
 
-            // Ensure first question is properly selected
-            CurrentQuestionIndex = 0;
+            // Determine which question to start with
+            int startingQuestionIndex = 0;
+            if (existingAnswers.Count > 0)
+            {
+                // Resume from the next unanswered question, or stay on the last one if all are answered
+                startingQuestionIndex = Math.Min(lastAnsweredIndex + 1, Questions.Count - 1);
+                Console.WriteLine($"🔄 Resuming from question {startingQuestionIndex + 1} (last answered: {lastAnsweredIndex + 1})");
+            }
+
+            // Set the current question
+            CurrentQuestionIndex = startingQuestionIndex;
             if (Questions.Count > 0)
             {
-                Questions[0].IsCurrentQuestion = true;
+                Questions[startingQuestionIndex].IsCurrentQuestion = true;
                 // Explicitly notify that CurrentQuestion changed
                 OnPropertyChanged(nameof(CurrentQuestion));
                 OnPropertyChanged(nameof(CurrentQuestionNumber));
+            }            // Update question status colors for all questions
+            foreach (var question in Questions)
+            {
+                UpdateQuestionStatus(question);
             }
 
             UpdateProgress();
             UpdateNavigationState();
         }
-
         private void SetupQuestionType(QuestionViewModel questionViewModel, Question question, UserAnswer? existingAnswer)
         {
             switch (questionViewModel.Type)
@@ -288,6 +372,12 @@ namespace AvaloniaAzora.ViewModels.Student
                     questionViewModel.TypeColor = "#3B82F6";
                     questionViewModel.Difficulty = CapitalizeFirstLetter(question.Difficulty ?? "medium");
                     break;
+            }
+
+            // Mark question as answered if it has an existing answer
+            if (existingAnswer != null)
+            {
+                questionViewModel.IsAnswered = true;
             }
 
             UpdateQuestionStatus(questionViewModel);

@@ -229,7 +229,6 @@ namespace AvaloniaAzora.ViewModels.Student
                 UserId = _userId
             });
         }
-
         private async Task LoadPreviousAttemptsAsync()
         {
             try
@@ -237,13 +236,27 @@ namespace AvaloniaAzora.ViewModels.Student
                 PreviousAttempts.Clear();
 
                 // Get all attempts for this test by this user
-                var attempts = await _dataService.GetAttemptsByStudentAndClassTestAsync(_userId, _classTestId); if (attempts.Count > 0)
+                var attempts = await _dataService.GetAttemptsByStudentAndClassTestAsync(_userId, _classTestId);
+
+                if (attempts.Count > 0)
                 {
                     HasPreviousAttempts = true;
 
-                    // Calculate best score
-                    var bestScore = attempts.Where(a => a.Score.HasValue).Max(a => a.Score) ?? 0;
-                    ButtonText = $"Retake Test (Best: {bestScore:F0}%)";
+                    // Check for incomplete attempts (no EndTime)
+                    var incompleteAttempt = attempts.FirstOrDefault(a => !a.EndTime.HasValue);
+
+                    if (incompleteAttempt != null)
+                    {
+                        // There's an incomplete attempt - allow resuming
+                        ButtonText = "Resume Test";
+                        Console.WriteLine($"🔄 Found incomplete attempt: {incompleteAttempt.Id}");
+                    }
+                    else
+                    {
+                        // Calculate best score from completed attempts
+                        var bestScore = attempts.Where(a => a.Score.HasValue).Max(a => a.Score) ?? 0;
+                        ButtonText = $"Retake Test (Best: {bestScore:F0}%)";
+                    }
 
                     foreach (var attempt in attempts)
                     {
@@ -288,23 +301,23 @@ namespace AvaloniaAzora.ViewModels.Student
             }
             return "N/A";
         }
-
         private bool CheckCanStartTest(ClassTest classTest)
         {
             // Check if there are attempt limits
             if (classTest.LimitAttempts.HasValue && classTest.LimitAttempts > 0)
             {
-                var attemptCount = PreviousAttempts.Count;
-                var canStart = attemptCount < classTest.LimitAttempts.Value;
+                // Only count completed attempts towards the limit
+                var completedAttemptCount = PreviousAttempts.Count(a => a.StatusText == "completed");
+                var canStart = completedAttemptCount < classTest.LimitAttempts.Value;
 
                 if (!canStart)
                 {
-                    ButtonText = $"Limit Reached ({attemptCount}/{classTest.LimitAttempts})";
-                    Console.WriteLine($"⚠️ Cannot start test: attempt limit reached ({attemptCount}/{classTest.LimitAttempts})");
+                    ButtonText = $"Limit Reached ({completedAttemptCount}/{classTest.LimitAttempts})";
+                    Console.WriteLine($"⚠️ Cannot start test: attempt limit reached ({completedAttemptCount}/{classTest.LimitAttempts})");
                 }
                 else
                 {
-                    Console.WriteLine($"✅ Can start test: {attemptCount}/{classTest.LimitAttempts} attempts used");
+                    Console.WriteLine($"✅ Can start test: {completedAttemptCount}/{classTest.LimitAttempts} completed attempts");
                 }
 
                 return canStart;
