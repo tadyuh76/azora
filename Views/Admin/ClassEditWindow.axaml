@@ -1,0 +1,155 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaAzora.ViewModels.Admin"
+        x:Class="AvaloniaAzora.Views.Admin.ClassEditWindow"
+        Title="{Binding IsEditMode, Converter={x:Static StringConverters.Format}, ConverterParameter='{}Azora - {0:Edit Class|Add New Class}'}"
+        Width="700" Height="650"
+        WindowStartupLocation="CenterOwner"
+        Background="#F8F9FA"
+        x:DataType="vm:ClassEditViewModel">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header - Consistent with AdminDashboard -->
+        <Border Grid.Row="0" Background="White" 
+                BorderBrush="#E5E7EB" BorderThickness="0,0,0,1"
+                Padding="24,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="🏫" FontSize="32" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                    <StackPanel>
+                        <TextBlock Text="{Binding IsEditMode, Converter={x:Static StringConverters.Format}, ConverterParameter='{}Edit Class: {0:{ClassName}|New Class}'}" 
+                                   FontSize="20" FontWeight="Bold" Foreground="#1F2937"/>
+                        <TextBlock Text="{Binding IsEditMode, Converter={x:Static StringConverters.Format}, ConverterParameter='{}Modify class details|Create a new classroom'}" 
+                                   FontSize="12" Foreground="#6B7280"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="1" Padding="24">
+            <StackPanel Spacing="24">
+
+                <!-- Class Information Card -->
+                <Border Background="White" CornerRadius="12" Padding="20">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="🏫 Class Information" FontSize="16" FontWeight="Bold" 
+                                   Foreground="#1F2937" Margin="0,0,0,16"/>
+                        
+                        <!-- Class Name Field -->
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="📝 Class Name" FontSize="14" FontWeight="SemiBold" 
+                                       Foreground="#374151" Margin="0,0,0,8"/>
+                            <TextBox Text="{Binding ClassName}" Watermark="Enter class name"
+                                     Padding="12,8" CornerRadius="6" BorderBrush="#E5E7EB"/>
+                        </StackPanel>
+                        
+                        <!-- Description Field -->
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="📋 Description" FontSize="14" FontWeight="SemiBold" 
+                                       Foreground="#374151" Margin="0,0,0,8"/>
+                            <TextBox Text="{Binding Description}" Watermark="Enter class description"
+                                     Height="100" TextWrapping="Wrap" AcceptsReturn="True"
+                                     Padding="12,8" CornerRadius="6" BorderBrush="#E5E7EB"/>
+                        </StackPanel>
+                        
+                        <!-- Teacher Selection -->
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="👨‍🏫 Assigned Teacher" FontSize="14" FontWeight="SemiBold" 
+                                       Foreground="#374151" Margin="0,0,0,8"/>
+                            <ComboBox SelectedItem="{Binding SelectedTeacherId}" ItemsSource="{Binding AvailableTeachers}"
+                                      HorizontalAlignment="Stretch" Padding="12,8" CornerRadius="6">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Class Settings Card (Edit mode only) -->
+                <Border Background="White" CornerRadius="12" Padding="20" 
+                        IsVisible="{Binding IsEditMode}">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="⚙️ Class Settings" FontSize="16" FontWeight="Bold" 
+                                   Foreground="#1F2937" Margin="0,0,0,16"/>
+                        
+                        <!-- Class Status -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <CheckBox Content="Class Active" IsChecked="{Binding IsActive}" 
+                                      Foreground="#374151" FontSize="14"/>
+                            <Border Background="{Binding IsActive, Converter={x:Static StringConverters.Format}, ConverterParameter='{}{0:#10B981|#EF4444}'}"
+                                    CornerRadius="4" Padding="8,4" Margin="16,0,0,0">
+                                <TextBlock Text="{Binding IsActive, Converter={x:Static StringConverters.Format}, ConverterParameter='{}{0:Active|Archived}'}" 
+                                           FontSize="12" FontWeight="SemiBold" Foreground="White"/>
+                            </Border>
+                        </StackPanel>
+                        
+                        <!-- Enrollment Management Button -->
+                        <StackPanel>
+                            <Button Content="👨‍🎓 Manage Enrollments" Command="{Binding ManageEnrollmentsCommand}"
+                                    Background="#3B82F6" Foreground="White" 
+                                    Padding="12,8" CornerRadius="6" HorizontalAlignment="Left"/>
+                            <TextBlock Text="Add or remove students from this class" Foreground="#6B7280" 
+                                       FontSize="12" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Action Buttons -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12">
+                    <Button Content="Cancel" Command="{Binding CancelCommand}"
+                            Background="#6B7280" Foreground="White" 
+                            Padding="16,8" CornerRadius="6"/>
+                    <Button Content="{Binding IsEditMode, Converter={x:Static StringConverters.Format}, ConverterParameter='{}Save Changes|Create Class'}" 
+                            Command="{Binding SaveCommand}"
+                            Background="#10B981" Foreground="White" 
+                            Padding="16,8" CornerRadius="6"/>
+                </StackPanel>
+
+                <!-- Status Messages -->
+                <Border Background="White" CornerRadius="12" Padding="20"
+                        IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="{Binding ErrorMessage}" Foreground="#EF4444" FontWeight="Medium"
+                                   IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                        <TextBlock Text="{Binding SuccessMessage}" Foreground="#10B981" FontWeight="Medium"
+                                   IsVisible="{Binding SuccessMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Grid Grid.RowSpan="2" Background="#80000000" IsVisible="{Binding IsLoading}">
+            <Border Background="White" CornerRadius="8" Padding="32" 
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="16">
+                    <TextBlock Text="⟳" FontSize="24" Foreground="#3B82F6"/>
+                    <TextBlock Text="Processing..." FontSize="16" Foreground="#1F2937" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

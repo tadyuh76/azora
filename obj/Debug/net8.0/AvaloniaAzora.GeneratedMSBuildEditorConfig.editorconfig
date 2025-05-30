@@ -28,7 +28,28 @@ build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 [C:/Users/Asus/Desktop/Azora/azora/Views/Admin/AdminDashboardWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[C:/Users/Asus/Desktop/Azora/azora/Views/Admin/ClassroomEditView.axaml]
+[C:/Users/Asus/Desktop/Azora/azora/Views/Admin/ClassEditWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/Asus/Desktop/Azora/azora/Views/Admin/ClassEnrollmentWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/Asus/Desktop/Azora/azora/Views/Admin/ClassManagementWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/Asus/Desktop/Azora/azora/Views/Admin/StudentManagementWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/Asus/Desktop/Azora/azora/Views/Admin/TeacherManagementView.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/Asus/Desktop/Azora/azora/Views/Admin/TestManagementView.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/Asus/Desktop/Azora/azora/Views/Admin/UserEditWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/Asus/Desktop/Azora/azora/Views/Admin/UserManagementWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
 [C:/Users/Asus/Desktop/Azora/azora/Views/Auth/AuthenticationWindow.axaml]

@@ -8,7 +8,7 @@ namespace AvaloniaAzora.Views.Admin
     {
         public UserManagementWindow()
         {
-            InitializeComponent();
+            AvaloniaXamlLoader.Load(this);
             var viewModel = new UserManagementViewModel(); // Remove parameter
             
             // Subscribe to events

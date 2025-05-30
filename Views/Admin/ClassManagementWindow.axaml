@@ -1,0 +1,232 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaAzora.ViewModels.Admin"
+        x:Class="AvaloniaAzora.Views.Admin.ClassroomManagementWindow"
+        Title="Azora - Classroom Management"
+        Width="1200" Height="800"
+        WindowStartupLocation="CenterScreen"
+        Background="#F8F9FA"
+        x:DataType="vm:ClassroomManagementViewModel">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" 
+                BorderBrush="#E5E7EB" BorderThickness="0,0,0,1"
+                Padding="24,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="🏫" FontSize="32" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                    <StackPanel>
+                        <TextBlock Text="Classroom Management" FontSize="20" FontWeight="Bold" Foreground="#1F2937"/>
+                        <TextBlock Text="Organize classes, enrollments, and academic content" FontSize="12" Foreground="#6B7280"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12">
+                    <Border Background="#8B5CF6" CornerRadius="4" Padding="8,4">
+                        <TextBlock Text="Academic" FontSize="12" FontWeight="SemiBold" Foreground="White"/>
+                    </Border>
+                    <Button Content="🔄 Refresh" Command="{Binding RefreshCommand}"
+                            Background="#6B7280" Foreground="White" Padding="12,6" CornerRadius="4"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="1" Padding="24">
+            <StackPanel Spacing="24">
+
+                <!-- Statistics Overview Card -->
+                <Border Background="White" CornerRadius="12" Padding="20">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="🏫 Total Classes" FontSize="14" Foreground="#6B7280" Margin="0,0,0,8"/>
+                            <TextBlock Text="{Binding Classrooms.Count}" FontSize="24" FontWeight="Bold" Foreground="#1F2937"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="👨‍🎓 Enrolled Students" FontSize="14" Foreground="#6B7280" Margin="0,0,0,8"/>
+                            <TextBlock Text="{Binding TotalEnrollments}" FontSize="24" FontWeight="Bold" Foreground="#10B981"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="📝 Active Tests" FontSize="14" Foreground="#6B7280" Margin="0,0,0,8"/>
+                            <TextBlock Text="{Binding ActiveTests}" FontSize="24" FontWeight="Bold" Foreground="#F59E0B"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="3">
+                            <TextBlock Text="👨‍🏫 Teachers" FontSize="14" Foreground="#6B7280" Margin="0,0,0,8"/>
+                            <TextBlock Text="{Binding ActiveTeachers}" FontSize="24" FontWeight="Bold" Foreground="#3B82F6"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Search and Actions Card -->
+                <Border Background="White" CornerRadius="12" Padding="20">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="🔍 Classroom Directory" FontSize="16" FontWeight="Bold" 
+                                   Foreground="#1F2937" Margin="0,0,0,16"/>
+                        
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Grid.Column="0" Text="{Binding SearchText}" 
+                                     Watermark="🔍 Search classrooms by name or description..." 
+                                     Margin="0,0,16,0" Padding="12,8" CornerRadius="6"
+                                     BorderBrush="#E5E7EB"/>
+                            
+                            <Button Grid.Column="1" Content="🔍 Search" Command="{Binding SearchCommand}" 
+                                    Background="#3B82F6" Foreground="White" Padding="16,8" CornerRadius="6"
+                                    Margin="0,0,12,0"/>
+                            
+                            <Button Grid.Column="2" Content="➕ Create Classroom" Command="{Binding CreateClassroomCommand}"
+                                    Background="#10B981" Foreground="White" Padding="16,8" CornerRadius="6"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Classrooms List Card -->
+                <Border Background="White" CornerRadius="12" Padding="20">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="🏫 Active Classrooms" FontSize="16" FontWeight="Bold" 
+                                   Foreground="#1F2937" Margin="0,0,0,16"/>
+                        
+                        <DataGrid ItemsSource="{Binding Classrooms}" 
+                                  SelectedItem="{Binding SelectedClassroom}"
+                                  AutoGenerateColumns="False" 
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="Horizontal"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  RowBackground="#FAFAFA"
+                                  AlternatingRowBackground="White">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="🏫 Classroom Name" Binding="{Binding Name}" Width="2*">
+                                    <DataGridTextColumn.HeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="Foreground" Value="#374151"/>
+                                        </Style>
+                                    </DataGridTextColumn.HeaderStyle>
+                                </DataGridTextColumn>
+                                
+                                <DataGridTextColumn Header="📝 Description" Binding="{Binding Description}" Width="3*">
+                                    <DataGridTextColumn.HeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="Foreground" Value="#374151"/>
+                                        </Style>
+                                    </DataGridTextColumn.HeaderStyle>
+                                </DataGridTextColumn>
+                                
+                                <DataGridTextColumn Header="👨‍🏫 Teacher" Binding="{Binding TeacherName}" Width="2*">
+                                    <DataGridTextColumn.HeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="Foreground" Value="#374151"/>
+                                        </Style>
+                                    </DataGridTextColumn.HeaderStyle>
+                                </DataGridTextColumn>
+                                
+                                <DataGridTextColumn Header="👨‍🎓 Students" Binding="{Binding StudentCount}" Width="Auto">
+                                    <DataGridTextColumn.HeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="Foreground" Value="#374151"/>
+                                        </Style>
+                                    </DataGridTextColumn.HeaderStyle>
+                                </DataGridTextColumn>
+                                
+                                <DataGridTextColumn Header="📝 Tests" Binding="{Binding TestCount}" Width="Auto">
+                                    <DataGridTextColumn.HeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="Foreground" Value="#374151"/>
+                                        </Style>
+                                    </DataGridTextColumn.HeaderStyle>
+                                </DataGridTextColumn>
+                                
+                                <DataGridTemplateColumn Header="⚙️ Actions" Width="Auto">
+                                    <DataGridTemplateColumn.HeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="Foreground" Value="#374151"/>
+                                        </Style>
+                                    </DataGridTemplateColumn.HeaderStyle>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <Button Content="✏️ Edit" 
+                                                        Command="{Binding #dataGrid.DataContext.EditClassroomCommand}"
+                                                        CommandParameter="{Binding Id}"
+                                                        Background="#3B82F6" Foreground="White" 
+                                                        Padding="6,3" CornerRadius="3" FontSize="11"/>
+                                                <Button Content="👥 Students" 
+                                                        Command="{Binding #dataGrid.DataContext.ViewStudentsCommand}"
+                                                        CommandParameter="{Binding Id}"
+                                                        Background="#10B981" Foreground="White" 
+                                                        Padding="6,3" CornerRadius="3" FontSize="11"/>
+                                                <Button Content="📝 Tests" 
+                                                        Command="{Binding #dataGrid.DataContext.ViewTestsCommand}"
+                                                        CommandParameter="{Binding Id}"
+                                                        Background="#F59E0B" Foreground="White" 
+                                                        Padding="6,3" CornerRadius="3" FontSize="11"/>
+                                                <Button Content="📊 Analytics" 
+                                                        Command="{Binding #dataGrid.DataContext.ViewAnalyticsCommand}"
+                                                        CommandParameter="{Binding Id}"
+                                                        Background="#8B5CF6" Foreground="White" 
+                                                        Padding="6,3" CornerRadius="3" FontSize="11"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Grid Grid.RowSpan="2" Background="#80000000" IsVisible="{Binding IsLoading}">
+            <Border Background="White" CornerRadius="8" Padding="32" 
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="16">
+                    <TextBlock Text="⟳" FontSize="24" Foreground="#3B82F6"/>
+                    <TextBlock Text="Loading classrooms..." FontSize="16" Foreground="#1F2937" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

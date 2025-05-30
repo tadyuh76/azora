@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using AvaloniaAzora.ViewModels.Admin;
 
 namespace AvaloniaAzora.Views.Admin
@@ -13,6 +14,11 @@ namespace AvaloniaAzora.Views.Admin
         public TestManagementView(TestManagementViewModel viewModel) : this()
         {
             DataContext = viewModel;
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
         }
     }
 }
