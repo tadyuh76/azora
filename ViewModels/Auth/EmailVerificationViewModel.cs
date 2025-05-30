@@ -115,7 +115,10 @@ namespace AvaloniaAzora.ViewModels
 
                 if (success)
                 {
-                    ShowSuccess("Verification code resent successfully! Please check your email.");
+                    var message = IsPasswordReset
+                        ? "Password reset email resent successfully! Please check your email."
+                        : "Verification code resent successfully! Please check your email.";
+                    ShowSuccess(message);
                 }
                 else
                 {

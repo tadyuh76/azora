@@ -10,7 +10,8 @@
         Width="1400" Height="900"
         WindowState="Maximized"
         Background="#F8FAFC"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Icon="/Assets/logo.png">
 
     <Grid>
         <Grid.RowDefinitions>

@@ -60,6 +60,10 @@ namespace AvaloniaAzora.Views.Teacher
                 await CreateSubmissionsChart();
                 await CreateGradeDistributionChart();
 
+                // Disable mouse wheel interactions on both charts
+                SubmissionsChart.UserInputProcessor.Disable();
+                GradeDistributionChart.UserInputProcessor.Disable();
+
                 Console.WriteLine("✅ Test analytics loaded successfully");
             }
             catch (Exception ex)
@@ -82,15 +86,25 @@ namespace AvaloniaAzora.Views.Teacher
                     return;
                 }
 
+                // Store classTestId to avoid repeated null reference warnings
+                var classTestId = _classTest.Id;
+
                 // Get all attempts for this test
-                var attempts = await _dataService.GetAttemptsByClassTestIdAsync(_classTest.Id);
+                var attempts = await _dataService.GetAttemptsByClassTestIdAsync(classTestId);
                 if (attempts?.Count == 0)
                 {
                     SubmissionsChart.Plot.Add.Text("No student attempts available", 0, 0);
                     SubmissionsChart.Refresh();
                     return;
                 }                // Get questions for this test
-                var questions = await _dataService.GetQuestionsByTestIdAsync(_classTest.Test?.Id ?? Guid.Empty);
+                if (_classTest.Test?.Id == null)
+                {
+                    SubmissionsChart.Plot.Add.Text("No test information available", 0, 0);
+                    SubmissionsChart.Refresh();
+                    return;
+                }
+
+                var questions = await _dataService.GetQuestionsByTestIdAsync(_classTest.Test.Id);
                 if (questions?.Count == 0 || questions == null)
                 {
                     SubmissionsChart.Plot.Add.Text("No questions found", 0, 0);
@@ -101,12 +115,15 @@ namespace AvaloniaAzora.Views.Teacher
                 // Calculate accuracy for each question
                 var questionAccuracy = new List<(string QuestionText, double Accuracy, int QuestionNumber)>();
 
-                for (int i = 0; i < questions.Count; i++)
+                for (int i = 0; i < (questions?.Count ?? 0); i++)
                 {
-                    var question = questions[i];
-                    var allAnswers = await _dataService.GetAnswersByClassTestAndQuestionAsync(_classTest.Id, question.Id);
+                    var question = questions?[i];
+                    if (question == null || string.IsNullOrEmpty(question.Text))
+                        continue;
 
-                    if (allAnswers.Count > 0)
+                    var allAnswers = await _dataService.GetAnswersByClassTestAndQuestionAsync(classTestId, question.Id);
+
+                    if (allAnswers?.Count > 0)
                     {
                         int correctCount = 0;
                         foreach (var answer in allAnswers)
@@ -234,8 +251,13 @@ namespace AvaloniaAzora.Views.Teacher
                     GradeDistributionChart.Plot.Add.Text("No test data available", 0, 0);
                     GradeDistributionChart.Refresh();
                     return;
-                }                // Get all attempts for this test
-                var attempts = await _dataService.GetAttemptsByClassTestIdAsync(_classTest.Id);
+                }
+
+                // Store classTestId to avoid repeated null reference warnings
+                var classTestId = _classTest.Id;
+
+                // Get all attempts for this test
+                var attempts = await _dataService.GetAttemptsByClassTestIdAsync(classTestId);
                 if (attempts?.Count == 0 || attempts == null)
                 {
                     GradeDistributionChart.Plot.Add.Text("No student attempts available", 0, 0);

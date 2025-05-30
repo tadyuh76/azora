@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using AvaloniaAzora.Models;
 using AvaloniaAzora.Services;
 using System.Collections.ObjectModel;
@@ -7,12 +8,14 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
+using System.Windows.Input;
 
 namespace AvaloniaAzora.ViewModels
 {
     public partial class TeacherDashboardViewModel : ViewModelBase
     {
         private readonly IDataService _dataService;
+        private readonly IAuthenticationService _authService;
 
         [ObservableProperty]
         private User? _currentUser;
@@ -53,9 +56,16 @@ namespace AvaloniaAzora.ViewModels
         [ObservableProperty]
         private int _totalTests;
 
+        public ICommand SignOutCommand { get; }
+
+        public event EventHandler? SignOutRequested;
+
         public TeacherDashboardViewModel()
         {
             _dataService = AvaloniaAzora.Services.ServiceProvider.Instance.GetRequiredService<IDataService>();
+            _authService = AvaloniaAzora.Services.ServiceProvider.Instance.GetRequiredService<IAuthenticationService>();
+
+            SignOutCommand = new AsyncRelayCommand(SignOutAsync);
         }
         public async Task LoadDashboardDataAsync(Guid userId)
         {
@@ -277,6 +287,21 @@ namespace AvaloniaAzora.ViewModels
                 TotalStudentsCount = "0";
                 ActiveTestsCount = "0";
                 AveragePerformance = "0%";
+            }
+        }
+
+        private async Task SignOutAsync()
+        {
+            try
+            {
+                await _authService.SignOutAsync();
+                SignOutRequested?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error signing out: {ex.Message}");
+                // Even if sign out fails, we should still navigate away for security
+                SignOutRequested?.Invoke(this, EventArgs.Empty);
             }
         }
     }

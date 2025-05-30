@@ -7,6 +7,7 @@
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
         Background="#F8F9FA"
+        Icon="/Assets/logo.png"
         x:DataType="vm:StudentDashboardViewModel">
     <Design.DataContext>
         <vm:StudentDashboardViewModel/>
@@ -46,17 +47,19 @@
                         <TextBlock Text="Student" FontSize="12" 
                                    Foreground="#6B7280" HorizontalAlignment="Right"/>
                     </StackPanel>
-                    <Button Content="📤" FontSize="16" 
-                            Background="Transparent" BorderThickness="0"
-                            Padding="8" CornerRadius="6"
-                            ToolTip.Tip="Logout"/>
+                    <Button Content="Logout" FontSize="14" 
+                            Background="#EF4444" Foreground="White" 
+                            Padding="12,8" CornerRadius="6"
+                            Command="{Binding SignOutCommand}"
+                            ToolTip.Tip="Sign out"/>
                 </StackPanel>
             </Grid>
         </Border>
         
         <!-- Main Content -->
-        <ScrollViewer Grid.Row="1" Padding="24">
-            <StackPanel>
+        <ScrollViewer Grid.Row="1" Padding="24" HorizontalScrollBarVisibility="Disabled" 
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="32" Margin="0,0,0,80">
                 <!-- Welcome Section -->
                 <StackPanel Margin="0,0,0,32">
                     <TextBlock Text="{Binding WelcomeMessage}" 

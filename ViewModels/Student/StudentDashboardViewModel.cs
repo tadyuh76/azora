@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using System.Windows.Input;
 
 namespace AvaloniaAzora.ViewModels
 {
     public partial class StudentDashboardViewModel : ViewModelBase
     {
         private readonly IDataService _dataService;
+        private readonly IAuthenticationService _authService;
 
         [ObservableProperty]
         private User? _currentUser;
@@ -29,9 +31,16 @@ namespace AvaloniaAzora.ViewModels
         [ObservableProperty]
         private bool _isLoading = true;
 
+        public ICommand SignOutCommand { get; }
+
+        public event EventHandler? SignOutRequested;
+
         public StudentDashboardViewModel()
         {
             _dataService = AvaloniaAzora.Services.ServiceProvider.Instance.GetRequiredService<IDataService>();
+            _authService = AvaloniaAzora.Services.ServiceProvider.Instance.GetRequiredService<IAuthenticationService>();
+
+            SignOutCommand = new AsyncRelayCommand(SignOutAsync);
         }
 
         public async Task LoadDashboardDataAsync(Guid userId)
@@ -95,8 +104,6 @@ namespace AvaloniaAzora.ViewModels
 
             Console.WriteLine($"✅ Dashboard loaded: {EnrolledClasses.Count} classes, {UpcomingAssessments.Count} assessments");
         }
-
-
 
         private async Task LoadEnrolledClassesAsync(Guid userId)
         {
@@ -258,6 +265,21 @@ namespace AvaloniaAzora.ViewModels
         }
 
         public event Action<Guid>? ViewClassRequested;
+
+        private async Task SignOutAsync()
+        {
+            try
+            {
+                await _authService.SignOutAsync();
+                SignOutRequested?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error signing out: {ex.Message}");
+                // Even if sign out fails, we should still navigate away for security
+                SignOutRequested?.Invoke(this, EventArgs.Empty);
+            }
+        }
     }
 
     public partial class ClassroomCardViewModel : ObservableObject

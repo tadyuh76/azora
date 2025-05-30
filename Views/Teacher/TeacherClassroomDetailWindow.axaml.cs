@@ -56,8 +56,8 @@ namespace AvaloniaAzora.Views.Teacher
             TestCountText.Text = _viewModel.Tests.Count.ToString();
 
             // Update tab counts
-            StudentsTabCountText.Text = $"Students ({_viewModel.Students.Count})";
-            TestsTabCountText.Text = $"Tests ({_viewModel.Tests.Count})";
+            StudentsTabCountText.Text = $"({_viewModel.Students.Count})";
+            TestsTabCountText.Text = $"({_viewModel.Tests.Count})";
 
             // Create student and test cards
             CreateStudentCards();
@@ -462,6 +462,15 @@ namespace AvaloniaAzora.Views.Teacher
             };
             editButton.Click += OnEditTestClicked;
 
+            var previewButton = new Button
+            {
+                Content = "Preview",
+                Classes = { "secondary" },
+                Tag = classTest,
+                MinWidth = 80
+            };
+            previewButton.Click += OnPreviewTestClicked;
+
             var removeButton = new Button
             {
                 Content = "Remove",
@@ -472,6 +481,7 @@ namespace AvaloniaAzora.Views.Teacher
             removeButton.Click += OnRemoveTestClicked;
 
             actionsPanel.Children.Add(editButton);
+            actionsPanel.Children.Add(previewButton);
             actionsPanel.Children.Add(removeButton);
 
             Grid.SetColumn(contentPanel, 0);
@@ -546,6 +556,17 @@ namespace AvaloniaAzora.Views.Teacher
                 var editWindow = new EditTestWindow(classTest);
                 editWindow.Closed += async (s, args) => await LoadData();
                 editWindow.Show();
+            }
+        }
+
+        private void OnPreviewTestClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is ClassTest classTest)
+            {
+                // Open test taking window in preview mode for teacher
+                var testTakingWindow = new AvaloniaAzora.Views.Student.TestTakingWindow(classTest.Id, _teacherId, true);
+                testTakingWindow.Title = $"Preview: {classTest.Test?.Title ?? "Test"} (Teacher Preview Mode)";
+                testTakingWindow.Show();
             }
         }
 

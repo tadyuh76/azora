@@ -11,6 +11,7 @@ namespace AvaloniaAzora.Views.Auth
         private SignUpViewModel _signUpViewModel = null!;
         private ForgotPasswordViewModel _forgotPasswordViewModel = null!;
         private EmailVerificationViewModel _emailVerificationViewModel = null!;
+        private ChangePasswordViewModel _changePasswordViewModel = null!;
 
         public event EventHandler? AuthenticationSuccessful;
 
@@ -40,11 +41,16 @@ namespace AvaloniaAzora.Views.Auth
             _emailVerificationViewModel.BackToSignInCommand = new RelayCommand(() => ShowView("SignIn"));
             _emailVerificationViewModel.VerificationSuccessful += OnVerificationSuccessful;
 
+            _changePasswordViewModel = new ChangePasswordViewModel();
+            _changePasswordViewModel.BackToSignInCommand = new RelayCommand(() => ShowView("SignIn"));
+            _changePasswordViewModel.PasswordChanged += OnPasswordChanged;
+
             // Set DataContext for each view
             this.FindControl<Control>("SignInView")!.DataContext = _signInViewModel;
             this.FindControl<Control>("SignUpView")!.DataContext = _signUpViewModel;
             this.FindControl<Control>("ForgotPasswordView")!.DataContext = _forgotPasswordViewModel;
             this.FindControl<Control>("EmailVerificationView")!.DataContext = _emailVerificationViewModel;
+            this.FindControl<Control>("ChangePasswordView")!.DataContext = _changePasswordViewModel;
         }
 
         private void OnSignInSuccessful(object? sender, EventArgs e)
@@ -69,12 +75,27 @@ namespace AvaloniaAzora.Views.Auth
 
         private void OnVerificationSuccessful(object? sender, EventArgs e)
         {
-            // Email verified successfully - go back to sign in
-            ShowView("SignIn");
+            if (_emailVerificationViewModel.IsPasswordReset)
+            {
+                // Password reset OTP verified - show change password view
+                _changePasswordViewModel.Email = _emailVerificationViewModel.Email;
+                ShowView("ChangePassword");
+            }
+            else
+            {
+                // Email verified successfully for signup - go back to sign in
+                ShowView("SignIn");
+                _signInViewModel.ClearMessages();
+                _signInViewModel.SetSuccessMessage("Email verified successfully! You can now sign in.");
+            }
+        }
 
-            // Show a success message on the sign in page
+        private void OnPasswordChanged(object? sender, EventArgs e)
+        {
+            // Password changed successfully - go back to sign in
+            ShowView("SignIn");
             _signInViewModel.ClearMessages();
-            _signInViewModel.SetSuccessMessage("Email verified successfully! You can now sign in.");
+            _signInViewModel.SetSuccessMessage("Password changed successfully! You can now sign in with your new password.");
         }
 
         private void ShowView(string viewName)
@@ -84,25 +105,22 @@ namespace AvaloniaAzora.Views.Auth
             this.FindControl<Control>("SignUpView")!.IsVisible = false;
             this.FindControl<Control>("ForgotPasswordView")!.IsVisible = false;
             this.FindControl<Control>("EmailVerificationView")!.IsVisible = false;
+            this.FindControl<Control>("ChangePasswordView")!.IsVisible = false;
 
             // Show the requested view
-            switch (viewName)
+            var viewControl = viewName switch
             {
-                case "SignIn":
-                    this.FindControl<Control>("SignInView")!.IsVisible = true;
-                    break;
-                case "SignUp":
-                    this.FindControl<Control>("SignUpView")!.IsVisible = true;
-                    break;
-                case "ForgotPassword":
-                    this.FindControl<Control>("ForgotPasswordView")!.IsVisible = true;
-                    break;
-                case "EmailVerification":
-                    this.FindControl<Control>("EmailVerificationView")!.IsVisible = true;
-                    break;
-                default:
-                    this.FindControl<Control>("SignInView")!.IsVisible = true; // Default to SignIn
-                    break;
+                "SignIn" => this.FindControl<Control>("SignInView"),
+                "SignUp" => this.FindControl<Control>("SignUpView"),
+                "ForgotPassword" => this.FindControl<Control>("ForgotPasswordView"),
+                "EmailVerification" => this.FindControl<Control>("EmailVerificationView"),
+                "ChangePassword" => this.FindControl<Control>("ChangePasswordView"),
+                _ => this.FindControl<Control>("SignInView")
+            };
+
+            if (viewControl != null)
+            {
+                viewControl.IsVisible = true;
             }
         }
     }

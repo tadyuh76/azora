@@ -7,8 +7,9 @@
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
         x:Class="AvaloniaAzora.Views.Teacher.EditTestWindow"
         Title="Edit Test"
-        Width="1000" Height="700"
+        Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="#F8F9FA">
 
     <Design.DataContext>
@@ -104,7 +105,8 @@
                         Content="← Back"
                         FontSize="16" FontWeight="Medium"
                         VerticalAlignment="Center"
-                        Margin="0,0,24,0"/>
+                        Margin="0,0,24,0"
+                        Click="OnBackClicked"/>
                 
                 <!-- Title -->
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -113,7 +115,8 @@
                                Foreground="#1F2937"/>
                     <TextBlock Text="Modify test content and questions" 
                                FontSize="14" Foreground="#6B7280" 
-                               Margin="0,4,0,0"/>                </StackPanel>
+                               Margin="0,4,0,0"/>
+                </StackPanel>
             </Grid>
         </Border>
         
@@ -142,7 +145,7 @@
                                 
                                 <TextBlock Text="Time Limit (minutes)" Classes="label"/>
                                 <NumericUpDown Name="TimeLimitNumericUpDown"
-                                               Minimum="1" Maximum="300"/>
+                                               Minimum="1" Maximum="480"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>

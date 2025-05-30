@@ -25,6 +25,9 @@ namespace AvaloniaAzora.Views.Teacher
             _viewModel = new TeacherDashboardViewModel();
             DataContext = _viewModel;
 
+            // Subscribe to the SignOutRequested event
+            _viewModel.SignOutRequested += OnSignOutRequested;
+
             // Load dashboard data
             _ = _viewModel.LoadDashboardDataAsync(_userId);
         }
@@ -32,20 +35,29 @@ namespace AvaloniaAzora.Views.Teacher
         private void OnCreateClassroomClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
             var window = new CreateClassroomWindow(_userId);
-            window.Closed += (s, args) =>
+
+            // Subscribe to the ClassroomCreated event to only reload when a classroom is actually created
+            window.ClassroomCreated += async (s, args) =>
             {
-                _ = _viewModel.LoadDashboardDataAsync(_userId);
+                // Classroom was successfully created, reload the dashboard
+                Console.WriteLine($"✅ Classroom created with ID: {args.ClassroomId}, reloading dashboard");
+                await _viewModel.LoadDashboardDataAsync(_userId);
             };
+
             window.Show();
         }
 
         private void OnCreateTestClicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
             var window = new CreateTestWindow(_userId);
-            window.Closed += (s, args) =>
+
+            // Subscribe to the TestCreated event to only reload when a test is actually created
+            window.TestCreated += async (s, testId) =>
             {
-                _ = _viewModel.LoadDashboardDataAsync(_userId);
+                // Test was successfully created, reload the dashboard
+                await _viewModel.LoadDashboardDataAsync(_userId);
             };
+
             window.Show();
         }
 
@@ -55,6 +67,20 @@ namespace AvaloniaAzora.Views.Teacher
             {
                 var window = new TeacherClassroomDetailWindow(classId, _userId);
                 window.Show();
+            }
+        }
+
+        private void OnSignOutRequested(object? sender, EventArgs e)
+        {
+            try
+            {
+                Console.WriteLine("🚪 Sign out requested from teacher dashboard");
+                // Close this window which will trigger the Closed event and show auth window
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error handling sign out: {ex.Message}");
             }
         }
     }
