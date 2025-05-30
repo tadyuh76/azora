@@ -1,0 +1,50 @@
+@startuml AvaloniaAzora Package Diagram
+
+!theme plain
+
+' External Dependencies
+package "External Libraries" {
+  [Avalonia UI]
+  [Entity Framework Core]
+  [Supabase]
+  [CommunityToolkit.Mvvm]
+}
+
+' Main Application Packages
+package "AvaloniaAzora" {
+  
+  package "Presentation Layer" {
+    [Views]
+    [ViewModels]
+  }
+  
+  package "Business Layer" {
+    [Services]
+    [Commands]
+  }
+  
+  package "Data Layer" {
+    [Models]
+    [Data Access]
+  }
+  
+  package "Application Core" {
+    [App Configuration]
+    [Assets & Resources]
+  }
+}
+
+' Dependencies
+[Views] --> [ViewModels] : binds to
+[ViewModels] --> [Services] : uses
+[Services] --> [Models] : operates on
+[Services] --> [Data Access] : persists via
+[Commands] --> [Data Access] : manages
+
+' External Dependencies
+[Views] --> [Avalonia UI] : built with
+[ViewModels] --> [CommunityToolkit.Mvvm] : implements
+[Data Access] --> [Entity Framework Core] : uses
+[Services] --> [Supabase] : authenticates via
+
+@enduml 

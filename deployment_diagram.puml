@@ -1,0 +1,75 @@
+@startuml AvaloniaAzora Deployment Diagram
+
+!theme plain
+
+' Client Environment
+node "Client Machine" as ClientNode {
+  node "Operating System" as OS {
+    node ".NET 8 Runtime" as DotNetRuntime {
+      artifact "AvaloniaAzora.exe" as DesktopApp {
+        component "Avalonia UI" as AvaloniaUI
+        component "MVVM ViewModels" as ViewModels
+        component "Authentication Service" as ClientAuth
+        component "Data Service (EF Core)" as DataService
+        component "Validation Service" as ValidationSvc
+        component "ScottPlot Charts" as Charts
+      }
+    }
+    
+    database "Local Cache" as LocalCache
+  }
+}
+
+' Cloud Infrastructure - Supabase
+cloud "Supabase Cloud Platform" as SupabaseCloud {
+  node "Authentication Service" as AuthService {
+    artifact "Supabase Auth (GoTrue)" as Auth
+  }
+  
+  node "Database Cluster" as DatabaseCluster {
+    database "PostgreSQL Database" as PostgresDB {
+      folder "Tables" as Tables {
+        artifact "users" as UsersTable
+        artifact "classes" as ClassesTable
+        artifact "tests" as TestsTable
+        artifact "questions" as QuestionsTable
+        artifact "attempts" as AttemptsTable
+        artifact "class_enrollments" as EnrollmentsTable
+        artifact "user_answers" as AnswersTable
+        artifact "categories" as CategoriesTable
+        artifact "logs" as LogsTable
+      }
+    }
+  }
+  
+  node "API Gateway" as APIGateway {
+    artifact "Supabase Realtime" as RealtimeAPI
+  }
+}
+
+' External AI Services
+cloud "AI Services" as AIServices {
+  node "Groq Cloud" as GroqCloud {
+    artifact "Groq API" as GroqAPI
+    component "DeepSeek R1 Model" as AIModel
+  }
+}
+
+' Network Connections and Data Flow
+DesktopApp ..> AuthService : Authentication\n& User Management
+DesktopApp ..> APIGateway : CRUD Operations\nvia Entity Framework
+DesktopApp ..> RealtimeAPI : Real-time Updates\n(WebSocket)
+DesktopApp ..> GroqAPI : AI Explanations\n& Insights Generation
+
+' Internal Supabase connections
+APIGateway --> PostgresDB : Database Queries
+AuthService --> PostgresDB : User Authentication
+RealtimeAPI --> PostgresDB : Change Notifications
+
+' AI Service connections
+GroqAPI --> AIModel : Question Explanations\nTest Insights\nPerformance Analysis
+
+' Local caching
+DesktopApp ..> LocalCache : Entity Framework\nCaching Layer
+
+@enduml 
