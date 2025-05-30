@@ -108,11 +108,13 @@ namespace AvaloniaAzora.Services
                     var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
                     optionsBuilder.UseNpgsql(supabaseConfig.ConnectionString);
                     return new CustomDbContextFactory(optionsBuilder.Options);
-                });
-
-                // Register Data Service
+                });                // Register Data Service
                 Console.WriteLine("Registering data service...");
                 services.AddSingleton<IDataService, EfCoreDataService>();
+
+                // Register Validation Service
+                Console.WriteLine("Registering validation service...");
+                services.AddSingleton<IValidationService, ValidationService>();
 
                 _serviceProvider = services.BuildServiceProvider();
                 Console.WriteLine("ServiceProvider initialized successfully!");

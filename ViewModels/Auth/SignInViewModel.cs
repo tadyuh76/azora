@@ -23,20 +23,13 @@ namespace AvaloniaAzora.ViewModels
         public SignInViewModel() : base()
         {
             SignInCommand = new AsyncRelayCommand(SignInAsync);
-        }
-
-        private async Task SignInAsync()
+        }        private async Task SignInAsync()
         {
-            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
-            {
-                ShowError("Please enter both email and password.");
+            if (!ValidateInput())
                 return;
-            }
 
             IsLoading = true;
-            ClearError();
-
-            try
+            ClearError();            try
             {
                 var session = await _authService.SignInAsync(Email, Password);
 
@@ -58,6 +51,33 @@ namespace AvaloniaAzora.ViewModels
             {
                 IsLoading = false;
             }
+        }
+
+        private bool ValidateInput()
+        {
+            ClearAllErrors();
+            bool isValid = true;
+
+            // Validate Email
+            if (string.IsNullOrWhiteSpace(Email))
+            {
+                ShowError("Please enter your email address.");
+                isValid = false;
+            }
+            else if (_validationService?.IsValidEmail(Email) == false)
+            {
+                ShowError("Please enter a valid email address.");
+                isValid = false;
+            }
+
+            // Validate Password
+            if (string.IsNullOrWhiteSpace(Password))
+            {
+                ShowError("Please enter your password.");
+                isValid = false;
+            }
+
+            return isValid;
         }
     }
 }
