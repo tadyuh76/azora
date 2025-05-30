@@ -5,6 +5,7 @@
         Title="Azora - Admin Dashboard"
         Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="#F8F9FA"
         Icon="/Assets/logo.png"
         x:DataType="vm:AdminDashboardViewModel">
@@ -54,8 +55,9 @@
         </Border>
         
         <!-- Main Content -->
-        <ScrollViewer Grid.Row="1" Padding="24">
-            <StackPanel>
+        <ScrollViewer Grid.Row="1" Padding="24" HorizontalScrollBarVisibility="Disabled" 
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="32" Margin="0,0,0,80">
                 <!-- Welcome Section -->
                 <StackPanel Margin="0,0,0,32">
                     <TextBlock Text="{Binding WelcomeMessage}" 
@@ -197,6 +199,7 @@
                                         <TextBlock Text="• View all users" FontSize="14" Foreground="#6B7280"/>
                                         <TextBlock Text="• Assign roles" FontSize="14" Foreground="#6B7280"/>
                                         <TextBlock Text="• Manage permissions" FontSize="14" Foreground="#6B7280"/>
+                                        <TextBlock Text="(Feature coming soon)" FontSize="12" Foreground="#9CA3AF" Margin="0,8,0,0" FontStyle="Italic"/>
                                     </StackPanel>
                                     
                                     <Button Grid.Row="2" Content="Manage Users" 
@@ -215,7 +218,6 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     
                                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
@@ -236,11 +238,8 @@
                                         <TextBlock Text="• Monitor all classes" FontSize="14" Foreground="#6B7280"/>
                                         <TextBlock Text="• View enrollments" FontSize="14" Foreground="#6B7280"/>
                                         <TextBlock Text="• Generate reports" FontSize="14" Foreground="#6B7280"/>
+                                        <TextBlock Text="(Feature coming soon)" FontSize="12" Foreground="#9CA3AF" Margin="0,8,0,0" FontStyle="Italic"/>
                                     </StackPanel>
-                                    
-                                    <Button Grid.Row="2" Content="Manage Classes" 
-                                            Background="#10B981" Foreground="White"
-                                            Padding="16,12" CornerRadius="8" HorizontalAlignment="Stretch"/>
                                 </Grid>
                             </Border>
                             
@@ -254,7 +253,6 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     
                                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
@@ -275,11 +273,8 @@
                                         <TextBlock Text="• General settings" FontSize="14" Foreground="#6B7280"/>
                                         <TextBlock Text="• Security options" FontSize="14" Foreground="#6B7280"/>
                                         <TextBlock Text="• Backup and recovery" FontSize="14" Foreground="#6B7280"/>
+                                        <TextBlock Text="(Feature coming soon)" FontSize="12" Foreground="#9CA3AF" Margin="0,8,0,0" FontStyle="Italic"/>
                                     </StackPanel>
-                                    
-                                    <Button Grid.Row="2" Content="Open Settings" 
-                                            Background="#8B5CF6" Foreground="White"
-                                            Padding="16,12" CornerRadius="8" HorizontalAlignment="Stretch"/>
                                 </Grid>
                             </Border>
                             
@@ -293,7 +288,6 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     
                                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
@@ -314,11 +308,8 @@
                                         <TextBlock Text="• Usage statistics" FontSize="14" Foreground="#6B7280"/>
                                         <TextBlock Text="• Performance metrics" FontSize="14" Foreground="#6B7280"/>
                                         <TextBlock Text="• Export data" FontSize="14" Foreground="#6B7280"/>
+                                        <TextBlock Text="(Feature coming soon)" FontSize="12" Foreground="#9CA3AF" Margin="0,8,0,0" FontStyle="Italic"/>
                                     </StackPanel>
-                                    
-                                    <Button Grid.Row="2" Content="View Reports" 
-                                            Background="#F59E0B" Foreground="White"
-                                            Padding="16,12" CornerRadius="8" HorizontalAlignment="Stretch"/>
                                 </Grid>
                             </Border>
                         </UniformGrid>

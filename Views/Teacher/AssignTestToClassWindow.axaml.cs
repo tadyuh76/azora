@@ -329,27 +329,109 @@ namespace AvaloniaAzora.Views.Teacher
 
         private async void OnAssignClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
+            if (!ValidateAssignment())
+                return;
+
+            try
+            {
+                // Update viewmodel with UI values, ensuring proper timezone handling
+                _viewModel.SelectedTest = _selectedTest;
+
+                // Convert local date to proper DateTimeOffset with local timezone
+                var startDate = StartDatePicker.SelectedDate?.Date ?? DateTimeOffset.Now.Date;
+                var dueDate = DueDatePicker.SelectedDate?.Date ?? DateTimeOffset.Now.Date.AddDays(7);
+
+                // Create DateTimeOffset with local timezone for the selected dates
+                _viewModel.StartDate = new DateTimeOffset(startDate.Date, DateTimeOffset.Now.Offset);
+                _viewModel.DueDate = new DateTimeOffset(dueDate.Date, DateTimeOffset.Now.Offset);
+
+                _viewModel.LimitAttempts = (int)(LimitAttemptsNumericUpDown.Value ?? 1);
+                _viewModel.PassingScore = (double)(PassingScoreNumericUpDown.Value ?? 70);
+
+                await _viewModel.ExecuteAssignTest();
+
+                Console.WriteLine("✅ Test assigned successfully!");
+                Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error assigning test: {ex.Message}");
+                ShowAssignmentError($"Failed to assign test: {ex.Message}");
+            }
+        }
+
+        private bool ValidateAssignment()
+        {
+            // Validate that a test is selected
             if (_selectedTest == null)
             {
-                return;
+                ShowAssignmentError("Please select a test to assign.");
+                return false;
             }
 
-            // Update viewmodel with UI values, ensuring proper timezone handling
-            _viewModel.SelectedTest = _selectedTest;
+            // Validate dates
+            var startDate = StartDatePicker.SelectedDate?.Date;
+            var dueDate = DueDatePicker.SelectedDate?.Date;
 
-            // Convert local date to proper DateTimeOffset with local timezone
-            var startDate = StartDatePicker.SelectedDate?.Date ?? DateTimeOffset.Now.Date;
-            var dueDate = DueDatePicker.SelectedDate?.Date ?? DateTimeOffset.Now.Date.AddDays(7);
+            if (startDate == null)
+            {
+                ShowAssignmentError("Please select a start date.");
+                StartDatePicker.Focus();
+                return false;
+            }
 
-            // Create DateTimeOffset with local timezone for the selected dates
-            _viewModel.StartDate = new DateTimeOffset(startDate.Date, DateTimeOffset.Now.Offset);
-            _viewModel.DueDate = new DateTimeOffset(dueDate.Date, DateTimeOffset.Now.Offset);
+            if (dueDate == null)
+            {
+                ShowAssignmentError("Please select a due date.");
+                DueDatePicker.Focus();
+                return false;
+            }
 
-            _viewModel.LimitAttempts = (int)(LimitAttemptsNumericUpDown.Value ?? 1);
-            _viewModel.PassingScore = (double)(PassingScoreNumericUpDown.Value ?? 70);
+            // Validate that due date is after start date
+            if (dueDate <= startDate)
+            {
+                ShowAssignmentError("Due date must be after the start date.");
+                DueDatePicker.Focus();
+                return false;
+            }
 
-            await _viewModel.ExecuteAssignTest();
-            Close();
+            // Validate that start date is not in the past (more than 1 day ago)
+            if (startDate < DateTimeOffset.Now.Date.AddDays(-1))
+            {
+                ShowAssignmentError("Start date cannot be more than 1 day in the past.");
+                StartDatePicker.Focus();
+                return false;
+            }
+
+            // Validate attempt limit
+            var attemptLimit = LimitAttemptsNumericUpDown.Value ?? 1;
+            if (attemptLimit < 1)
+            {
+                ShowAssignmentError("Attempt limit must be at least 1.");
+                LimitAttemptsNumericUpDown.Focus();
+                return false;
+            }
+
+            // Validate passing score
+            var passingScore = PassingScoreNumericUpDown.Value ?? 70;
+            if (passingScore < 0 || passingScore > 100)
+            {
+                ShowAssignmentError("Passing score must be between 0 and 100.");
+                PassingScoreNumericUpDown.Focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        private void ShowAssignmentError(string message)
+        {
+            // For now, show a simple console message
+            // In a real application, you would show a proper error message UI
+            Console.WriteLine($"❌ Assignment Error: {message}");
+
+            // TODO: Implement proper error message display similar to CreateClassroomWindow
+            // This could be a toast notification, status bar message, or inline error display
         }
     }
 }

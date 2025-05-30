@@ -6,10 +6,11 @@
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
         x:Class="AvaloniaAzora.Views.Student.TestTakingWindow"
         x:DataType="vm:TestTakingViewModel"
-        Title="{Binding TestTitle, StringFormat='Taking Test: {0}'}"
-        Width="1200" Height="800"
-        Background="#F8FAFC"
+        Title="Azora - Taking Test"
+        Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="#F8F9FA"
         CanResize="True"
         Icon="/Assets/logo.png">
 

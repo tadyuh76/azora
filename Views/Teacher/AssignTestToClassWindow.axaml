@@ -7,8 +7,9 @@
         mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
         x:Class="AvaloniaAzora.Views.Teacher.AssignTestToClassWindow"
         Title="Assign Test to Class"
-        Width="1000" Height="700"
+        Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="#F8F9FA">
 
     <Design.DataContext>
@@ -100,7 +101,7 @@
 
                 <!-- Tests List -->
                 <ScrollViewer Grid.Row="2">
-                    <StackPanel Name="TestsListPanel">
+                    <StackPanel Name="TestsListPanel" Margin="0,0,0,60">
                         <!-- Test items will be populated here -->
                     </StackPanel>
                 </ScrollViewer>

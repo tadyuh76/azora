@@ -7,8 +7,9 @@
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
         x:Class="AvaloniaAzora.Views.Teacher.EditTestWindow"
         Title="Edit Test"
-        Width="1000" Height="700"
+        Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="#F8F9FA">
 
     <Design.DataContext>

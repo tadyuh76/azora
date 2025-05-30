@@ -256,68 +256,234 @@ namespace AvaloniaAzora.Views.Teacher
 
         private async void OnUpdateTestClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            // Update viewmodel with UI values
-            _viewModel.Title = TitleTextBox.Text ?? string.Empty;
-            _viewModel.Description = DescriptionTextBox.Text ?? string.Empty;
-            _viewModel.TimeLimit = (int)(TimeLimitNumericUpDown.Value ?? 60);
+            if (!ValidateTestInput())
+                return;
 
-            await _viewModel.UpdateTestCommand.ExecuteAsync(null);
+            try
+            {
+                // Update viewmodel with UI values
+                _viewModel.Title = TitleTextBox.Text ?? string.Empty;
+                _viewModel.Description = DescriptionTextBox.Text ?? string.Empty;
+                _viewModel.TimeLimit = (int)(TimeLimitNumericUpDown.Value ?? 60);
+
+                await _viewModel.UpdateTestCommand.ExecuteAsync(null);
+
+                Console.WriteLine("✅ Test updated successfully!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error updating test: {ex.Message}");
+                ShowValidationError($"Failed to update test: {ex.Message}");
+            }
+        }
+
+        private bool ValidateTestInput()
+        {
+            // Validate test title
+            if (string.IsNullOrWhiteSpace(TitleTextBox.Text))
+            {
+                ShowValidationError("Please enter a test title.");
+                TitleTextBox.Focus();
+                return false;
+            }
+
+            if (TitleTextBox.Text.Trim().Length < 3)
+            {
+                ShowValidationError("Test title must be at least 3 characters long.");
+                TitleTextBox.Focus();
+                return false;
+            }
+
+            if (TitleTextBox.Text.Trim().Length > 100)
+            {
+                ShowValidationError("Test title cannot exceed 100 characters.");
+                TitleTextBox.Focus();
+                return false;
+            }
+
+            // Validate time limit
+            var timeLimit = TimeLimitNumericUpDown.Value ?? 0;
+            if (timeLimit < 1)
+            {
+                ShowValidationError("Time limit must be at least 1 minute.");
+                TimeLimitNumericUpDown.Focus();
+                return false;
+            }
+
+            if (timeLimit > 480)
+            {
+                ShowValidationError("Time limit cannot exceed 480 minutes (8 hours).");
+                TimeLimitNumericUpDown.Focus();
+                return false;
+            }
+
+            return true;
         }
 
         private async void OnAddQuestionClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            // Get question type from ComboBox
+            if (!ValidateQuestionInput())
+                return;
+
+            try
+            {
+                // Get question type from ComboBox
+                var selectedTypeItem = QuestionTypeComboBox.SelectedItem as ComboBoxItem;
+                var questionType = selectedTypeItem?.Tag?.ToString() ?? "multiple_choice";
+
+                // Update viewmodel with UI values
+                _viewModel.NewQuestionText = NewQuestionTextBox.Text ?? string.Empty;
+                _viewModel.NewQuestionType = questionType;
+                _viewModel.QuestionPoints = (int)(QuestionPointsNumericUpDown.Value ?? 1);
+
+                // Handle correct answer based on question type
+                if (questionType == "multiple_choice")
+                {
+                    var selectedAnswerItem = CorrectAnswerComboBox.SelectedItem as ComboBoxItem;
+                    var selectedOption = selectedAnswerItem?.Tag?.ToString() ?? "A";
+
+                    // Map option letters to index (1-4) for correct answer storage
+                    var answerIndexMap = new Dictionary<string, string>
+                    {
+                        ["A"] = "1",
+                        ["B"] = "2",
+                        ["C"] = "3",
+                        ["D"] = "4"
+                    };
+
+                    // Store the index instead of the text
+                    _viewModel.CorrectAnswer = answerIndexMap[selectedOption];
+
+                    // Copy possible answers from UI to viewmodel
+                    _viewModel.PossibleAnswers.Clear();
+                    var answers = new List<string>
+                    {
+                        Answer1TextBox.Text ?? string.Empty,
+                        Answer2TextBox.Text ?? string.Empty,
+                        Answer3TextBox.Text ?? string.Empty,
+                        Answer4TextBox.Text ?? string.Empty
+                    };
+
+                    foreach (var answer in answers.Where(a => !string.IsNullOrWhiteSpace(a)))
+                    {
+                        _viewModel.PossibleAnswers.Add(answer);
+                    }
+                }
+                else
+                {
+                    // Short answer
+                    _viewModel.CorrectAnswer = CorrectAnswerTextBox.Text ?? string.Empty;
+                    _viewModel.PossibleAnswers.Clear();
+                }
+
+                await _viewModel.AddQuestionCommand.ExecuteAsync(null);
+
+                // Clear form
+                ClearQuestionForm();
+
+                // Update questions display
+                CreateQuestionCards();
+                UpdateQuestionsUI();
+
+                // Show success message (you could implement this similar to other forms)
+                Console.WriteLine("✅ Question added successfully!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error adding question: {ex.Message}");
+                // TODO: Show error message to user
+            }
+        }
+
+        private bool ValidateQuestionInput()
+        {
+            // Validate question text
+            if (string.IsNullOrWhiteSpace(NewQuestionTextBox.Text))
+            {
+                ShowValidationError("Please enter a question text.");
+                NewQuestionTextBox.Focus();
+                return false;
+            }
+
+            if (NewQuestionTextBox.Text.Trim().Length < 10)
+            {
+                ShowValidationError("Question text must be at least 10 characters long.");
+                NewQuestionTextBox.Focus();
+                return false;
+            }
+
+            // Get question type
             var selectedTypeItem = QuestionTypeComboBox.SelectedItem as ComboBoxItem;
             var questionType = selectedTypeItem?.Tag?.ToString() ?? "multiple_choice";
 
-            // Update viewmodel with UI values
-            _viewModel.NewQuestionText = NewQuestionTextBox.Text ?? string.Empty;
-            _viewModel.NewQuestionType = questionType;
-            _viewModel.QuestionPoints = (int)(QuestionPointsNumericUpDown.Value ?? 1);
-
-            // Handle correct answer based on question type
             if (questionType == "multiple_choice")
             {
-                var selectedAnswerItem = CorrectAnswerComboBox.SelectedItem as ComboBoxItem;
-                var selectedOption = selectedAnswerItem?.Tag?.ToString() ?? "A";
-
-                // Map option letters to index (1-4) for correct answer storage
-                var answerIndexMap = new Dictionary<string, string>
-                {
-                    ["A"] = "1",
-                    ["B"] = "2",
-                    ["C"] = "3",
-                    ["D"] = "4"
-                };
-
-                // Store the index instead of the text
-                _viewModel.CorrectAnswer = answerIndexMap[selectedOption];
-
-                // Copy possible answers from UI to viewmodel
-                _viewModel.PossibleAnswers.Clear();
+                // Validate that at least 2 answer options are provided
                 var answers = new List<string>
                 {
-                    Answer1TextBox.Text ?? string.Empty,
-                    Answer2TextBox.Text ?? string.Empty,
-                    Answer3TextBox.Text ?? string.Empty,
-                    Answer4TextBox.Text ?? string.Empty
+                    Answer1TextBox.Text?.Trim() ?? string.Empty,
+                    Answer2TextBox.Text?.Trim() ?? string.Empty,
+                    Answer3TextBox.Text?.Trim() ?? string.Empty,
+                    Answer4TextBox.Text?.Trim() ?? string.Empty
                 };
 
-                foreach (var answer in answers.Where(a => !string.IsNullOrWhiteSpace(a)))
+                var validAnswers = answers.Where(a => !string.IsNullOrWhiteSpace(a)).ToList();
+                if (validAnswers.Count < 2)
                 {
-                    _viewModel.PossibleAnswers.Add(answer);
+                    ShowValidationError("Please provide at least 2 answer options for multiple choice questions.");
+                    Answer1TextBox.Focus();
+                    return false;
+                }
+
+                // Validate that a correct answer is selected
+                if (CorrectAnswerComboBox.SelectedItem == null)
+                {
+                    ShowValidationError("Please select the correct answer for the multiple choice question.");
+                    CorrectAnswerComboBox.Focus();
+                    return false;
                 }
             }
-            else
+            else if (questionType == "short_answer")
             {
-                // Short answer
-                _viewModel.CorrectAnswer = CorrectAnswerTextBox.Text ?? string.Empty;
-                _viewModel.PossibleAnswers.Clear();
+                // Validate correct answer for short answer questions
+                if (string.IsNullOrWhiteSpace(CorrectAnswerTextBox.Text))
+                {
+                    ShowValidationError("Please provide the correct answer for the short answer question.");
+                    CorrectAnswerTextBox.Focus();
+                    return false;
+                }
+
+                if (CorrectAnswerTextBox.Text.Trim().Length < 1)
+                {
+                    ShowValidationError("Correct answer must be at least 1 character long.");
+                    CorrectAnswerTextBox.Focus();
+                    return false;
+                }
             }
 
-            await _viewModel.AddQuestionCommand.ExecuteAsync(null);
+            // Validate points
+            if (QuestionPointsNumericUpDown.Value < 1)
+            {
+                ShowValidationError("Question points must be at least 1.");
+                QuestionPointsNumericUpDown.Focus();
+                return false;
+            }
 
-            // Clear form
+            return true;
+        }
+
+        private void ShowValidationError(string message)
+        {
+            // For now, show a simple console message
+            // In a real application, you would show a proper error message UI
+            Console.WriteLine($"❌ Validation Error: {message}");
+
+            // TODO: Implement proper error message display similar to CreateClassroomWindow
+            // This could be a toast notification, status bar message, or inline error display
+        }
+
+        private void ClearQuestionForm()
+        {
             NewQuestionTextBox.Text = "";
             CorrectAnswerTextBox.Text = "";
             Answer1TextBox.Text = "";
@@ -325,10 +491,7 @@ namespace AvaloniaAzora.Views.Teacher
             Answer3TextBox.Text = "";
             Answer4TextBox.Text = "";
             CorrectAnswerComboBox.SelectedIndex = 0;
-
-            // Update questions display
-            CreateQuestionCards();
-            UpdateQuestionsUI();
+            QuestionPointsNumericUpDown.Value = 1;
         }
 
         private async void OnDeleteQuestionClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

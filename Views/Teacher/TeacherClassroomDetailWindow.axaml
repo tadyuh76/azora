@@ -7,6 +7,7 @@
         Title="Classroom Management"
         Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="#F8F9FA"
         Icon="/Assets/logo.png">
 
@@ -197,7 +198,7 @@
                     
                     <!-- Students List -->
                     <ScrollViewer Grid.Row="1">
-                        <StackPanel Name="StudentsPanel">
+                        <StackPanel Name="StudentsPanel" Margin="0,0,0,80">
                             <!-- Student cards will be added programmatically -->
                         </StackPanel>
                     </ScrollViewer>
@@ -244,7 +245,7 @@
                     
                     <!-- Tests List -->
                     <ScrollViewer Grid.Row="1">
-                        <StackPanel Name="TestsPanel">
+                        <StackPanel Name="TestsPanel" Margin="0,0,0,80">
                             <!-- Test cards will be added programmatically -->
                         </StackPanel>
                     </ScrollViewer>

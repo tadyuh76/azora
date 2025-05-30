@@ -5,6 +5,7 @@
         Title="Azora - Student Dashboard"
         Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="#F8F9FA"
         Icon="/Assets/logo.png"
         x:DataType="vm:StudentDashboardViewModel">
@@ -56,8 +57,9 @@
         </Border>
         
         <!-- Main Content -->
-        <ScrollViewer Grid.Row="1" Padding="24">
-            <StackPanel>
+        <ScrollViewer Grid.Row="1" Padding="24" HorizontalScrollBarVisibility="Disabled" 
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="32" Margin="0,0,0,80">
                 <!-- Welcome Section -->
                 <StackPanel Margin="0,0,0,32">
                     <TextBlock Text="{Binding WelcomeMessage}" 
