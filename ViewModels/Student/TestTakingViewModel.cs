@@ -533,7 +533,6 @@ namespace AvaloniaAzora.ViewModels.Student
             _timer.Stop();
             TestAborted?.Invoke(this, EventArgs.Empty);
         }
-
         [RelayCommand]
         private void ReviewTest()
         {
@@ -543,6 +542,16 @@ namespace AvaloniaAzora.ViewModels.Student
                 Questions = Questions.ToList(),
                 TestTitle = TestTitle
             });
+        }
+        [RelayCommand]
+        private void ToggleFlag()
+        {
+            if (CurrentQuestion != null)
+            {
+                CurrentQuestion.ToggleFlag();
+                UpdateQuestionStatus(CurrentQuestion); // Update the question box color
+                Console.WriteLine($"🏳️ Question {CurrentQuestion.QuestionNumber} flag toggled: {CurrentQuestion.IsFlagged}");
+            }
         }
 
         [RelayCommand]
@@ -657,7 +666,6 @@ namespace AvaloniaAzora.ViewModels.Student
             var answeredCount = Questions.Count(q => q.IsAnswered);
             ProgressPercentage = TotalQuestions > 0 ? (double)answeredCount / TotalQuestions * 100 : 0;
         }
-
         private void UpdateQuestionStatus(QuestionViewModel question)
         {
             bool isAnswered = false;
@@ -676,8 +684,24 @@ namespace AvaloniaAzora.ViewModels.Student
             }
 
             question.IsAnswered = isAnswered;
-            question.StatusColor = isAnswered ? "#10B981" : "#E5E7EB"; // Green if answered, gray if not
-            question.StatusTextColor = isAnswered ? "White" : "#6B7280";
+
+            // Update StatusColor based on flag and answered status
+            // Priority: Flagged > Answered > Unanswered
+            if (question.IsFlagged)
+            {
+                question.StatusColor = "#F59E0B"; // Orange for flagged questions
+                question.StatusTextColor = "White";
+            }
+            else if (isAnswered)
+            {
+                question.StatusColor = "#10B981"; // Green for answered questions
+                question.StatusTextColor = "White";
+            }
+            else
+            {
+                question.StatusColor = "#E5E7EB"; // Gray for unanswered questions
+                question.StatusTextColor = "#6B7280";
+            }
         }
 
         private async Task AutoSaveCurrentAnswer()
@@ -965,10 +989,20 @@ namespace AvaloniaAzora.ViewModels.Student
         private bool _falseSelected;
 
         [ObservableProperty]
-        private string _shortAnswerText = "";
+        private string _shortAnswerText = ""; [ObservableProperty]
+        private string _difficulty = "medium";
 
         [ObservableProperty]
-        private string _difficulty = "medium";
+        private bool _isFlagged;
+
+        [ObservableProperty]
+        private string _flagColor = "#6B7280";
+
+        public void ToggleFlag()
+        {
+            IsFlagged = !IsFlagged;
+            FlagColor = IsFlagged ? "#F59E0B" : "#6B7280"; // Orange when flagged, gray when not
+        }
     }
 
     public partial class AnswerOptionViewModel : ObservableObject

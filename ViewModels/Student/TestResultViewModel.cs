@@ -129,6 +129,21 @@ namespace AvaloniaAzora.ViewModels.Student
         [ObservableProperty]
         private string _categoryName = "General";
 
+        [ObservableProperty]
+        private bool _hasPassed = false;
+
+        [ObservableProperty]
+        private string _passFailText = "N/A";
+
+        [ObservableProperty]
+        private string _passFailColor = "#6B7280";
+
+        [ObservableProperty]
+        private string _passFailBadgeColor = "#6B7280";
+
+        [ObservableProperty]
+        private double _passingScore = 70.0;
+
         public ObservableCollection<QuestionResultViewModel> QuestionResults { get; } = new();
         public List<Attempt> AllAttempts { get; private set; } = new();
         public Guid CurrentAttemptId { get; private set; }
@@ -162,10 +177,13 @@ namespace AvaloniaAzora.ViewModels.Student
                     LoadDemoResults();
                     return;
                 }
-
                 CurrentClassTestId = attempt.ClassTestId ?? Guid.Empty;
                 var test = attempt.ClassTest.Test;
                 TestTitle = test.Title;
+
+                // Load passing score from ClassTest
+                PassingScore = (double)(attempt.ClassTest.PassingScore ?? 70.0f);
+                Console.WriteLine($"📊 Passing score for this test: {PassingScore}%");
 
                 // Load all attempts for this test by this student
                 if (attempt.ClassTestId.HasValue)
@@ -178,12 +196,10 @@ namespace AvaloniaAzora.ViewModels.Student
 
                     UpdateNavigationStates();
                     Console.WriteLine($"📊 Found {TotalAttempts} attempts for this test");
-                }
-
-                // Calculate completion info
+                }                // Calculate completion info
                 if (attempt.EndTime.HasValue)
                 {
-                    CompletedDateString = attempt.EndTime.Value.ToString("MMMM dd, yyyy 'at' hh:mm tt");
+                    CompletedDateString = attempt.EndTime.Value.ToLocalTime().ToString("MMMM dd, yyyy 'at' hh:mm tt");
                     var timeTaken = attempt.EndTime.Value - attempt.StartTime;
                     TimeTakenString = $"{timeTaken.Minutes}m {timeTaken.Seconds}s";
                 }
@@ -435,8 +451,23 @@ namespace AvaloniaAzora.ViewModels.Student
                 PerformanceBadgeColor = "#EF4444";
                 PerformanceBadgeText = "Needs Improvement";
             }
-        }
 
+            // Update pass/fail status
+            if (ScorePercentage >= PassingScore)
+            {
+                HasPassed = true;
+                PassFailText = "Passed";
+                PassFailColor = "#10B981"; // Green
+                PassFailBadgeColor = "#10B981";
+            }
+            else
+            {
+                HasPassed = false;
+                PassFailText = "Failed";
+                PassFailColor = "#EF4444"; // Red
+                PassFailBadgeColor = "#EF4444";
+            }
+        }
         private void LoadDemoResults()
         {
             TestTitle = "Algebra Fundamentals Quiz";
@@ -449,6 +480,7 @@ namespace AvaloniaAzora.ViewModels.Student
             ClassRank = "#8";
             CompletedDateString = "January 8, 2024 at 09:38 PM";
             TimeTakenString = "38m 15s";
+            PassingScore = 75.0; // Demo passing score
 
             QuestionResults.Clear();
 

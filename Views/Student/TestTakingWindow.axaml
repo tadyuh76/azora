@@ -217,14 +217,14 @@
                             </Border>
                         </StackPanel>
                     </StackPanel>
-                    
-                    <Button Grid.Column="1" Content="🏴 Flag" 
+                      <Button Grid.Column="1" Content="🏴 Flag" 
                             Background="Transparent" 
-                            BorderBrush="#D1D5DB" BorderThickness="1"
-                            Foreground="#6B7280"
+                            BorderBrush="{Binding CurrentQuestion.FlagColor}" BorderThickness="2"
+                            Foreground="{Binding CurrentQuestion.FlagColor}"
                             FontSize="14" Padding="12,8"
                             CornerRadius="6"
-                            VerticalAlignment="Top"/>
+                            VerticalAlignment="Top"
+                            Command="{Binding ToggleFlagCommand}"/>
                 </Grid>
 
                 <!-- Question Text and Answers -->

@@ -37,23 +37,13 @@
                                    FontSize="14" 
                                    Foreground="#6B7280"/>
                     </StackPanel>
-                </StackPanel>
-
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                </StackPanel>                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                     <TextBlock FontSize="14" Foreground="#6B7280">
                         <Run Text="{Binding AnsweredCount}"/>
                         <Run Text="of"/>
                         <Run Text="{Binding TotalQuestions}"/>
                         <Run Text="answered"/>
                     </TextBlock>
-                    <Button Content="Submit Test" 
-                            Background="#1F2937" 
-                            Foreground="White"
-                            BorderThickness="0"
-                            FontSize="14" FontWeight="SemiBold"
-                            Padding="20,12"
-                            CornerRadius="8"
-                            Command="{Binding SubmitTestCommand}"/>
                 </StackPanel>
             </Grid>
         </Border>
