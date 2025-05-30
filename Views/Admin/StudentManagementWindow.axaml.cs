@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 
 namespace AvaloniaAzora.Views.Admin
 {
@@ -6,7 +7,7 @@ namespace AvaloniaAzora.Views.Admin
     {
         public StudentManagementWindow()
         {
-            InitializeComponent();
+            AvaloniaXamlLoader.Load(this);
         }
     }
 }

@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using AvaloniaAzora.ViewModels.Admin;
 using System;
 
@@ -9,7 +10,7 @@ namespace AvaloniaAzora.Views.Admin
         public UserManagementWindow()
         {
             AvaloniaXamlLoader.Load(this);
-            var viewModel = new UserManagementViewModel(); // Remove parameter
+            var viewModel = new UserManagementViewModel();
             
             // Subscribe to events
             viewModel.CreateUserRequested += OnCreateUserRequested;
@@ -59,9 +60,15 @@ namespace AvaloniaAzora.Views.Admin
 
         private void OnBulkImportRequested(object? sender, EventArgs e)
         {
+            // Placeholder for bulk import functionality
+            ShowComingSoonMessage("Bulk Import");
+        }
+
+        private void ShowComingSoonMessage(string featureName)
+        {
             var messageBox = new Window
             {
-                Title = "Bulk Import",
+                Title = "Coming Soon",
                 Width = 400,
                 Height = 200,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner
@@ -69,7 +76,7 @@ namespace AvaloniaAzora.Views.Admin
             
             var textBlock = new TextBlock
             {
-                Text = "Bulk import functionality will be implemented here.\nSupported format: CSV with columns: Email, FullName, Role",
+                Text = $"{featureName} is coming soon!",
                 Margin = new Avalonia.Thickness(20),
                 TextWrapping = Avalonia.Media.TextWrapping.Wrap
             };

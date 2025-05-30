@@ -14,7 +14,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header - Consistent with AdminDashboard -->
+        <!-- Header -->
         <Border Grid.Row="0" Background="White" 
                 BorderBrush="#E5E7EB" BorderThickness="0,0,0,1"
                 Padding="24,16">
@@ -88,7 +88,7 @@
                         <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
                     </Border.Effect>
                     <StackPanel>
-                        <TextBlock Text="🔍 Search & Actions" FontSize="16" FontWeight="Bold" 
+                        <TextBlock Text="🔍 Search and Actions" FontSize="16" FontWeight="Bold" 
                                    Foreground="#1F2937" Margin="0,0,0,16"/>
                         
                         <Grid>
@@ -99,7 +99,7 @@
                             </Grid.ColumnDefinitions>
 
                             <TextBox Grid.Column="0" Text="{Binding SearchText}" 
-                                     Watermark="🔍 Search students by name or email..." 
+                                     Watermark="Search students by name or email..." 
                                      Margin="0,0,16,0" Padding="12,8" CornerRadius="6"
                                      BorderBrush="#E5E7EB"/>
                             
@@ -132,64 +132,25 @@
                                   RowBackground="#FAFAFA"
                                   AlternatingRowBackground="White">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="👤 Student Name" Binding="{Binding FullName}" Width="2*">
-                                    <DataGridTextColumn.HeaderStyle>
-                                        <Style TargetType="DataGridColumnHeader">
-                                            <Setter Property="FontWeight" Value="SemiBold"/>
-                                            <Setter Property="Foreground" Value="#374151"/>
-                                        </Style>
-                                    </DataGridTextColumn.HeaderStyle>
-                                </DataGridTextColumn>
-                                
-                                <DataGridTextColumn Header="📧 Email Address" Binding="{Binding Email}" Width="2*">
-                                    <DataGridTextColumn.HeaderStyle>
-                                        <Style TargetType="DataGridColumnHeader">
-                                            <Setter Property="FontWeight" Value="SemiBold"/>
-                                            <Setter Property="Foreground" Value="#374151"/>
-                                        </Style>
-                                    </DataGridTextColumn.HeaderStyle>
-                                </DataGridTextColumn>
-                                
-                                <DataGridTextColumn Header="📅 Join Date" Binding="{Binding JoinDate, StringFormat='MMM dd, yyyy'}" Width="*">
-                                    <DataGridTextColumn.HeaderStyle>
-                                        <Style TargetType="DataGridColumnHeader">
-                                            <Setter Property="FontWeight" Value="SemiBold"/>
-                                            <Setter Property="Foreground" Value="#374151"/>
-                                        </Style>
-                                    </DataGridTextColumn.HeaderStyle>
-                                </DataGridTextColumn>
-                                
-                                <DataGridTextColumn Header="🏫 Classes" Binding="{Binding ClassCount}" Width="Auto">
-                                    <DataGridTextColumn.HeaderStyle>
-                                        <Style TargetType="DataGridColumnHeader">
-                                            <Setter Property="FontWeight" Value="SemiBold"/>
-                                            <Setter Property="Foreground" Value="#374151"/>
-                                        </Style>
-                                    </DataGridTextColumn.HeaderStyle>
-                                </DataGridTextColumn>
-                                
-                                <DataGridTemplateColumn Header="⚙️ Actions" Width="Auto">
-                                    <DataGridTemplateColumn.HeaderStyle>
-                                        <Style TargetType="DataGridColumnHeader">
-                                            <Setter Property="FontWeight" Value="SemiBold"/>
-                                            <Setter Property="Foreground" Value="#374151"/>
-                                        </Style>
-                                    </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTextColumn Header="👤 Student Name" Binding="{Binding FullName}" Width="2*"/>
+                                <DataGridTextColumn Header="📧 Email Address" Binding="{Binding Email}" Width="2*"/>
+                                <DataGridTextColumn Header="📅 Join Date" Binding="{Binding JoinDate}" Width="*"/>
+                                <DataGridTemplateColumn Header="⚙️ Actions" Width="200">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" Spacing="8">
                                                 <Button Content="✏️ Edit" 
-                                                        Command="{Binding #dataGrid.DataContext.EditStudentCommand}"
+                                                        Command="{Binding ((vm:StudentManagementViewModel)DataContext).EditStudentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                         CommandParameter="{Binding Id}"
                                                         Background="#3B82F6" Foreground="White" 
                                                         Padding="8,4" CornerRadius="4" FontSize="12"/>
                                                 <Button Content="📊 View" 
-                                                        Command="{Binding #dataGrid.DataContext.ViewStudentCommand}"
+                                                        Command="{Binding ((vm:StudentManagementViewModel)DataContext).ViewStudentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                         CommandParameter="{Binding Id}"
                                                         Background="#10B981" Foreground="White" 
                                                         Padding="8,4" CornerRadius="4" FontSize="12"/>
                                                 <Button Content="🗑️ Remove" 
-                                                        Command="{Binding #dataGrid.DataContext.DeleteStudentCommand}"
+                                                        Command="{Binding ((vm:StudentManagementViewModel)DataContext).DeleteStudentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                         CommandParameter="{Binding Id}"
                                                         Background="#EF4444" Foreground="White" 
                                                         Padding="8,4" CornerRadius="4" FontSize="12"/>
@@ -203,22 +164,21 @@
                 </Border>
 
                 <!-- Status Messages Card -->
-                <Border Background="White" CornerRadius="12" Padding="20"
-                        IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                <Border Background="White" CornerRadius="12" Padding="20" IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="10" OffsetX="0" OffsetY="2" Color="#000000" Opacity="0.05"/>
                     </Border.Effect>
                     <StackPanel>
                         <TextBlock Text="{Binding ErrorMessage}" Foreground="#EF4444" FontWeight="Medium"
-                                   IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                   IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}"/>
                         <TextBlock Text="{Binding SuccessMessage}" Foreground="#10B981" FontWeight="Medium"
-                                   IsVisible="{Binding SuccessMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                   IsVisible="{Binding SuccessMessage, Converter={x:Static ObjectConverters.IsNotNull}}"/>
                     </StackPanel>
                 </Border>
             </StackPanel>
         </ScrollViewer>
 
-        <!-- Loading Overlay - Consistent with Dashboard -->
+        <!-- Loading Overlay -->
         <Grid Grid.RowSpan="2" Background="#80000000" IsVisible="{Binding IsLoading}">
             <Border Background="White" CornerRadius="8" Padding="32" 
                     HorizontalAlignment="Center" VerticalAlignment="Center">

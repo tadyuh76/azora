@@ -1,5 +1,5 @@
 using Avalonia.Controls;
-using AvaloniaAzora.ViewModels.Admin;
+using Avalonia.Markup.Xaml;
 
 namespace AvaloniaAzora.Views.Admin
 {
@@ -7,8 +7,7 @@ namespace AvaloniaAzora.Views.Admin
     {
         public ClassEditWindow()
         {
-            InitializeComponent();
-            DataContext = new ClassEditViewModel();
+            AvaloniaXamlLoader.Load(this);
         }
     }
 }

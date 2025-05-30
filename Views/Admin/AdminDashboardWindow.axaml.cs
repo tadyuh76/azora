@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using AvaloniaAzora.ViewModels;
 using AvaloniaAzora.Views.Admin;
 using System;
+using Avalonia.Markup.Xaml;
 
 namespace AvaloniaAzora.Views
 {
@@ -9,7 +10,7 @@ namespace AvaloniaAzora.Views
     {
         public AdminDashboardWindow()
         {
-            InitializeComponent();
+            AvaloniaXamlLoader.Load(this);
         }
 
         public AdminDashboardWindow(Guid userId) : this()
@@ -56,14 +57,14 @@ namespace AvaloniaAzora.Views
 
         private void OnManageClassesRequested(object? sender, EventArgs e)
         {
-            var classroomManagementWindow = new ClassroomManagementWindow();
+            var classroomManagementWindow = new ClassManagementWindow();
             classroomManagementWindow.Show();
         }
 
         private void OnManageTestsRequested(object? sender, EventArgs e)
         {
-            var testManagementWindow = new TestManagementWindow();
-            testManagementWindow.Show();
+            var testManagementWindow = new TestManagementView();
+            testManagementWindow.ShowDialog(this);
         }
 
         private void OnManageQuestionsRequested(object? sender, EventArgs e)

@@ -4,7 +4,7 @@ using AvaloniaAzora.ViewModels.Admin;
 
 namespace AvaloniaAzora.Views.Admin
 {
-    public partial class TestManagementView : UserControl
+    public partial class TestManagementView : Window
     {
         public TestManagementView()
         {
